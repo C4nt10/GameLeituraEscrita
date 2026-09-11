@@ -16,7 +16,15 @@ Sem bloqueio de tela, sem contas — o objetivo é a criança **ler de fato**.
   Leitura · voz.
 - [`.specify/`](.specify/) + [`specs/001-mvp-desafios-leitura-matematica/`](specs/001-mvp-desafios-leitura-matematica/)
   — artefatos de spec-driven development ([spec-kit](https://github.com/github/spec-kit)):
-  `constitution.md`, `spec.md`, `plan.md`, `tasks.md`.
+  `constitution.md`, `spec.md`, `plan.md`, `tasks.md`, `data-model.md`,
+  `contracts/`.
+- [`conteudo/`](conteudo/) — rascunho v0 (não validado, A-06 aberta) do
+  banco de palavras e dos temas de matemática contextualizada.
+- [`design/prototipo.html`](design/prototipo.html) — protótipo clicável
+  das 8 telas do MVP, publicado como artifact:
+  https://claude.ai/code/artifact/8956db27-7461-4078-b1dc-dabf56ea2e3a —
+  referência visual para as tarefas de tela em `tasks.md` (T029-T032,
+  T040, T047-T048, T053, T062-T063).
 
 ## Planejamento
 
