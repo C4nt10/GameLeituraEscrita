@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tema-matematica.schema.json",
+  "title": "Tema de matemática contextualizada",
+  "description": "Vocabulário visual e frasal usado pelo problema_contextualizado (T028). Formato definido em doc/definições002.MD §3 e §11 (D-23, D-24, D-36).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["classificacao", "objeto", "variacoes_frase"],
+    "additionalProperties": false,
+    "properties": {
+      "classificacao": {
+        "type": "string",
+        "enum": ["animais", "comida", "casa", "corpo", "natureza", "acoes"],
+        "description": "Mesmo vocabulário de classificação do item de leitura (D-21) — reaproveita o tema já escolhido pelo adulto em US3."
+      },
+      "objeto": {
+        "type": "string",
+        "description": "Nome do asset visual desenhado na tela para representar a quantidade (D-24) — ex.: 'maca', 'passarinho'. Resolvido para um arquivo em app/lib/audio ou app/conteudo/objetos/ na implementação."
+      },
+      "variacoes_frase": {
+        "type": "object",
+        "required": ["soma", "subtracao"],
+        "additionalProperties": false,
+        "properties": {
+          "soma": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 2,
+            "maxItems": 3,
+            "description": "2-3 variações fixas, sorteio aleatório a cada desafio, sem variar por nível (D-36). Placeholders {x} e {y} substituídos pelos operandos. Ex.: '{x} {objeto}, e mais {y} {objeto}'."
+          },
+          "subtracao": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 2,
+            "maxItems": 3,
+            "description": "Mesma regra da soma. Ex.: 'tinha {x} {objeto}, {y} saíram'. Gerador (T027/T028) nunca produz x < y — resultado negativo é proibido (FR-009)."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "item-leitura.schema.json",
+  "title": "Item de leitura",
+  "description": "Uma entrada do banco de palavras (conteudo/leitura.json). Formato definido em doc/definições002.MD §6 e FR-010/FR-011/FR-011 do spec.md.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["palavra", "nivel"],
+    "additionalProperties": false,
+    "properties": {
+      "palavra": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Letra (nível 1), sílaba, palavra ou frase (nível 5), em português, minúsculo, sem acentuação removida."
+      },
+      "nivel": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "1 letras isoladas · 2 CV/dissílaba regular · 3 CVC/trissílaba · 4 dígrafos/encontros/palavras longas · 5 frases de 3-5 palavras (doc002 §6)"
+      },
+      "classificacoes": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["animais", "comida", "casa", "corpo", "natureza", "acoes"]
+        },
+        "minItems": 1,
+        "description": "Obrigatório quando nivel >= 2 (D-22). Ausente ou vazio quando nivel = 1 — letra isolada não tem tema."
+      },
+      "marcador_fonetico": {
+        "type": "string",
+        "enum": ["digrafo", "encontro_consonantal", "silaba_complexa"],
+        "description": "Opcional, só documental — não afeta mecânica no MVP (doc002 §6)."
+      }
+    },
+    "allOf": [
+      {
+        "if": { "properties": { "nivel": { "const": 1 } } },
+        "then": { "not": { "required": ["classificacoes"] } }
+      },
+      {
+        "if": { "properties": { "nivel": { "minimum": 2 } } },
+        "then": { "required": ["classificacoes"] }
+      }
+    ]
+  }
+}
