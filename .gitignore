@@ -1,0 +1,10 @@
+spike-stt/.venv/
+spike-stt/modelo-vosk-pt/
+spike-stt/ffmpeg-bin/
+spike-stt/audio/*.wav
+spike-stt/audio/*.m4a
+spike-stt/audio/*.mp3
+spike-stt/audio/*.ogg
+spike-stt/audio/*.16k.wav
+__pycache__/
+*.pyc

@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+"""Spike de viabilidade de STT offline — A-04/A-09 do GameLeituraEscrita.
+
+Roda cada arquivo em audio/ contra Vosk (modelo pequeno pt) e Whisper
+(tiny/base multilíngue) e compara com o nome esperado do arquivo.
+
+Uso:
+    python testar.py
+
+Convenção de nome de arquivo: <palavra_esperada>.wav (ou .m4a, .mp3 — o
+script converte). Ex.: audio/gato.wav, audio/m.wav (letra M).
+"""
+import json
+import sys
+import wave
+from pathlib import Path
+
+RAIZ = Path(__file__).parent
+PASTA_AUDIO = RAIZ / "audio"
+MODELO_VOSK = RAIZ / "modelo-vosk-pt"
+FFMPEG = RAIZ / "ffmpeg-bin" / "ffmpeg.exe"
+
+
+def converter_para_wav_16k_mono(caminho: Path) -> Path:
+    """Vosk exige WAV PCM 16kHz mono. Converte qualquer formato de entrada."""
+    if caminho.suffix.lower() == ".wav":
+        with wave.open(str(caminho), "rb") as w:
+            if w.getframerate() == 16000 and w.getnchannels() == 1 and w.getsampwidth() == 2:
+                return caminho
+    import subprocess
+    saida = caminho.with_suffix(".16k.wav")
+    subprocess.run(
+        [str(FFMPEG), "-y", "-i", str(caminho), "-ar", "16000", "-ac", "1", "-sample_fmt", "s16", str(saida)],
+        check=True, capture_output=True,
+    )
+    return saida
+
+
+def rodar_vosk(caminho_wav: Path) -> str:
+    from vosk import KaldiRecognizer, Model
+
+    model = rodar_vosk._modelo_cache
+    if model is None:
+        model = Model(str(MODELO_VOSK))
+        rodar_vosk._modelo_cache = model
+
+    with wave.open(str(caminho_wav), "rb") as wf:
+        rec = KaldiRecognizer(model, wf.getframerate())
+        rec.SetWords(True)
+        texto = []
+        while True:
+            data = wf.readframes(4000)
+            if len(data) == 0:
+                break
+            if rec.AcceptWaveform(data):
+                texto.append(json.loads(rec.Result()).get("text", ""))
+        texto.append(json.loads(rec.FinalResult()).get("text", ""))
+    return " ".join(t for t in texto if t).strip()
+
+
+rodar_vosk._modelo_cache = None
+
+
+def rodar_whisper(caminho_wav: Path, tamanho_modelo: str = "small") -> str:
+    from faster_whisper import WhisperModel
+
+    cache_attr = f"_modelo_cache_{tamanho_modelo}"
+    modelo = getattr(rodar_whisper, cache_attr, None)
+    if modelo is None:
+        modelo = WhisperModel(tamanho_modelo, device="cpu", compute_type="int8")
+        setattr(rodar_whisper, cache_attr, modelo)
+
+    segmentos, _info = modelo.transcribe(str(caminho_wav), language="pt", beam_size=5)
+    return " ".join(s.text for s in segmentos).strip()
+
+
+def normalizar(s: str) -> str:
+    import unicodedata
+    s = s.lower().strip()
+    s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
+    return s.strip(".,!?")
+
+
+def main():
+    arquivos = sorted(
+        p for p in PASTA_AUDIO.iterdir()
+        if p.suffix.lower() in (".wav", ".m4a", ".mp3", ".ogg") and ".16k" not in p.name
+    )
+    if not arquivos:
+        print(f"Nenhum audio encontrado em {PASTA_AUDIO}")
+        print("Grave e salve como <palavra_esperada>.wav (ex.: gato.wav, m.wav)")
+        sys.exit(1)
+
+    print(f"{'esperado':<15} {'vosk':<20} {'whisper (small)':<20} {'vosk ok?':<9} {'whisper ok?'}")
+    print("-" * 90)
+
+    acertos_vosk = acertos_whisper = 0
+    for arq in arquivos:
+        esperado = normalizar(arq.stem)
+        try:
+            wav = converter_para_wav_16k_mono(arq)
+        except FileNotFoundError:
+            print(f"{arq.name}: ffmpeg nao encontrado no PATH — instale pra converter audio nao-wav")
+            continue
+
+        texto_vosk = normalizar(rodar_vosk(wav))
+        texto_whisper = normalizar(rodar_whisper(wav))
+
+        ok_vosk = esperado in texto_vosk.split() or texto_vosk == esperado
+        ok_whisper = esperado in texto_whisper.split() or texto_whisper == esperado
+        acertos_vosk += ok_vosk
+        acertos_whisper += ok_whisper
+
+        print(f"{esperado:<15} {texto_vosk:<20} {texto_whisper:<20} {'sim' if ok_vosk else 'NAO':<9} {'sim' if ok_whisper else 'NAO'}")
+
+    total = len(arquivos)
+    print("-" * 90)
+    print(f"Vosk:    {acertos_vosk}/{total} ({100*acertos_vosk/total:.0f}%)")
+    print(f"Whisper: {acertos_whisper}/{total} ({100*acertos_whisper/total:.0f}%)")
+
+
+if __name__ == "__main__":
+    main()
