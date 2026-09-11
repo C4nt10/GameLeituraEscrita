@@ -1,0 +1,82 @@
+[
+  {
+    "classificacao": "animais",
+    "objeto": "passarinho",
+    "variacoes_frase": {
+      "soma": [
+        "{x} passarinhos, e mais {y} passarinhos",
+        "junte {x} passarinhos com {y} passarinhos",
+        "tinha {x} passarinhos, chegaram mais {y}"
+      ],
+      "subtracao": [
+        "tinha {x} passarinhos, {y} voaram",
+        "tinha {x} passarinhos, {y} foram embora",
+        "de {x} passarinhos, {y} saíram voando"
+      ]
+    }
+  },
+  {
+    "classificacao": "comida",
+    "objeto": "maçã",
+    "variacoes_frase": {
+      "soma": [
+        "{x} maçãs, e mais {y} maçãs",
+        "junte {x} maçãs com {y} maçãs",
+        "tinha {x} maçãs, ganhou mais {y}"
+      ],
+      "subtracao": [
+        "tinha {x} maçãs, comeu {y}",
+        "tinha {x} maçãs, {y} foram comidas",
+        "de {x} maçãs, {y} sumiram"
+      ]
+    }
+  },
+  {
+    "classificacao": "casa",
+    "objeto": "almofada",
+    "variacoes_frase": {
+      "soma": [
+        "{x} almofadas, e mais {y} almofadas",
+        "junte {x} almofadas com {y} almofadas",
+        "tinha {x} almofadas, ganhou mais {y}"
+      ],
+      "subtracao": [
+        "tinha {x} almofadas, {y} sumiram",
+        "tinha {x} almofadas, deu {y} de presente",
+        "de {x} almofadas, {y} foram guardadas"
+      ]
+    }
+  },
+  {
+    "classificacao": "corpo",
+    "objeto": "dedo",
+    "variacoes_frase": {
+      "soma": [
+        "{x} dedos, e mais {y} dedos",
+        "junte {x} dedos com {y} dedos",
+        "tinha {x} dedos pintados, e mais {y}"
+      ],
+      "subtracao": [
+        "tinha {x} dedos com anel, tirou {y}",
+        "de {x} dedos pintados, {y} ficaram sem esmalte",
+        "tinha {x} dedos sujos, lavou {y}"
+      ]
+    }
+  },
+  {
+    "classificacao": "natureza",
+    "objeto": "estrela",
+    "variacoes_frase": {
+      "soma": [
+        "{x} estrelas, e mais {y} estrelas",
+        "junte {x} estrelas com {y} estrelas",
+        "tinha {x} estrelas no céu, apareceram mais {y}"
+      ],
+      "subtracao": [
+        "tinha {x} estrelas, {y} se esconderam",
+        "de {x} estrelas, {y} sumiram atrás da nuvem",
+        "tinha {x} estrelas, {y} apagaram"
+      ]
+    }
+  }
+]
