@@ -214,9 +214,9 @@ ainda.
 | # | Questão | O que falta |
 |---|---|---|
 | **A-06** | Validação pedagógica das listas | Revisão de nível e classificação de cada palavra por alguém formado em alfabetização |
-| **A-07** | Conjunto e volume de classificações no lançamento | Confirmar as 6 propostas (animais, comida, casa, corpo, natureza, ações) e definir o mínimo de palavras por (nível × classificação) pra uma rodada de 8 não repetir |
+| ~~A-07~~ | ~~Conjunto e volume de classificações no lançamento~~ | **Fechada — ver §11** |
 | **A-08** | Traçado à mão | Fora do escopo inicial (montar é a escrita desta fase). Reavaliar depois da validação |
-| **A-09** | Variação da frase no problema de matemática | "3 e mais 2" / "3 mais 2" / "junte 3 com 2" — quantas formas, e se muda com o nível |
+| ~~A-09~~ | ~~Variação da frase no problema de matemática~~ | **Fechada — ver §11** |
 
 ---
 
@@ -292,3 +292,41 @@ As perguntas do 001 continuam. Somam-se:
 9. Fonema ou nome da letra — qual ela responde melhor? (calibra o padrão de D-26)
 10. Se houver duas crianças disponíveis: o adversarial motiva ou frustra quem
     tira menos? (informa a A-10 — se precisa travar por nível compatível)
+
+---
+
+## 11. Fecha A-07 e A-09
+
+### A-07 — conjunto e volume de classificações
+
+Decisão (D-34): **mantém as 6 classificações propostas** no §2 —
+animais, comida, casa, corpo, natureza, ações — como escopo do lançamento.
+Não há indício de que alguma sobre ou falte para o volume de conteúdo do
+MVP; revisar depois da validação com a criança (001 §10), não antes.
+
+Decisão (D-35): o mínimo de palavras por combinação nível × classificação é
+**12**, não 8 (o tamanho máximo de rodada). A folga de 4 palavras acima do
+maior tamanho de rodada existe para que a mesma combinação, jogada em dias
+diferentes, não sorteie sempre a mesma sequência de 8 — sem isso a "rodada
+de 8" vira decoreba de ordem fixa, o que contraria o princípio da métrica
+honesta (definições001 §7, princípio 7). Combinações abaixo de 12 palavras
+continuam bloqueadas pela regra já registrada no §2 ("a configuração só
+oferece combinações que têm conteúdo suficiente").
+
+### A-09 — variação da frase no problema contextualizado
+
+Decisão (D-36): **2 a 3 variações fixas por operação, sorteadas
+aleatoriamente a cada desafio** — ex. soma: "X e mais Y" / "junte X com Y";
+subtração: "tinha X, perdeu Y" / "X, e Y saíram". Não varia por nível no
+MVP: a complexidade da frase não é a habilidade sendo avaliada (o enunciado
+é sempre falado — §3), então crescer a frase com o nível adicionaria
+complexidade de conteúdo e de lógica sem medir nada a mais. Fica como
+possível evolução pós-validação, não como requisito do MVP.
+
+### Decisões registradas nesta rodada
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-34 | Mantém as 6 classificações propostas (animais, comida, casa, corpo, natureza, ações) | Fecha A-07 (parte 1); sem indício de ajuste necessário antes da validação |
+| D-35 | Mínimo de 12 palavras por nível × classificação (rodada máxima é 8) | Fecha A-07 (parte 2); folga evita repetir sempre a mesma sequência na mesma combinação |
+| D-36 | 2-3 variações de frase por operação no problema contextualizado, sorteio aleatório, sem variar por nível no MVP | Fecha A-09; evita decoreba de frase sem inflar o MVP com lógica por nível que a métrica não pede |

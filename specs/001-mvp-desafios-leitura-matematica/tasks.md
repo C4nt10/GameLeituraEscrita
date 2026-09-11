@@ -148,9 +148,10 @@ cada forma.
 - [ ] T027 [US2] Implementar `gerador_matematica` (conta pura, 5 níveis de
       operação) em `app/lib/servicos/gerador_matematica` (depende de T026)
 - [ ] T028 [US2] Implementar `problema_contextualizado` (enunciado por
-      tema/classificação, objetos visuais, fala automática) em
-      `app/lib/servicos/problema_contextualizado` (D-23, D-24; depende de
-      T008 para o tema)
+      tema/classificação, objetos visuais, fala automática, 2-3 variações
+      fixas por operação sorteadas aleatoriamente, sem variar por nível —
+      D-36) em `app/lib/servicos/problema_contextualizado` (D-23, D-24;
+      depende de T008 para o tema)
 - [ ] T029 [US2] Implementar tela de desafio de matemática (conta falada,
       botão de repetir, 4 alternativas) em `app/lib/telas/rodada/matematica`,
       reusando T022 para o resultado
@@ -267,9 +268,9 @@ testável.
 - [ ] T046 [P] Gravar e integrar os ~52 clipes de letras/fonemas (nome +
       som) em `app/lib/audio/` (D-27)
 - [ ] T047 Carregar e validar o banco de palavras inicial em
-      `app/conteudo/` contra as 6 classificações propostas (A-07 — animais,
-      comida, casa, corpo, natureza, ações), com volume mínimo por
-      nível×classificação para rodada de 8
+      `app/conteudo/` contra as 6 classificações confirmadas (D-34 —
+      animais, comida, casa, corpo, natureza, ações), com **mínimo de 12
+      palavras** por combinação nível×classificação exposta (D-35, FR-011)
 - [ ] T048 Sessão de observação com criança real seguindo `doc/
       definições001.MD` §10 + `doc/definições002.MD` §10 (perguntas 1-10),
       medindo SC-001 a SC-006 de `spec.md`

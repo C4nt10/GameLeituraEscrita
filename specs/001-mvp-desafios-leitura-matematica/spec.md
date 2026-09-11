@@ -237,15 +237,19 @@ combinado nos dois formatos (cooperativo e adversarial).
   modalidades diferentes (D-20).
 - **FR-008**: O sistema MUST oferecer matemática em duas formas — conta pura
   e problema contextualizado com objetos visuais e enunciado falado — e
-  MUST permitir ao adulto escolher qual (D-23, D-24).
+  MUST permitir ao adulto escolher qual (D-23, D-24). No problema
+  contextualizado, o enunciado MUST ser sorteado entre 2 a 3 variações
+  fixas por operação, sem variar por nível (D-36).
 - **FR-009**: O sistema MUST nunca gerar resultado negativo em desafios de
   subtração, puros ou contextualizados (doc001 §4, D-23).
 - **FR-010**: O sistema MUST organizar o conteúdo de leitura como grade
   nível (1–5) × classificação (tema), com classificação aplicável apenas a
   partir do nível 2 (D-21, D-22).
 - **FR-011**: O sistema MUST restringir, na configuração da rodada, as
-  combinações nível×classificação×tamanho às que têm palavras suficientes
-  para não repetir dentro da rodada (doc002 §2).
+  combinações nível×classificação×tamanho às que têm **no mínimo 12
+  palavras** cadastradas (doc002 §2, §11, D-35) — suficiente para não
+  repetir dentro de uma rodada de até 8 e para variar a sequência entre
+  rodadas na mesma combinação.
 - **FR-012**: O sistema MUST permitir iniciar uma rodada sem que nenhuma
   configuração tenha sido alterada (valores padrão válidos para todo campo)
   (Princípio VII).
@@ -332,17 +336,18 @@ combinado nos dois formatos (cooperativo e adversarial).
   o conteúdo inicial é responsabilidade do dono do projeto até validação
   externa (doc002 §6), o que é suficiente para implementar o MVP mas não
   para lançamento validado.
-- **A-07** (conjunto de classificações): assume-se o conjunto proposto no
-  doc002 §2 — animais, comida, casa, corpo, natureza, ações — como ponto de
-  partida implementável; volume mínimo por nível×classificação para uma
-  rodada de 8 não repetir fica como parâmetro de conteúdo, não de código
-  (a validar durante a carga do banco de palavras).
+- **A-07** (conjunto de classificações) — **fechada (doc002 §11, D-34/D-35)**:
+  conjunto de lançamento é animais, comida, casa, corpo, natureza, ações;
+  toda combinação nível×classificação exposta na configuração (FR-011)
+  precisa ter **no mínimo 12 palavras**, não 8 — folga sobre o maior
+  tamanho de rodada para não repetir sempre a mesma sequência.
 - **A-08** (traçado à mão) permanece fora do escopo desta spec — "montar" é
   a escrita desta fase (doc001, decisão já registrada).
-- **A-09** (variação da frase no problema contextualizado): assume-se ao
-  menos uma variação fixa por operação no MVP ("X e mais Y", "tinha X,
-  perdeu/ganhou Y"); múltiplas variações por nível ficam como melhoria
-  futura, não bloqueiam FR-008.
+- **A-09** (variação da frase no problema contextualizado) — **fechada
+  (doc002 §11, D-36)**: 2 a 3 variações fixas por operação, sorteadas
+  aleatoriamente a cada desafio, sem variar por nível no MVP — a
+  complexidade da frase não é a habilidade avaliada (o enunciado é sempre
+  falado, FR-008).
 - **A-10** (dupla entre níveis muito diferentes): o MVP MUST permitir a
   dupla mesmo com níveis historicamente diferentes (o adulto decide, ver
   doc002 §9); travar por compatibilidade de nível fica como possível
