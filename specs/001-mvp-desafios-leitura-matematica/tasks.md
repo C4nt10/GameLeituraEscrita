@@ -21,15 +21,15 @@ para entrega e teste independentes.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Decidir e registrar o framework (Dart/Flutter vs. alternativa)
-      em `specs/001-mvp-desafios-leitura-matematica/research.md`, resolvendo
-      o NEEDS CLARIFICATION de `plan.md` (Language/Version)
+- [x] T001 Decidir e registrar o framework — **Flutter (Dart)**, ver
+      [`research.md`](./research.md); `plan.md` atualizado, sem mais
+      NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
       gravados e registrar o resultado (Vosk vs. faster-whisper: acurácia e
       tamanho de modelo) em `research.md` — decide o motor de
       reconhecimento de fala de Leitura · voz
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
-      Structure (`app/lib/`, `app/conteudo/`, `app/tests/`)
+      Structure (`app/lib/`, `app/conteudo/`, `app/test/`)
 - [ ] T004 [P] Configurar lint/format do framework escolhido
 - [ ] T005 [P] Configurar runner de testes (unit/integration/contract) do
       framework escolhido
@@ -68,7 +68,7 @@ para entrega e teste independentes.
       nunca cruzando modalidades) em `app/lib/servicos/avaliacao` (D-06,
       D-20, FR-007) — **com testes unitários first** (T012a)
   - [ ] T012a [P] Teste unitário de cálculo de precisão/estrelas em
-        `app/tests/unit/avaliacao_test`
+        `app/test/unit/avaliacao_test`
 
 **Checkpoint**: fundação pronta — user stories podem começar.
 
@@ -85,16 +85,16 @@ modalidade, chegar à tela de estrelas.
 ### Tests for User Story 1 ⚠️
 
 - [ ] T013 [P] [US1] Teste unitário: geração de 4 alternativas de letra sem
-      repetição em `app/tests/unit/alternativas_letra_test`
+      repetição em `app/test/unit/alternativas_letra_test`
 - [ ] T014 [P] [US1] Teste unitário: tolerância fonética aceita variação de
       pronúncia e rejeita troca do som inicial (D-09) em
-      `app/tests/unit/tolerancia_fonetica_test`
+      `app/test/unit/tolerancia_fonetica_test`
 - [ ] T015 [P] [US1] Teste de integração: troca automática para Leitura ·
       montar após 2 falhas em Leitura · voz (D-10) em
-      `app/tests/integration/troca_modalidade_test`
+      `app/test/integration/troca_modalidade_test`
 - [ ] T016 [P] [US1] Teste de integração: contador de ajuda correto por
       modalidade (repetições/espiadas/tentativas) aparece no resultado
-      (D-19) em `app/tests/integration/contador_ajuda_test`
+      (D-19) em `app/test/integration/contador_ajuda_test`
 
 ### Implementation for User Story 1
 
@@ -135,10 +135,10 @@ cada forma.
 
 - [ ] T024 [P] [US2] Teste unitário: gerador de alternativas nunca produz
       negativo nem repetição, mantém proximidade (doc001 §4) em
-      `app/tests/unit/gerador_matematica_test`
+      `app/test/unit/gerador_matematica_test`
 - [ ] T025 [P] [US2] Teste unitário: problema contextualizado de subtração
       nunca gera resultado negativo (FR-009) em
-      `app/tests/unit/problema_contextualizado_test`
+      `app/test/unit/problema_contextualizado_test`
 
 ### Implementation for User Story 2
 
@@ -172,10 +172,10 @@ seguinte respeita as escolhas.
 
 - [ ] T030 [P] [US3] Teste de integração: combinação nível×classificação
       sem conteúdo suficiente não aparece selecionável (FR-011) em
-      `app/tests/integration/configuracao_conteudo_test`
+      `app/test/integration/configuracao_conteudo_test`
 - [ ] T031 [P] [US3] Teste de integração: iniciar sem alterar nada usa
       valores padrão válidos (FR-012) em
-      `app/tests/integration/configuracao_padrao_test`
+      `app/test/integration/configuracao_padrao_test`
 
 ### Implementation for User Story 3
 
@@ -207,7 +207,7 @@ os campos e o cálculo por perfil.
 
 - [ ] T036 [P] [US4] Teste unitário: resumo geral (total, precisão média,
       média de estrelas) calculado por perfil, sem cruzar modalidades
-      (US4 cenário 4) em `app/tests/unit/resumo_historico_test`
+      (US4 cenário 4) em `app/test/unit/resumo_historico_test`
 
 ### Implementation for User Story 4
 
@@ -234,10 +234,10 @@ ver os dois formatos de resultado combinado.
 
 - [ ] T039 [P] [US5] Teste de integração: rodada dupla incompleta (uma
       criança sai no meio) não entra no histórico comparativo (FR-018) em
-      `app/tests/integration/dupla_incompleta_test`
+      `app/test/integration/dupla_incompleta_test`
 - [ ] T040 [P] [US5] Teste de integração: config idêntica é aplicada às
       duas rodadas da dupla (D-33) em
-      `app/tests/integration/dupla_config_identica_test`
+      `app/test/integration/dupla_config_identica_test`
 
 ### Implementation for User Story 5
 

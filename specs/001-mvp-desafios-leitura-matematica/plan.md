@@ -16,29 +16,30 @@ pacote — nenhuma dependência de backend para o MVP.
 
 ## Technical Context
 
-**Language/Version**: NEEDS CLARIFICATION — depende do framework escolhido
-abaixo. Recomendação a confirmar: Dart (Flutter) por multiplataforma real
-(Android/iOS/desktop) com um único codebase e boas libs de TTS/áudio local.
+**Language/Version**: Dart, Flutter canal stable (T001, decidido — ver
+[research.md](./research.md); versão exata pinada no T003).
 
-**Primary Dependencies**:
-- Síntese de voz: TTS nativo da plataforma (D-27 exige apenas "voz do
-  aparelho", já valida esta escolha).
-- Reconhecimento de fala (Leitura · voz): motor offline embutido —
-  candidato Vosk (modelo pt pequeno), **pendente de confirmação pelo spike
-  em `spike-stt/`** comparando Vosk vs. faster-whisper em precisão e
-  tamanho do modelo embarcado. faster-whisper "small" é ~500MB+, pesado
-  para embutir num app mobile; Vosk pt pequeno é ~40MB — favorito por
-  tamanho, mas a decisão final depende da acurácia medida no spike.
-- Persistência local: NEEDS CLARIFICATION — candidato: banco embutido
-  (SQLite ou equivalente) para histórico + banco de palavras.
+**Primary Dependencies** (decidido — ver research.md):
+- Síntese de voz: `flutter_tts` (TTS nativo da plataforma — D-27 exige
+  apenas "voz do aparelho", já valida esta escolha).
+- Reconhecimento de fala (Leitura · voz): `vosk_flutter` — **motor final
+  ainda pendente de confirmação pelo spike em `spike-stt/`** (T002)
+  comparando Vosk vs. faster-whisper em precisão. Vosk é o favorito também
+  por integração: tem binding Flutter pronto, faster-whisper não (exigiria
+  whisper.cpp + ponte FFI própria — ver research.md).
+- Reprodução dos clipes gravados de letra/fonema: `audioplayers`.
+- Persistência dinâmica local: `sqflite` (histórico, perfis, configuração).
+- Banco de palavras/classificações: assets JSON estáticos em
+  `app/conteudo/`, carregados em memória (não precisa de SQL).
 
 **Storage**: local, embutido no dispositivo (histórico de até 50 rodadas
-por perfil + banco de palavras/classificações + áudio gravado de letras/
-fonemas ~52 clipes). Sem servidor, sem sincronização (FR-019, Princípio V).
+por perfil via `sqflite` + banco de palavras/classificações via JSON +
+áudio gravado de letras/fonemas ~52 clipes como asset). Sem servidor, sem
+sincronização (FR-019, Princípio V).
 
-**Testing**: NEEDS CLARIFICATION — depende do framework (ex.: `flutter
-test` + testes de integração de fluxo de rodada). Deve cobrir, no mínimo,
-os cenários de aceitação de cada user story do spec.md (cálculo de
+**Testing**: `flutter_test` (unit/widget) + `integration_test` (fluxo
+completo de rodada por modalidade, fluxo de dupla). Deve cobrir, no
+mínimo, os cenários de aceitação de cada user story do spec.md (cálculo de
 precisão/estrelas, geração de alternativas sem repetição/negativo, troca
 automática de modalidade após 2 falhas, exclusão de rodada dupla incompleta
 do histórico).
@@ -102,25 +103,28 @@ specs/001-mvp-desafios-leitura-matematica/
 ### Source Code (repository root)
 
 ```text
-app/
-├── lib/                    # (ou src/, conforme framework escolhido na Fase 0)
-│   ├── modelos/            # Perfil, Rodada, DesafioLeitura, DesafioMatematica, RegistroHistorico
-│   ├── servicos/           # avaliacao_leitura (STT + tolerância fonética), gerador_matematica,
-│   │                       # banco_de_conteudo (grade nível×classificação), tts, historico
-│   ├── telas/               # configuracao, rodada, resultado, historico, escolha_de_voz, dupla
-│   └── audio/               # clipes gravados de letras/fonemas (D-27)
-├── conteudo/                 # banco de palavras por nível×classificação (dados, não código)
-└── tests/
-    ├── unit/                # regras puras: cálculo de precisão/estrelas, geração de alternativas,
-    │                        # tolerância fonética, seleção de combinação nível×classificação
-    ├── integration/         # fluxo completo de rodada por modalidade, fluxo de dupla
-    └── contract/             # formato do item de conteúdo (palavra · nível · classificação · marcador)
+app/                          # projeto Flutter (pubspec.yaml na raiz deste diretório)
+├── lib/
+│   ├── modelos/             # Perfil, Rodada, DesafioLeitura, DesafioMatematica, RegistroHistorico
+│   ├── servicos/            # avaliacao_leitura (vosk_flutter + tolerância fonética), gerador_matematica,
+│   │                        # problema_contextualizado, banco_de_conteudo (grade nível×classificação),
+│   │                        # tts (flutter_tts), historico (sqflite), configuracao
+│   ├── telas/                # configuracao, rodada (ditado/leitura_montar/leitura_voz/matematica),
+│   │                        # resultado, resultado_dupla, historico, escolha_de_voz, selecao_perfil, dupla
+│   └── audio/                # clipes gravados de letras/fonemas, empacotados como asset (D-27)
+├── conteudo/                  # banco de palavras por nível×classificação — asset JSON, dado não código
+└── test/                      # convenção Flutter (não "tests/")
+    ├── unit/                 # regras puras: cálculo de precisão/estrelas, geração de alternativas,
+    │                         # tolerância fonética, seleção de combinação nível×classificação
+    ├── integration/          # pacote integration_test: fluxo completo de rodada por modalidade, dupla
+    └── contract/              # formato do item de conteúdo (palavra · nível · classificação · marcador)
 ```
 
-**Structure Decision**: projeto único (mobile-app), sem separação
-frontend/backend — não há backend no MVP. `conteudo/` fica separado de
-`lib/` porque é dado versionado (banco de palavras), não lógica, e será a
-peça mais frequentemente revisada por alguém sem formação técnica (A-06).
+**Structure Decision**: projeto único Flutter (mobile-app), sem separação
+frontend/backend — não há backend no MVP (T001, research.md). `conteudo/`
+fica separado de `lib/` porque é dado versionado (banco de palavras), não
+lógica, e será a peça mais frequentemente revisada por alguém sem formação
+técnica (A-06).
 
 ## Complexity Tracking
 
