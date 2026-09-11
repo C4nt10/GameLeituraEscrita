@@ -1,0 +1,806 @@
+<title>GameLeituraEscrita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@600;700&family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+  /* ---------- tokens (mundo único, deliberado: lousa de sala de aula) ---------- */
+  :root{
+    --lousa:            #1C2E27;
+    --lousa-fenda:      #16241F;
+    --giz:              #F4EFE1;
+    --giz-fraco:        #C9D6C9;
+    --giz-amarelo:      #F2C94C;
+
+    --papel:            #FFFBF2;
+    --papel-alt:        #F5EAD3;
+    --tinta:            #3A2E22;
+    --tinta-fraca:      #8A7B67;
+    --linha:            #E6D9BC;
+
+    --bloco-vermelho:   #E85D42;
+    --bloco-vermelho-t: #FDECE7;
+    --bloco-azul:       #3E7CB1;
+    --bloco-azul-t:     #E7F1F8;
+    --bloco-amarelo:    #F2B705;
+    --bloco-amarelo-t:  #FEF6DC;
+    --bloco-verde:      #4C9A5B;
+    --bloco-verde-t:    #E9F5EB;
+    --bloco-coral:      #F08A6C;
+    --bloco-coral-t:    #FDECE4;
+
+    --cat-animais:      #4C9A5B;
+    --cat-comida:       #E08A2B;
+    --cat-casa:         #3E7CB1;
+    --cat-corpo:        #D66B94;
+    --cat-natureza:     #2F9E92;
+    --cat-acoes:        #8B6BB5;
+
+    --sombra: 0 18px 40px -20px rgba(20,30,20,.55);
+    --sombra-blk: 0 8px 0 rgba(0,0,0,.18);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(244,239,225,.05) 0, transparent 3%),
+      radial-gradient(circle at 78% 32%, rgba(244,239,225,.04) 0, transparent 2.4%),
+      radial-gradient(circle at 34% 68%, rgba(244,239,225,.05) 0, transparent 2.8%),
+      radial-gradient(circle at 62% 82%, rgba(244,239,225,.04) 0, transparent 2.2%),
+      radial-gradient(circle at 90% 8%, rgba(244,239,225,.05) 0, transparent 2%),
+      linear-gradient(180deg, var(--lousa) 0%, var(--lousa-fenda) 100%);
+    color: var(--giz);
+    font-family: "Figtree", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,h2,h3{ text-wrap: balance; margin: 0; }
+
+  /* ---------- showcase header ---------- */
+  .showcase-topo{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 24px 8px;
+    text-align: center;
+  }
+  .kicker{
+    font-family:"Caveat", cursive;
+    font-size: 1.7rem;
+    color: var(--giz-amarelo);
+    transform: rotate(-2deg);
+    display:inline-block;
+    margin-bottom: 4px;
+  }
+  .titulo-principal{
+    font-family:"Baloo 2", "Figtree", sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: -0.01em;
+  }
+  .subtitulo{
+    max-width: 46ch;
+    margin: 14px auto 0;
+    color: var(--giz-fraco);
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+  .subtitulo strong{ color: var(--giz); font-weight:700; }
+
+  /* ---------- layout do palco ---------- */
+  .palco{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  /* ---------- aparelho ---------- */
+  .aparelho{
+    width: min(360px, 88vw);
+    border-radius: 42px;
+    padding: 16px 14px 26px;
+    background: linear-gradient(160deg, #4C86B8, #35648C);
+    box-shadow: var(--sombra), inset 0 2px 0 rgba(255,255,255,.25);
+    position: relative;
+  }
+  .aparelho::before{ /* camera */
+    content:"";
+    position:absolute; top:8px; left:50%; transform:translateX(-50%);
+    width:8px; height:8px; border-radius:50%;
+    background: rgba(0,0,0,.35);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.12);
+  }
+  .aparelho::after{ /* home indicator */
+    content:"";
+    position:absolute; bottom:9px; left:50%; transform:translateX(-50%);
+    width:56px; height:6px; border-radius:4px;
+    background: rgba(255,255,255,.4);
+  }
+  .tela-viewport{
+    background: var(--papel);
+    border-radius: 26px;
+    overflow: hidden;
+    height: 620px;
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
+  }
+  .tela{
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column;
+    opacity:0;
+    transform: translateY(6px) scale(.99);
+  }
+  .tela.ativa{
+    display:flex;
+    opacity:1;
+    transform:none;
+    transition: opacity .32s ease, transform .32s ease;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .tela{ transition:none !important; transform:none !important; }
+  }
+
+  .tela-corpo{
+    flex:1;
+    overflow-y:auto;
+    padding: 20px 18px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .tela-corpo::-webkit-scrollbar{ width:6px; }
+  .tela-corpo::-webkit-scrollbar-thumb{ background: var(--linha); border-radius:4px; }
+
+  .tela-titulo{
+    font-family:"Baloo 2", sans-serif;
+    font-weight:700;
+    font-size:1.5rem;
+    color: var(--tinta);
+  }
+  .tela-legenda{
+    font-size:.85rem;
+    color: var(--tinta-fraca);
+    line-height:1.45;
+    margin-top:-8px;
+  }
+
+  /* ---------- componentes reutilizados dentro do app ---------- */
+  .grupo{ display:flex; flex-direction:column; gap:8px; }
+  .rotulo{
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color: var(--tinta-fraca);
+  }
+  .linha-fina{ height:1px; background:var(--linha); border:0; margin:2px 0; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-family:"Figtree",sans-serif;
+    font-size:.82rem;
+    font-weight:600;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--linha);
+    background: var(--papel);
+    color: var(--tinta);
+    cursor:pointer;
+  }
+  .chip.selo{ border-color: transparent; color:#fff; }
+  .chip[data-cat="animais"]{ background:var(--cat-animais); }
+  .chip[data-cat="comida"]{ background:var(--cat-comida); }
+  .chip[data-cat="casa"]{ background:var(--cat-casa); }
+  .chip[data-cat="corpo"]{ background:var(--cat-corpo); }
+  .chip[data-cat="natureza"]{ background:var(--cat-natureza); }
+  .chip[data-cat="acoes"]{ background:var(--cat-acoes); }
+  .chip.ativo{ background:var(--bloco-azul); color:#fff; border-color:var(--bloco-azul); }
+  .chip.todas{ background:var(--tinta); color:#fff; border-color:var(--tinta); }
+
+  .niveis{ display:flex; gap:8px; }
+  .nivel-bola{
+    width:38px; height:38px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2",sans-serif; font-weight:700; font-size:1rem;
+    background:var(--papel-alt); color:var(--tinta-fraca);
+  }
+  .nivel-bola.atual{ background:var(--bloco-vermelho); color:#fff; box-shadow: var(--sombra-blk); }
+
+  .linha-config{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:12px 14px; border-radius:14px; background:var(--papel-alt);
+  }
+  .linha-config .txt{ font-weight:700; font-size:.92rem; color:var(--tinta); }
+  .linha-config .sub{ font-size:.78rem; color:var(--tinta-fraca); }
+
+  .botao{
+    font-family:"Baloo 2",sans-serif;
+    font-weight:700; font-size:1.05rem;
+    border:none; border-radius:16px;
+    padding:15px 18px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    cursor:pointer;
+    box-shadow: var(--sombra-blk);
+  }
+  .botao:active{ transform:translateY(2px); box-shadow:0 4px 0 rgba(0,0,0,.18); }
+  .botao.primario{ background:var(--bloco-vermelho); color:#fff; }
+  .botao.azul{ background:var(--bloco-azul); color:#fff; }
+  .botao.amarelo{ background:var(--bloco-amarelo); color:#3A2E00; }
+  .botao.verde{ background:var(--bloco-verde); color:#fff; }
+  .botao.fantasma{ background:var(--papel-alt); color:var(--tinta); box-shadow:none; }
+  .botao:focus-visible{ outline:3px solid var(--bloco-azul); outline-offset:2px; }
+
+  .icone-grande{
+    width:120px; height:120px; border-radius:34px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:3rem;
+    margin:6px auto;
+    box-shadow: var(--sombra-blk);
+  }
+  .icone-grande.pulsa{ animation: respirar 2.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .icone-grande.pulsa{ animation:none; } }
+  @keyframes respirar{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.06);} }
+
+  .palavra-alvo{
+    text-align:center;
+    font-family:"Baloo 2",sans-serif;
+    font-weight:800;
+    font-size:2.4rem;
+    letter-spacing:.02em;
+    color:var(--tinta);
+  }
+  .palavra-oculta{
+    text-align:center;
+    font-family:"Baloo 2",sans-serif;
+    font-weight:800;
+    font-size:2.4rem;
+    letter-spacing:.3em;
+    color: var(--linha);
+  }
+
+  .ladrilhos{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+  .ladrilho{
+    width:44px; height:48px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.25rem;
+    color:#fff; box-shadow: var(--sombra-blk);
+  }
+  .ladrilho:nth-child(4n+1){ background:var(--bloco-vermelho); }
+  .ladrilho:nth-child(4n+2){ background:var(--bloco-azul); }
+  .ladrilho:nth-child(4n+3){ background:var(--bloco-amarelo); color:#3A2E00; }
+  .ladrilho:nth-child(4n+4){ background:var(--bloco-verde); }
+
+  .vagas{ display:flex; justify-content:center; gap:8px; }
+  .vaga{
+    width:44px; height:48px; border-radius:10px;
+    border:2.5px dashed var(--linha);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.25rem;
+    color:var(--tinta-fraca);
+  }
+  .vaga.cheia{ border-style:solid; border-color:var(--bloco-verde); color:var(--bloco-verde); }
+
+  .pill-metrica{
+    align-self:flex-end;
+    font-size:.78rem; font-weight:700;
+    padding:6px 11px; border-radius:999px;
+    background: var(--papel-alt); color:var(--tinta-fraca);
+    display:flex; align-items:center; gap:5px;
+  }
+
+  .balao-entendi{
+    background: var(--bloco-verde-t); border:2px solid var(--bloco-verde);
+    color:#265C33; border-radius:14px; padding:12px 14px;
+    font-weight:700; text-align:center;
+  }
+
+  .objetos-conta{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    font-size:1.9rem; flex-wrap:wrap;
+  }
+  .objetos-conta .op{ font-family:"Baloo 2",sans-serif; font-size:1.6rem; color:var(--tinta-fraca); }
+  .enunciado-falado{
+    display:flex; align-items:center; gap:10px; justify-content:center;
+    background:var(--bloco-azul-t); color:#1F4C6B; border-radius:14px; padding:12px 14px;
+    font-weight:700; text-align:center; font-size:.95rem;
+  }
+  .grade-alt{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .alt-num{
+    font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.6rem;
+    background:var(--papel-alt); border-radius:14px; padding:16px 0; text-align:center;
+    color:var(--tinta); box-shadow: var(--sombra-blk);
+  }
+  .alt-num.correta{ background:var(--bloco-verde); color:#fff; }
+
+  .estrelas{ text-align:center; font-size:2.2rem; letter-spacing:.12em; color:var(--linha); }
+  .estrelas .cheia{ color:var(--bloco-amarelo); }
+  .estrelas .meia{ color:var(--bloco-amarelo); opacity:.55; }
+
+  .stats-grade{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .stat{
+    background:var(--papel-alt); border-radius:14px; padding:12px 8px; text-align:center;
+  }
+  .stat b{ display:block; font-family:"Baloo 2",sans-serif; font-size:1.3rem; color:var(--tinta);
+    font-variant-numeric: tabular-nums; }
+  .stat span{ font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--tinta-fraca); }
+
+  .chip-honestidade{
+    display:flex; align-items:center; gap:8px; justify-content:center;
+    background:var(--bloco-amarelo-t); border:2px solid var(--bloco-amarelo);
+    color:#6B4E00; font-weight:700; font-size:.85rem;
+    border-radius:12px; padding:10px 12px;
+  }
+
+  .msg-resultado{ text-align:center; font-weight:600; color:var(--tinta); font-size:.95rem; }
+
+  .historico-resumo{
+    background:var(--papel-alt); border-radius:14px; padding:12px 14px;
+    display:flex; justify-content:space-between; font-size:.8rem; color:var(--tinta-fraca); font-weight:700;
+  }
+  .historico-resumo b{ color:var(--tinta); font-variant-numeric:tabular-nums; }
+  .linha-hist{
+    display:flex; align-items:center; gap:10px;
+    padding:11px 4px; border-bottom:1px solid var(--linha);
+  }
+  .linha-hist:last-child{ border-bottom:none; }
+  .data-chip{
+    font-size:.68rem; font-weight:700; color:var(--tinta-fraca);
+    width:48px; flex:0 0 auto;
+  }
+  .tag-modalidade{
+    font-size:.68rem; font-weight:700; color:#fff; padding:3px 8px; border-radius:999px;
+    flex:0 0 auto;
+  }
+  .linha-hist .estrelas-mini{ font-size:.85rem; color:var(--bloco-amarelo); flex:1; text-align:right; }
+  .linha-hist .prec{ font-size:.75rem; color:var(--tinta-fraca); width:38px; text-align:right;
+    font-variant-numeric:tabular-nums; }
+  .linha-hist .esp{ font-size:.7rem; color:var(--tinta-fraca); width:34px; text-align:right; }
+
+  .perfil-bolha{
+    width:64px; height:64px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.5rem; color:#fff;
+    margin:0 auto 10px; box-shadow: var(--sombra-blk);
+  }
+  .aviso-passar{ text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center;
+    margin:auto 0; }
+  .aviso-passar .mao{ font-size:2.6rem; }
+
+  .duas-colunas{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .coluna-perfil{ background:var(--papel-alt); border-radius:14px; padding:14px 10px; text-align:center; }
+  .coluna-perfil .nome{ font-weight:700; font-size:.85rem; color:var(--tinta); margin-top:4px; }
+  .coluna-perfil .estrelas{ font-size:1.2rem; margin:4px 0; }
+  .coluna-perfil .n{ font-size:.72rem; color:var(--tinta-fraca); font-variant-numeric:tabular-nums; }
+
+  .toggle-formato{ display:flex; gap:8px; }
+  .toggle-formato .op{
+    flex:1; text-align:center; padding:9px 6px; border-radius:10px;
+    font-size:.78rem; font-weight:700; background:var(--papel-alt); color:var(--tinta-fraca); cursor:pointer;
+  }
+  .toggle-formato .op.ativo{ background:var(--tinta); color:#fff; }
+
+  .banner-coop{
+    background:var(--bloco-verde-t); border:2px solid var(--bloco-verde); color:#265C33;
+    border-radius:12px; padding:10px 12px; text-align:center; font-weight:700; font-size:.85rem;
+  }
+  .banner-adv{
+    background:var(--bloco-coral-t); border:2px solid var(--bloco-coral); color:#8A3F27;
+    border-radius:12px; padding:10px 12px; text-align:center; font-weight:700; font-size:.85rem;
+  }
+  [hidden]{ display:none !important; }
+
+  /* ---------- blocos de navegação (alfabeto) ---------- */
+  .prateleira{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:10px;
+    max-width: 640px;
+  }
+  .bloco-nav{
+    width:74px;
+    border:none; border-radius:14px; cursor:pointer;
+    padding:10px 6px 8px;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    color:#fff;
+    box-shadow: 0 6px 0 rgba(0,0,0,.22);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .bloco-nav:hover{ transform: translateY(-3px) rotate(-1deg); }
+  .bloco-nav:active{ transform: translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.22); }
+  .bloco-nav:focus-visible{ outline:3px solid var(--giz); outline-offset:3px; }
+  .bloco-nav .letra{ font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.5rem; line-height:1; }
+  .bloco-nav .rot{ font-family:"Figtree",sans-serif; font-size:.62rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.03em; text-align:center; opacity:.92; }
+  .bloco-nav.ativo{ box-shadow:0 2px 0 rgba(0,0,0,.22), 0 0 0 3px var(--giz); transform:translateY(3px); }
+
+  .bloco-nav[data-alvo="config"]{ background:var(--bloco-azul); }
+  .bloco-nav[data-alvo="ditado"]{ background:var(--bloco-vermelho); }
+  .bloco-nav[data-alvo="montar"]{ background:var(--bloco-amarelo); color:#3A2E00; }
+  .bloco-nav[data-alvo="voz"]{ background:var(--cat-natureza); }
+  .bloco-nav[data-alvo="mate"]{ background:var(--cat-acoes); }
+  .bloco-nav[data-alvo="resultado"]{ background:var(--bloco-verde); }
+  .bloco-nav[data-alvo="historico"]{ background:var(--cat-corpo); }
+  .bloco-nav[data-alvo="dupla"]{ background:var(--cat-comida); }
+
+  /* ---------- nota da direção ---------- */
+  .nota{
+    max-width: 480px;
+    text-align:center;
+    font-family:"Caveat", cursive;
+    font-size:1.45rem;
+    color: var(--giz-amarelo);
+    line-height:1.35;
+    min-height: 2.6em;
+  }
+
+  .rodape{
+    max-width:640px; margin:8px auto 0; text-align:center;
+    font-size:.76rem; color: var(--giz-fraco); opacity:.75; line-height:1.6;
+  }
+  .rodape code{ background:rgba(244,239,225,.1); padding:1px 6px; border-radius:5px; }
+</style>
+
+<div class="showcase-topo">
+  <span class="kicker">protótipo clicável · v0</span>
+  <h1 class="titulo-principal">GameLeituraEscrita</h1>
+  <p class="subtitulo">Oito telas do MVP, navegáveis como os blocos de alfabeto que
+    a criança usa pra montar palavra. <strong>Nenhuma tela entrega a resposta</strong>
+    — toque nos blocos abaixo pra percorrer o fluxo.</p>
+</div>
+
+<div class="palco">
+
+  <div class="aparelho">
+    <div class="tela-viewport">
+
+      <!-- TELA 1 — CONFIGURAR -->
+      <section class="tela ativa" id="tela-config">
+        <div class="tela-corpo">
+          <h2 class="tela-titulo">Vamos jogar!</h2>
+          <p class="tela-legenda">Tudo já vem com um valor padrão — dá pra tocar em
+            Começar sem mexer em nada.</p>
+
+          <div class="grupo">
+            <span class="rotulo">Tipo</span>
+            <div class="chips">
+              <span class="chip ativo">Leitura</span>
+              <span class="chip">Matemática</span>
+              <span class="chip">Misto</span>
+            </div>
+          </div>
+
+          <div class="grupo">
+            <span class="rotulo">Modalidade de leitura</span>
+            <div class="chips">
+              <span class="chip">Ditado</span>
+              <span class="chip ativo">Leitura · montar</span>
+              <span class="chip">Leitura · voz</span>
+            </div>
+          </div>
+
+          <div class="grupo">
+            <span class="rotulo">Nível</span>
+            <div class="niveis">
+              <div class="nivel-bola">1</div>
+              <div class="nivel-bola">2</div>
+              <div class="nivel-bola atual">3</div>
+              <div class="nivel-bola">4</div>
+              <div class="nivel-bola">5</div>
+            </div>
+          </div>
+
+          <div class="grupo">
+            <span class="rotulo">Classificação</span>
+            <div class="chips">
+              <span class="chip todas">Todas</span>
+              <span class="chip selo" data-cat="animais">Animais</span>
+              <span class="chip selo" data-cat="comida">Comida</span>
+              <span class="chip selo" data-cat="casa">Casa</span>
+              <span class="chip selo" data-cat="corpo">Corpo</span>
+              <span class="chip selo" data-cat="natureza">Natureza</span>
+              <span class="chip selo" data-cat="acoes">Ações</span>
+            </div>
+          </div>
+
+          <div class="grupo">
+            <span class="rotulo">Tamanho da rodada</span>
+            <div class="chips">
+              <span class="chip">3</span>
+              <span class="chip ativo">5</span>
+              <span class="chip">8</span>
+            </div>
+          </div>
+
+          <hr class="linha-fina" />
+
+          <div class="linha-config">
+            <div>
+              <div class="txt">🔊 Voz do aparelho</div>
+              <div class="sub">Luciana (Google) — testada</div>
+            </div>
+            <button class="botao fantasma" style="padding:9px 12px;">Trocar</button>
+          </div>
+
+          <div class="linha-config">
+            <div>
+              <div class="txt">👥 Sozinho ou dupla?</div>
+              <div class="sub">Sozinho</div>
+            </div>
+            <button class="botao fantasma" style="padding:9px 12px;">Dupla</button>
+          </div>
+        </div>
+        <div style="padding:14px 18px 18px;">
+          <button class="botao primario" style="width:100%;">▶️ Começar</button>
+        </div>
+      </section>
+
+      <!-- TELA 2 — DITADO -->
+      <section class="tela" id="tela-ditado">
+        <div class="tela-corpo" style="justify-content:center; flex:1;">
+          <div class="pill-metrica">🔁 repetições: 2</div>
+          <div class="icone-grande pulsa" style="background:var(--bloco-vermelho); color:#fff; margin-top:8px;">🔊</div>
+          <p style="text-align:center; font-weight:700; color:var(--tinta-fraca); font-size:.85rem; margin:-6px 0 0;">
+            toque pra ouvir de novo
+          </p>
+
+          <div class="vagas" style="margin-top:18px;">
+            <div class="vaga cheia">G</div>
+            <div class="vaga">?</div>
+            <div class="vaga">?</div>
+            <div class="vaga">?</div>
+          </div>
+
+          <div class="ladrilhos" style="margin-top:10px;">
+            <div class="ladrilho">T</div>
+            <div class="ladrilho">O</div>
+            <div class="ladrilho">A</div>
+          </div>
+        </div>
+        <p class="tela-legenda" style="text-align:center; padding:0 18px 18px;">
+          a palavra nunca aparece escrita — só o som é a pista
+        </p>
+      </section>
+
+      <!-- TELA 3 — LEITURA MONTAR -->
+      <section class="tela" id="tela-montar">
+        <div class="tela-corpo" style="justify-content:center; flex:1;">
+          <div class="pill-metrica">👀 espiadas: 1</div>
+          <div class="palavra-oculta">GATO</div>
+          <button class="botao fantasma" style="align-self:center; margin-top:-6px;">👁️ ver de novo</button>
+
+          <div class="vagas" style="margin-top:14px;">
+            <div class="vaga cheia">G</div>
+            <div class="vaga cheia">A</div>
+            <div class="vaga">?</div>
+            <div class="vaga">?</div>
+          </div>
+          <div class="ladrilhos">
+            <div class="ladrilho">O</div>
+            <div class="ladrilho">T</div>
+          </div>
+        </div>
+        <p class="tela-legenda" style="text-align:center; padding:0 18px 18px;">
+          a palavra apareceu e sumiu sozinha — sem som nenhum
+        </p>
+      </section>
+
+      <!-- TELA 4 — LEITURA VOZ -->
+      <section class="tela" id="tela-voz">
+        <div class="tela-corpo" style="justify-content:center; flex:1;">
+          <div class="pill-metrica">🔁 tentativas: 1</div>
+          <div class="palavra-alvo">gato</div>
+          <div class="icone-grande pulsa" style="background:var(--cat-natureza); color:#fff;">🎤</div>
+          <p style="text-align:center; font-weight:700; color:var(--tinta-fraca); font-size:.85rem; margin-top:-4px;">
+            toque e leia em voz alta
+          </p>
+          <div class="balao-entendi">eu entendi: "gato" ✅</div>
+        </div>
+        <p class="tela-legenda" style="text-align:center; padding:0 18px 18px;">
+          o app fica calado — quem lê é a criança
+        </p>
+      </section>
+
+      <!-- TELA 5 — MATEMÁTICA -->
+      <section class="tela" id="tela-mate">
+        <div class="tela-corpo" style="justify-content:center; flex:1;">
+          <div class="enunciado-falado">🔊 3 passarinhos, e mais 2 passarinhos</div>
+          <div class="objetos-conta">
+            <span>🐦🐦🐦</span><span class="op">+</span><span>🐦🐦</span>
+          </div>
+          <div class="grade-alt" style="margin-top:6px;">
+            <div class="alt-num">4</div>
+            <div class="alt-num correta">5</div>
+            <div class="alt-num">6</div>
+            <div class="alt-num">7</div>
+          </div>
+        </div>
+        <p class="tela-legenda" style="text-align:center; padding:0 18px 18px;">
+          a criança não precisa ler nada — o objeto visual carrega a quantidade
+        </p>
+      </section>
+
+      <!-- TELA 6 — RESULTADO -->
+      <section class="tela" id="tela-resultado">
+        <div class="tela-corpo" style="justify-content:center; flex:1;">
+          <div class="estrelas"><span class="cheia">★★★★</span><span class="meia">★</span></div>
+          <div class="stats-grade">
+            <div class="stat"><b>7</b><span>acertos</span></div>
+            <div class="stat"><b>1</b><span>erros</span></div>
+            <div class="stat"><b>88%</b><span>precisão</span></div>
+          </div>
+          <div class="chip-honestidade">👀 espiadas nesta rodada: 2</div>
+          <p class="msg-resultado">Muito bem! Quer jogar de novo?</p>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="botao primario">🔁 Jogar de novo</button>
+            <button class="botao fantasma">⬆️ Subir de nível</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TELA 7 — HISTÓRICO -->
+      <section class="tela" id="tela-historico">
+        <div class="tela-corpo">
+          <h2 class="tela-titulo">Histórico</h2>
+          <div class="historico-resumo">
+            <span>12 rodadas</span><span>precisão média <b>82%</b></span><span>média <b>4.1★</b></span>
+          </div>
+          <div>
+            <div class="linha-hist">
+              <span class="data-chip">hoje</span>
+              <span class="tag-modalidade" style="background:var(--bloco-amarelo); color:#3A2E00;">montar · n3</span>
+              <span class="estrelas-mini">★★★★☆</span>
+              <span class="prec">88%</span>
+              <span class="esp">👀2</span>
+            </div>
+            <div class="linha-hist">
+              <span class="data-chip">hoje</span>
+              <span class="tag-modalidade" style="background:var(--cat-acoes);">matemática</span>
+              <span class="estrelas-mini">★★★★★</span>
+              <span class="prec">100%</span>
+              <span class="esp">—</span>
+            </div>
+            <div class="linha-hist">
+              <span class="data-chip">ontem</span>
+              <span class="tag-modalidade" style="background:var(--cat-natureza);">voz · n2</span>
+              <span class="estrelas-mini">★★★☆☆</span>
+              <span class="prec">64%</span>
+              <span class="esp">🔁5</span>
+            </div>
+            <div class="linha-hist">
+              <span class="data-chip">ontem</span>
+              <span class="tag-modalidade" style="background:var(--bloco-vermelho);">ditado · n1</span>
+              <span class="estrelas-mini">★★★★★</span>
+              <span class="prec">95%</span>
+              <span class="esp">🔁1</span>
+            </div>
+            <div class="linha-hist">
+              <span class="data-chip">3 set</span>
+              <span class="tag-modalidade" style="background:var(--bloco-amarelo); color:#3A2E00;">montar · n2</span>
+              <span class="estrelas-mini">★★☆☆☆</span>
+              <span class="prec">51%</span>
+              <span class="esp">👀9</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TELA 8 — DUPLA -->
+      <section class="tela" id="tela-dupla">
+        <div class="tela-corpo" style="flex:1;">
+          <div class="toggle-formato" id="toggle-dupla">
+            <div class="op" data-modo="passar">passar aparelho</div>
+            <div class="op ativo" data-modo="resultado">resultado combinado</div>
+          </div>
+
+          <div id="dupla-passar" hidden>
+            <div class="aviso-passar">
+              <span class="mao">🙌</span>
+              <h2 class="tela-titulo">Agora é a vez de Lua!</h2>
+              <p class="tela-legenda">mesma rodada de Miguel — nível 3, montar, 5 desafios</p>
+              <button class="botao azul">Estou pronta!</button>
+            </div>
+          </div>
+
+          <div id="dupla-resultado">
+            <div class="toggle-formato" style="margin-bottom:14px;">
+              <div class="op ativo" data-fmt="coop">cooperativo</div>
+              <div class="op" data-fmt="adv">adversarial</div>
+            </div>
+            <div class="duas-colunas">
+              <div class="coluna-perfil">
+                <div class="perfil-bolha" style="background:var(--cat-comida);">M</div>
+                <div class="nome">Miguel</div>
+                <div class="estrelas"><span class="cheia">★★★★</span><span class="meia">★</span></div>
+                <div class="n">7 acertos</div>
+              </div>
+              <div class="coluna-perfil">
+                <div class="perfil-bolha" style="background:var(--cat-natureza);">L</div>
+                <div class="nome">Lua</div>
+                <div class="estrelas"><span class="cheia">★★★</span></div>
+                <div class="n">5 acertos</div>
+              </div>
+            </div>
+            <div id="banner-coop" class="banner-coop" style="margin-top:12px;">
+              🎉 Juntos vocês fizeram 12 acertos hoje!
+            </div>
+            <div id="banner-adv" class="banner-adv" style="margin-top:12px;" hidden>
+              Miguel acertou mais hoje — Lua, bora tentar de novo?
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="prateleira" role="tablist" aria-label="Telas do protótipo">
+    <button class="bloco-nav ativo" data-alvo="config"><span class="letra">C</span><span class="rot">Config</span></button>
+    <button class="bloco-nav" data-alvo="ditado"><span class="letra">D</span><span class="rot">Ditado</span></button>
+    <button class="bloco-nav" data-alvo="montar"><span class="letra">M</span><span class="rot">Montar</span></button>
+    <button class="bloco-nav" data-alvo="voz"><span class="letra">V</span><span class="rot">Voz</span></button>
+    <button class="bloco-nav" data-alvo="mate"><span class="letra">+</span><span class="rot">Matemática</span></button>
+    <button class="bloco-nav" data-alvo="resultado"><span class="letra">★</span><span class="rot">Resultado</span></button>
+    <button class="bloco-nav" data-alvo="historico"><span class="letra">H</span><span class="rot">Histórico</span></button>
+    <button class="bloco-nav" data-alvo="dupla"><span class="letra">2</span><span class="rot">Dupla</span></button>
+  </div>
+
+  <p class="nota" id="nota-direcao"></p>
+
+  <p class="rodape">
+    protótipo derivado de <code>specs/001-mvp-desafios-leitura-matematica</code> —
+    telas ilustram o comportamento descrito no spec, não é wireframe de produção.
+  </p>
+</div>
+
+<script>
+  const notas = {
+    config:    "“toda configuração tem padrão — dá pra começar sem tocar em nada”",
+    ditado:    "“o som é o enunciado — a palavra nunca aparece escrita aqui”",
+    montar:    "“a palavra some sozinha — ver de novo conta como espiada”",
+    voz:       "“o app fica calado — e sempre mostra o que entendeu”",
+    mate:      "“ler a conta não é a habilidade avaliada — por isso ela é falada”",
+    resultado: "“a espiada aparece do lado da estrela — nunca escondida”",
+    historico: "“toda rodada guarda o motivo da nota, não só a nota”",
+    dupla:     "“mesma configuração pros dois — senão não é comparação justa”"
+  };
+
+  const blocos = document.querySelectorAll(".bloco-nav");
+  const telas  = document.querySelectorAll(".tela");
+  const nota   = document.getElementById("nota-direcao");
+
+  function mostrar(alvo){
+    telas.forEach(t => t.classList.toggle("ativa", t.id === "tela-" + alvo));
+    blocos.forEach(b => b.classList.toggle("ativo", b.dataset.alvo === alvo));
+    nota.textContent = notas[alvo] || "";
+  }
+
+  blocos.forEach(b => b.addEventListener("click", () => mostrar(b.dataset.alvo)));
+  mostrar("config");
+
+  // sub-toggle da tela Dupla: passar aparelho <-> resultado combinado
+  const togDupla = document.getElementById("toggle-dupla");
+  const painelPassar = document.getElementById("dupla-passar");
+  const painelResultado = document.getElementById("dupla-resultado");
+  togDupla.addEventListener("click", (e) => {
+    const op = e.target.closest(".op");
+    if(!op) return;
+    togDupla.querySelectorAll(".op").forEach(o => o.classList.toggle("ativo", o === op));
+    const modo = op.dataset.modo;
+    painelPassar.hidden = modo !== "passar";
+    painelResultado.hidden = modo !== "resultado";
+  });
+
+  // sub-toggle cooperativo <-> adversarial dentro do resultado combinado
+  const togFormato = painelResultado.querySelector(".toggle-formato");
+  const bannerCoop = document.getElementById("banner-coop");
+  const bannerAdv = document.getElementById("banner-adv");
+  togFormato.addEventListener("click", (e) => {
+    const op = e.target.closest(".op");
+    if(!op) return;
+    togFormato.querySelectorAll(".op").forEach(o => o.classList.toggle("ativo", o === op));
+    const fmt = op.dataset.fmt;
+    bannerCoop.hidden = fmt !== "coop";
+    bannerAdv.hidden = fmt !== "adv";
+  });
+</script>
