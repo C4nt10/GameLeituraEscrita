@@ -15,6 +15,11 @@ import sys
 import wave
 from pathlib import Path
 
+# console do Windows por padrao usa cp1252, que nao cobre boa parte do que o
+# STT pode transcrever (acentos incomuns, hesitacao com reticencias etc.) —
+# sem isso o script quebra no meio da tabela em vez de so imprimir estranho.
+sys.stdout.reconfigure(encoding="utf-8")
+
 RAIZ = Path(__file__).parent
 PASTA_AUDIO = RAIZ / "audio"
 MODELO_VOSK = RAIZ / "modelo-vosk-pt"
@@ -78,7 +83,11 @@ def normalizar(s: str) -> str:
     import unicodedata
     s = s.lower().strip()
     s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
-    return s.strip(".,!?")
+    # "_" no nome do arquivo marca nasal escapado (MAO_ = "mao" -> "mão") ou
+    # separador de frase (O_GATO_CORRE = "o gato corre") — os dois casos
+    # colapsam certo virando espaço e comprimindo espaço sobrando.
+    s = s.replace("_", " ")
+    return " ".join(s.strip(".,!? ").split())
 
 
 def main():
@@ -106,8 +115,16 @@ def main():
         texto_vosk = normalizar(rodar_vosk(wav))
         texto_whisper = normalizar(rodar_whisper(wav))
 
-        ok_vosk = esperado in texto_vosk.split() or texto_vosk == esperado
-        ok_whisper = esperado in texto_whisper.split() or texto_whisper == esperado
+        def bate(esperado: str, transcrito: str) -> bool:
+            # palavra unica: precisa aparecer como palavra inteira (nao substring de
+            # outra) na transcricao. Frase (varias palavras): substring basta, ja
+            # que o reconhecedor pode incluir hesitacao/filler ao redor.
+            if " " in esperado:
+                return esperado in transcrito
+            return esperado in transcrito.split() or transcrito == esperado
+
+        ok_vosk = bate(esperado, texto_vosk)
+        ok_whisper = bate(esperado, texto_whisper)
         acertos_vosk += ok_vosk
         acertos_whisper += ok_whisper
 

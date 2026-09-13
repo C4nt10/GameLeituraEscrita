@@ -6,5 +6,6 @@ spike-stt/audio/*.m4a
 spike-stt/audio/*.mp3
 spike-stt/audio/*.ogg
 spike-stt/audio/*.16k.wav
+spike-stt/audio/aparado/
 __pycache__/
 *.pyc
