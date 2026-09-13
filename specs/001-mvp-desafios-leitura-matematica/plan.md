@@ -16,31 +16,35 @@ pacote — nenhuma dependência de backend para o MVP.
 
 ## Technical Context
 
-**Language/Version**: Dart, Flutter canal stable (T001, decidido — ver
-[research.md](./research.md); versão exata pinada no T003).
+**Language/Version**: TypeScript, React Native + Expo (T001, **revisado em
+2026-09-13** — trocado de Flutter; ver [research.md](./research.md) para
+a comparação e o motivo da troca. Versão exata do SDK do Expo pinada no
+T003).
 
 **Primary Dependencies** (decidido — ver research.md):
-- Síntese de voz: `flutter_tts` (TTS nativo da plataforma — D-27 exige
+- Síntese de voz: `expo-speech` (TTS nativo da plataforma — D-27 exige
   apenas "voz do aparelho", já valida esta escolha).
-- Reconhecimento de fala (Leitura · voz): `vosk_flutter` — **motor final
-  ainda pendente de confirmação pelo spike em `spike-stt/`** (T002)
+- Reconhecimento de fala (Leitura · voz): `react-native-vosk` — **motor
+  final ainda pendente de confirmação pelo spike em `spike-stt/`** (T002)
   comparando Vosk vs. faster-whisper em precisão. Vosk é o favorito também
-  por integração: tem binding Flutter pronto, faster-whisper não (exigiria
-  whisper.cpp + ponte FFI própria — ver research.md).
-- Reprodução dos clipes gravados de letra/fonema: `audioplayers`.
-- Persistência dinâmica local: `sqflite` (histórico, perfis, configuração).
+  por integração: tem binding React Native mantido, faster-whisper não
+  (exigiria whisper.cpp + módulo nativo próprio — ver research.md).
+- Reprodução dos clipes gravados de letra/fonema: `expo-av` (confirmar se
+  `expo-audio`, sucessor mais recente, já está estável no T003).
+- Persistência dinâmica local: `expo-sqlite` (histórico, perfis, configuração).
 - Banco de palavras/classificações: assets JSON estáticos em
-  `app/conteudo/`, carregados em memória (não precisa de SQL).
+  `app/assets/conteudo/`, carregados em memória (não precisa de SQL).
 
 **Storage**: local, embutido no dispositivo (histórico de até 50 rodadas
-por perfil via `sqflite` + banco de palavras/classificações via JSON +
+por perfil via `expo-sqlite` + banco de palavras/classificações via JSON +
 áudio gravado de letras/fonemas ~52 clipes como asset). Sem servidor, sem
 sincronização (FR-019, Princípio V).
 
-**Testing**: `flutter_test` (unit/widget) + `integration_test` (fluxo
-completo de rodada por modalidade, fluxo de dupla). Deve cobrir, no
-mínimo, os cenários de aceitação de cada user story do spec.md (cálculo de
-precisão/estrelas, geração de alternativas sem repetição/negativo, troca
+**Testing**: Jest + React Native Testing Library (unit/componente) +
+Maestro (fluxos E2E em YAML: rodada completa por modalidade, fluxo de
+dupla — mais leve de configurar que Detox para um dev solo). Deve cobrir,
+no mínimo, os cenários de aceitação de cada user story do spec.md (cálculo
+de precisão/estrelas, geração de alternativas sem repetição/negativo, troca
 automática de modalidade após 2 falhas, exclusão de rodada dupla incompleta
 do histórico).
 
@@ -103,28 +107,32 @@ specs/001-mvp-desafios-leitura-matematica/
 ### Source Code (repository root)
 
 ```text
-app/                          # projeto Flutter (pubspec.yaml na raiz deste diretório)
-├── lib/
-│   ├── modelos/             # Perfil, Rodada, DesafioLeitura, DesafioMatematica, RegistroHistorico
-│   ├── servicos/            # avaliacao_leitura (vosk_flutter + tolerância fonética), gerador_matematica,
-│   │                        # problema_contextualizado, banco_de_conteudo (grade nível×classificação),
-│   │                        # tts (flutter_tts), historico (sqflite), configuracao
-│   ├── telas/                # configuracao, rodada (ditado/leitura_montar/leitura_voz/matematica),
-│   │                        # resultado, resultado_dupla, historico, escolha_de_voz, selecao_perfil, dupla
-│   └── audio/                # clipes gravados de letras/fonemas, empacotados como asset (D-27)
-├── conteudo/                  # banco de palavras por nível×classificação — asset JSON, dado não código
-└── test/                      # convenção Flutter (não "tests/")
-    ├── unit/                 # regras puras: cálculo de precisão/estrelas, geração de alternativas,
-    │                         # tolerância fonética, seleção de combinação nível×classificação
-    ├── integration/          # pacote integration_test: fluxo completo de rodada por modalidade, dupla
-    └── contract/              # formato do item de conteúdo (palavra · nível · classificação · marcador)
+app/                          # projeto React Native + Expo (package.json, app.json na raiz)
+├── src/
+│   ├── models/              # Perfil, Rodada, DesafioLeitura, DesafioMatematica, RegistroHistorico (TS types)
+│   ├── services/            # avaliacaoLeitura (react-native-vosk + tolerância fonética), geradorMatematica,
+│   │                        # problemaContextualizado, bancoDeConteudo (grade nível×classificação),
+│   │                        # tts (expo-speech), historico (expo-sqlite), configuracao
+│   ├── screens/              # Configuracao, Rodada (Ditado/LeituraMontar/LeituraVoz/Matematica),
+│   │                        # Resultado, ResultadoDupla, Historico, EscolhaDeVoz, SelecaoPerfil, Dupla
+│   └── __tests__/
+│       ├── unit/            # regras puras: cálculo de precisão/estrelas, geração de alternativas,
+│       │                    # tolerância fonética, seleção de combinação nível×classificação
+│       └── contract/         # formato do item de conteúdo (palavra · nível · classificação · marcador)
+├── assets/
+│   ├── audio/                # clipes gravados de letras/fonemas, empacotados como asset (D-27)
+│   └── conteudo/              # banco de palavras por nível×classificação — asset JSON, dado não código
+└── e2e/                        # fluxos Maestro (YAML): rodada completa por modalidade, fluxo de dupla
 ```
 
-**Structure Decision**: projeto único Flutter (mobile-app), sem separação
-frontend/backend — não há backend no MVP (T001, research.md). `conteudo/`
-fica separado de `lib/` porque é dado versionado (banco de palavras), não
-lógica, e será a peça mais frequentemente revisada por alguém sem formação
-técnica (A-06).
+**Structure Decision**: projeto único React Native + Expo (mobile-app),
+sem separação frontend/backend — não há backend no MVP (T001, research.md,
+revisado 2026-09-13: Flutter → React Native pela familiaridade de quem
+constrói). `assets/conteudo/` fica separado de `src/` porque é dado
+versionado (banco de palavras), não lógica, e será a peça mais
+frequentemente revisada por alguém sem formação técnica (A-06). Testes de
+fluxo completo (E2E) ficam fora de `src/` em `e2e/` porque são arquivos
+Maestro (YAML), não código TypeScript.
 
 ## Complexity Tracking
 

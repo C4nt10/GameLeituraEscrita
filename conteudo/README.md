@@ -7,10 +7,11 @@ Revise, corrija e substitua à vontade — nada aqui está "fechado" como as
 decisões numeradas (D-01 a D-36) do `doc/`.
 
 Local temporário: estes arquivos vivem em `conteudo/` na raiz do repo
-porque `app/` ainda não existe (T003 pendente — Flutter SDK não instalado,
-ver `specs/001-mvp-desafios-leitura-matematica/quickstart.md`). Quando o
-projeto for criado, movem para `app/conteudo/` (`plan.md` §Project
-Structure).
+porque `app/` ainda não existe (T003 pendente — ver
+`specs/001-mvp-desafios-leitura-matematica/quickstart.md`, agora
+executável já que Node.js está instalado, só falta rodar o scaffold).
+Quando o projeto for criado, movem para `app/assets/conteudo/` (`plan.md`
+§Project Structure, React Native + Expo desde 2026-09-13).
 
 ## O que tem
 
@@ -21,8 +22,8 @@ Structure).
   nível 4 = dígrafo/encontro consonantal/palavra longa, nível 5 = frases
   de 3-5 palavras). Valida contra
   [`../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json`](../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json)
-  (ainda não rodei o teste de contrato T006 contra este arquivo — Flutter
-  não instalado; conferi a estrutura manualmente).
+  (ainda não rodei o teste de contrato T006 contra este arquivo — projeto
+  `app/` não criado ainda; conferi a estrutura manualmente com Python).
 - `matematica_temas.json` — 5 temas com objeto visual e 3 variações de
   frase por operação (D-36), seguindo
   [`tema-matematica.schema.json`](../specs/001-mvp-desafios-leitura-matematica/contracts/tema-matematica.schema.json).

@@ -26,17 +26,23 @@ tinha essa disciplina.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [x] T001 Decidir e registrar o framework — **Flutter (Dart)**, ver
-      [`research.md`](./research.md); `plan.md` atualizado, sem mais
-      NEEDS CLARIFICATION em Language/Version
+- [x] T001 Decidir e registrar o framework — **React Native + Expo +
+      TypeScript**, ver [`research.md`](./research.md) (revisado em
+      2026-09-13, trocado de Flutter pela familiaridade de quem constrói);
+      `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
-      gravados e registrar o resultado em `research.md`. **Critério de
-      aceite**: Vosk é mantido como motor (research.md, T001) se acertar
-      **≥ 80% das 14 palavras (12/14)**; abaixo disso, avaliar o custo
-      extra de whisper.cpp (ver "Consequência arquitetural" em
-      research.md) antes de prosseguir para T028
+      gravados e registrar o resultado em `research.md`. **Status
+      (2026-09-12): rodado, resultado inconclusivo** — os áudios
+      recebidos tinham múltiplas tentativas por arquivo (2 a 18 trechos de
+      fala por gravação), não um enunciado único; precisa regravar antes
+      do critério de aceite valer. **Critério de aceite**: Vosk é mantido
+      como motor (research.md, T001) se acertar **≥ 80% das 14 palavras
+      (12/14)**; abaixo disso, avaliar o custo extra de whisper.cpp (ver
+      "Consequência arquitetural" em research.md) antes de prosseguir
+      para T028
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
-      Structure (`app/lib/`, `app/conteudo/`, `app/test/`)
+      Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
+      `app/e2e/`)
 - [ ] T004 [P] Configurar lint/format do framework escolhido
 - [ ] T005 [P] Configurar runner de testes (unit/integration/contract) do
       framework escolhido
@@ -58,51 +64,51 @@ tinha essa disciplina.
 
 - [ ] T006 [P] Teste de contrato: `conteudo/leitura.json` valida contra
       `contracts/item-leitura.schema.json` em
-      `app/test/contract/item_leitura_schema_test`
+      `app/src/__tests__/contract/item_leitura_schema_test`
 - [ ] T007 [P] Teste de contrato: `conteudo/matematica_temas.json` valida
       contra `contracts/tema-matematica.schema.json` em
-      `app/test/contract/tema_matematica_schema_test`
+      `app/src/__tests__/contract/tema_matematica_schema_test`
 - [ ] T008 [P] Teste unitário: `banco_de_conteudo` rejeita/oculta uma
       combinação nível×classificação com **menos de 12** itens (FR-011,
-      D-35) em `app/test/unit/banco_de_conteudo_test`
+      D-35) em `app/src/__tests__/unit/banco_de_conteudo_test`
 - [ ] T009 [P] Teste unitário: `historico` aplica a retenção de 50
       rodadas por perfil — ao inserir a 51ª rodada **concluída**, a mais
       antiga é removida (FR-015) em
-      `app/test/unit/historico_retencao_test`
+      `app/src/__tests__/unit/historico_retencao_test`
 - [ ] T010 [P] Teste unitário: detecção de capacidade do aparelho retorna
       "desabilitado com motivo" quando microfone/voz pt está indisponível
       (mock de plataforma) (Princípio I/III da constituição, FR-013) em
-      `app/test/unit/capacidade_aparelho_test`
+      `app/src/__tests__/unit/capacidade_aparelho_test`
 - [ ] T011 [P] Teste unitário: cálculo de precisão/estrelas
       (`acertos ÷ tentativas totais`, meia estrela de granularidade,
       nunca cruzando modalidades) (D-06, D-20, FR-007) em
-      `app/test/unit/avaliacao_test`
+      `app/src/__tests__/unit/avaliacao_test`
 
 ### Implementation for Foundational
 
 - [ ] T012 Modelar `Perfil` (id, nome, cor/avatar) em
-      `app/lib/modelos/perfil` — sempre multi-perfil no modelo, mesmo com
+      `app/src/models/perfil` — sempre multi-perfil no modelo, mesmo com
       valor único `"padrao"` usado no MVP (D-25, FR-014)
 - [ ] T013 Modelar `RegistroHistorico` (data/hora, tipo, nível,
       classificação, modalidade, acertos, erros, precisão, estrelas,
       contador de ajuda, perfil(is), concluída?) em
-      `app/lib/modelos/registro_historico`
+      `app/src/models/registro_historico`
 - [ ] T014 [P] Implementar `banco_de_conteudo`: carregar a grade
-      nível×classificação de `app/conteudo/`, com validação de que toda
+      nível×classificação de `app/assets/conteudo/`, com validação de que toda
       combinação exposta tem ≥ 12 palavras (FR-010, FR-011) — faz T006,
-      T007 e T008 passarem — em `app/lib/servicos/banco_de_conteudo`
+      T007 e T008 passarem — em `app/src/services/banco_de_conteudo`
 - [ ] T015 [P] Implementar `historico` (serviço de persistência local: até
       50 rodadas por perfil, retenção, exclusão com confirmação) — faz
-      T009 passar — em `app/lib/servicos/historico` (FR-015)
+      T009 passar — em `app/src/services/historico` (FR-015)
 - [ ] T016 [P] Implementar `tts` (serviço de fala: síntese do aparelho para
       palavra/frase/enunciado; reprodução dos ~52 clipes gravados para
-      letra/fonema) em `app/lib/servicos/tts` (D-27, FR-020)
+      letra/fonema) em `app/src/services/tts` (D-27, FR-020)
 - [ ] T017 Implementar detecção de capacidade do aparelho (microfone
       disponível/permitido, vozes pt instaladas) com motivo legível,
       reutilizada por qualquer tela que precise desabilitar uma opção —
       faz T010 passar — (Princípio I/III da constituição, FR-013)
 - [ ] T018 Implementar cálculo de precisão/estrelas — faz T011 passar —
-      em `app/lib/servicos/avaliacao` (D-06, D-20, FR-007)
+      em `app/src/services/avaliacao` (D-06, D-20, FR-007)
 
 **Checkpoint**: fundação pronta, com teste próprio passando — user
 stories podem começar.
@@ -120,56 +126,56 @@ modalidade, chegar à tela de estrelas.
 ### Tests for User Story 1 ⚠️
 
 - [ ] T019 [P] [US1] Teste unitário: geração de 4 alternativas de letra sem
-      repetição em `app/test/unit/alternativas_letra_test`
+      repetição em `app/src/__tests__/unit/alternativas_letra_test`
 - [ ] T020 [P] [US1] Teste unitário: tolerância fonética aceita variação de
       pronúncia e rejeita troca do som inicial (D-09) em
-      `app/test/unit/tolerancia_fonetica_test`
+      `app/src/__tests__/unit/tolerancia_fonetica_test`
 - [ ] T021 [P] [US1] Teste de integração: troca automática para Leitura ·
       montar após 2 falhas em Leitura · voz (D-10) em
-      `app/test/integration/troca_modalidade_test`
+      `app/e2e/troca_modalidade.yaml`
 - [ ] T022 [P] [US1] Teste de integração: contador de ajuda correto por
       modalidade (repetições/espiadas/tentativas) aparece no resultado
-      (D-19) em `app/test/integration/contador_ajuda_test`
+      (D-19) em `app/e2e/contador_ajuda.yaml`
 - [ ] T023 [P] [US1] Teste de integração: Ditado **nunca** exibe a
       letra/palavra escrita na tela, em nenhum nível — só fala (US1
       cenário 1, princípio supremo da constituição) em
-      `app/test/integration/ditado_nunca_mostra_test`
+      `app/e2e/ditado_nunca_mostra.yaml`
 - [ ] T024 [P] [US1] Teste de integração: em Leitura · montar a palavra
       aparece e **some sozinha**, sem áudio algum, e a espiada é contada a
       cada revelação (US1 cenário 2, D-18) em
-      `app/test/integration/leitura_montar_some_test`
+      `app/e2e/leitura_montar_some.yaml`
 - [ ] T025 [P] [US1] Teste de integração: uma resposta errada, em
       qualquer modalidade, limpa a resposta, conta como erro e libera
       nova tentativa sem vidas/penalidade visível (US1 cenário 5, D-06,
       Princípio II da constituição) em
-      `app/test/integration/erro_nao_pune_test`
+      `app/e2e/erro_nao_pune.yaml`
 - [ ] T026 [P] [US1] Teste de integração: microfone sem permissão em
       Leitura · voz mostra o motivo real, nunca um erro genérico (US1
       cenário 7, FR-013) em
-      `app/test/integration/microfone_indisponivel_test`
+      `app/e2e/microfone_indisponivel.yaml`
 
 ### Implementation for User Story 1
 
 - [ ] T027 [P] [US1] Modelar `DesafioLeitura` (palavra/letra, nível,
       classificação(ões), marcador fonético opcional) em
-      `app/lib/modelos/desafio_leitura`
+      `app/src/models/desafio_leitura`
 - [ ] T028 [US1] Implementar `avaliacao_leitura`: tolerância fonética sobre
       a saída do STT (depende de T002 — motor de STT escolhido) — faz
-      T020 passar — em `app/lib/servicos/avaliacao_leitura` (D-08, D-09)
+      T020 passar — em `app/src/services/avaliacao_leitura` (D-08, D-09)
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em
-      `app/lib/telas/rodada/ditado`
+      `app/src/screens/rodada/ditado`
 - [ ] T030 [US1] Implementar tela de desafio — Leitura · montar (palavra
       aparece e some sozinha — D-18, sem som, montagem com letras
       embaralhadas) — faz T024 passar — em
-      `app/lib/telas/rodada/leitura_montar`
+      `app/src/screens/rodada/leitura_montar`
 - [ ] T031 [US1] Implementar tela de desafio — Leitura · voz (palavra
       visível, app calado, captura de microfone, mostra o que entendeu) em
-      `app/lib/telas/rodada/leitura_voz`
+      `app/src/screens/rodada/leitura_voz`
 - [ ] T032 [US1] Implementar tela de resultado da rodada (estrelas,
       acertos/erros/precisão, contador de ajuda da modalidade) — faz
-      T022 passar — em `app/lib/telas/resultado`, reusando T018
+      T022 passar — em `app/src/screens/resultado`, reusando T018
 - [ ] T033 [US1] Ligar detecção de microfone indisponível (T017) à tela de
       Leitura · voz com mensagem de motivo real — faz T026 passar —
       (FR-013)
@@ -195,29 +201,29 @@ cada forma.
 
 - [ ] T034 [P] [US2] Teste unitário: gerador de alternativas nunca produz
       negativo nem repetição, mantém proximidade (doc001 §4) em
-      `app/test/unit/gerador_matematica_test`
+      `app/src/__tests__/unit/gerador_matematica_test`
 - [ ] T035 [P] [US2] Teste unitário: problema contextualizado de subtração
       nunca gera resultado negativo (FR-009) em
-      `app/test/unit/problema_contextualizado_test`
+      `app/src/__tests__/unit/problema_contextualizado_test`
 - [ ] T036 [P] [US2] Teste unitário: o enunciado sorteia entre 2-3
       variações fixas por operação, e a variação não muda com o nível
-      (D-36, FR-008) em `app/test/unit/variacao_frase_test`
+      (D-36, FR-008) em `app/src/__tests__/unit/variacao_frase_test`
 
 ### Implementation for User Story 2
 
 - [ ] T037 [P] [US2] Modelar `DesafioMatematica` (operação, operandos,
       resultado, forma, tema quando contextualizada, alternativas) em
-      `app/lib/modelos/desafio_matematica`
+      `app/src/models/desafio_matematica`
 - [ ] T038 [US2] Implementar `gerador_matematica` (conta pura, 5 níveis de
-      operação) — faz T034 passar — em `app/lib/servicos/gerador_matematica`
+      operação) — faz T034 passar — em `app/src/services/gerador_matematica`
       (depende de T037)
 - [ ] T039 [US2] Implementar `problema_contextualizado` (enunciado por
       tema/classificação, objetos visuais, fala automática, sorteio de
       variação) — faz T035 e T036 passarem — em
-      `app/lib/servicos/problema_contextualizado` (D-23, D-24, D-36;
+      `app/src/services/problema_contextualizado` (D-23, D-24, D-36;
       depende de T014 para o tema)
 - [ ] T040 [US2] Implementar tela de desafio de matemática (conta falada,
-      botão de repetir, 4 alternativas) em `app/lib/telas/rodada/matematica`,
+      botão de repetir, 4 alternativas) em `app/src/screens/rodada/matematica`,
       reusando T032 para o resultado
 
 **Checkpoint**: US1 + US2 funcionam juntas e independentemente.
@@ -236,36 +242,36 @@ seguinte respeita as escolhas.
 
 - [ ] T041 [P] [US3] Teste de integração: combinação nível×classificação
       sem conteúdo suficiente não aparece selecionável (US3 cenário 2,
-      FR-011) em `app/test/integration/configuracao_conteudo_test`
+      FR-011) em `app/e2e/configuracao_conteudo.yaml`
 - [ ] T042 [P] [US3] Teste de integração: iniciar sem alterar nada usa
       valores padrão válidos (US3 cenário 1, FR-012) em
-      `app/test/integration/configuracao_padrao_test`
+      `app/e2e/configuracao_padrao.yaml`
 - [ ] T043 [P] [US3] Teste de integração: sem permissão de microfone, a
       opção "Leitura · voz" aparece desabilitada com o motivo visível
       (US3 cenário 3, FR-013) em
-      `app/test/integration/config_mic_desabilitado_test`
+      `app/e2e/config_mic_desabilitado.yaml`
 - [ ] T044 [P] [US3] Teste de integração: sem nenhuma voz pt instalada, o
       app informa e orienta a instalação, sem falhar silenciosamente (US3
-      cenário 4, CU-07) em `app/test/integration/config_sem_voz_test`
+      cenário 4, CU-07) em `app/e2e/config_sem_voz.yaml`
 - [ ] T045 [P] [US3] Teste de integração: a última voz escolhida aparece
       pré-selecionada ao reabrir a configuração (US3 cenário 5) em
-      `app/test/integration/config_ultima_voz_test`
+      `app/e2e/config_ultima_voz.yaml`
 
 ### Implementation for User Story 3
 
 - [ ] T046 [P] [US3] Implementar `configuracao` (preferências persistidas:
       última voz, nome/fonema, últimos nível/classificação/tamanho/
-      modalidade) — faz T045 passar — em `app/lib/servicos/configuracao`
+      modalidade) — faz T045 passar — em `app/src/services/configuracao`
 - [ ] T047 [US3] Implementar tela de configuração da rodada (tipo,
       modalidade, nível, classificação, forma de matemática, tamanho,
       sozinho/dupla) — faz T041 e T042 passarem — em
-      `app/lib/telas/configuracao`, ligada a T014/T046
+      `app/src/screens/configuracao`, ligada a T014/T046
 - [ ] T048 [US3] Implementar tela de escolha e teste de voz (lista de vozes
       pt do aparelho, destaque de melhor qualidade, teste com toque) —
-      faz T043 e T044 passarem — em `app/lib/telas/escolha_de_voz`,
+      faz T043 e T044 passarem — em `app/src/screens/escolha_de_voz`,
       ligada a T016/T017 (CU-07)
 - [ ] T049 [US3] Implementar seleção de "nome da letra" vs. "som da letra"
-      (padrão fonema) em `app/lib/telas/configuracao` (D-26, FR-021)
+      (padrão fonema) em `app/src/screens/configuracao` (D-26, FR-021)
 
 **Checkpoint**: US1+US2+US3 funcionam juntas — rodada totalmente
 configurável, com defaults ainda válidos, e todo caso de indisponibilidade
@@ -284,22 +290,22 @@ os campos e o cálculo por perfil.
 
 - [ ] T050 [P] [US4] Teste unitário: resumo geral (total, precisão média,
       média de estrelas) calculado por perfil, sem cruzar modalidades
-      (US4 cenário 4) em `app/test/unit/resumo_historico_test`
+      (US4 cenário 4) em `app/src/__tests__/unit/resumo_historico_test`
 - [ ] T051 [P] [US4] Teste de integração: antes da primeira rodada, o
       histórico mostra mensagem explicando que estará vazio, não uma tela
       em branco sem contexto (US4 cenário 1) em
-      `app/test/integration/historico_vazio_test`
+      `app/e2e/historico_vazio.yaml`
 - [ ] T052 [P] [US4] Teste de integração: apagar o histórico exige
       confirmação antes de executar (US4 cenário 3, CU-06) em
-      `app/test/integration/historico_exclusao_confirma_test`
+      `app/e2e/historico_exclusao_confirma.yaml`
 
 ### Implementation for User Story 4
 
 - [ ] T053 [US4] Implementar tela de histórico (lista mais recente→mais
       antiga, resumo geral, mensagem de vazio antes da 1ª rodada) — faz
-      T050 e T051 passarem — em `app/lib/telas/historico`, ligada a T015
+      T050 e T051 passarem — em `app/src/screens/historico`, ligada a T015
 - [ ] T054 [US4] Implementar exclusão do histórico com confirmação — faz
-      T052 passar — em `app/lib/telas/historico` (CU-06)
+      T052 passar — em `app/src/screens/historico` (CU-06)
 
 **Checkpoint**: histórico completo e correto para uso sozinho e futuro modo
 dupla.
@@ -318,39 +324,39 @@ ver os dois formatos de resultado combinado.
 
 - [ ] T055 [P] [US5] Teste de integração: rodada dupla incompleta (uma
       criança sai no meio) não entra no histórico comparativo (US5
-      cenário 5, FR-018) em `app/test/integration/dupla_incompleta_test`
+      cenário 5, FR-018) em `app/e2e/dupla_incompleta.yaml`
 - [ ] T056 [P] [US5] Teste de integração: config idêntica é aplicada às
       duas rodadas da dupla (US5 cenário 6, D-33) em
-      `app/test/integration/dupla_config_identica_test`
+      `app/e2e/dupla_config_identica.yaml`
 - [ ] T057 [P] [US5] Teste de integração: o adulto precisa escolher
       explicitamente cooperativo ou adversarial — nenhum formato é padrão
       implícito (US5 cenário 1, D-31) em
-      `app/test/integration/dupla_formato_explicito_test`
+      `app/e2e/dupla_formato_explicito.yaml`
 - [ ] T058 [P] [US5] Teste de integração: a tela "passa o aparelho"
       impede a criança 1 de continuar jogando no lugar da criança 2 (US5
-      cenário 2) em `app/test/integration/dupla_transicao_test`
+      cenário 2) em `app/e2e/dupla_transicao.yaml`
 - [ ] T059 [P] [US5] Teste de integração: resultado combinado mostra
       total somado + individual lado a lado no cooperativo, e os dois
       resultados lado a lado com destaque no adversarial (US5 cenário 3)
-      em `app/test/integration/dupla_resultado_combinado_test`
+      em `app/e2e/dupla_resultado_combinado.yaml`
 - [ ] T060 [P] [US5] Teste de integração: no adversarial, a mensagem para
       quem teve menos segue a regra "nunca depreciativa" (US5 cenário 4,
       mesma regra de T025) em
-      `app/test/integration/dupla_mensagem_nao_depreciativa_test`
+      `app/e2e/dupla_mensagem_nao_depreciativa.yaml`
 
 ### Implementation for User Story 5
 
 - [ ] T061 [P] [US5] Implementar seleção/criação de perfil (nome + cor,
-      cadastro mínimo) em `app/lib/telas/selecao_perfil`, ligada a T012
+      cadastro mínimo) em `app/src/screens/selecao_perfil`, ligada a T012
       (D-32 — seletor aparece com >1 perfil ou ao entrar em "dupla")
 - [ ] T062 [US5] Implementar fluxo de dupla: escolha de formato
       (cooperativo/adversarial), 2 perfis, rodada 1 → tela "passa o
       aparelho" → rodada 2, reusando as telas de US1/US2 sem alteração —
-      faz T057 e T058 passarem — em `app/lib/telas/dupla` (D-30)
+      faz T057 e T058 passarem — em `app/src/screens/dupla` (D-30)
 - [ ] T063 [US5] Implementar tela de resultado combinado — cooperativo
       (soma + individual lado a lado) e adversarial (lado a lado com
       destaque, mensagem nunca depreciativa) — faz T059 e T060 passarem —
-      em `app/lib/telas/resultado_dupla`, reusando T032
+      em `app/src/screens/resultado_dupla`, reusando T032
 - [ ] T064 [US5] Persistir rodada dupla no histórico com os dois perfis
       vinculados e a flag de completude por perfil — faz T055 e T056
       passarem — (FR-018), ligada a T015
@@ -369,9 +375,9 @@ teste correspondente.
       (c) o ícone sozinho basta pra criança entender a ação, sem depender
       do texto — antes do primeiro teste com criança real
 - [ ] T066 [P] Gravar e integrar os ~52 clipes de letras/fonemas (nome +
-      som) em `app/lib/audio/` (D-27)
+      som) em `app/assets/audio/` (D-27)
 - [ ] T067 Carregar e validar o banco de palavras inicial em
-      `app/conteudo/` contra as 6 classificações confirmadas (D-34 —
+      `app/assets/conteudo/` contra as 6 classificações confirmadas (D-34 —
       animais, comida, casa, corpo, natureza, ações), com **mínimo de 12
       palavras** por combinação nível×classificação exposta — roda T006 e
       T008 contra o conteúdo real, não mais só contra fixture de teste

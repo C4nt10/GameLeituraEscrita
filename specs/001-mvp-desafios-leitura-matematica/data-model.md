@@ -1,18 +1,18 @@
 # Data Model — Fase 1
 
 Traduz as *Key Entities* do `spec.md` em modelo concreto, já sob a decisão
-do T001 (Flutter + `sqflite` para dado dinâmico, JSON de asset para
-conteúdo estático — ver `research.md`). Sem código de implementação, só
-esquema e regras.
+do T001 (React Native + Expo, revisado em 2026-09-13 — `expo-sqlite` para
+dado dinâmico, JSON de asset para conteúdo estático — ver `research.md`).
+Sem código de implementação, só esquema e regras.
 
 ## Onde cada coisa vive
 
 | Entidade | Guardada em | Por quê |
 |---|---|---|
-| Perfil | `sqflite` (tabela `perfis`) | Muda em tempo de uso (criar perfil, D-32) |
-| Configuração | `sqflite` (tabela `configuracao`) | Preferência por perfil, muda em tempo de uso |
-| Rodada (= Registro de histórico) | `sqflite` (tabela `rodadas`) | Dado transacional, cresce a cada partida |
-| Rodada dupla | `sqflite` (tabela `rodadas_duplas`) | Liga duas linhas de `rodadas` |
+| Perfil | `expo-sqlite` (tabela `perfis`) | Muda em tempo de uso (criar perfil, D-32) |
+| Configuração | `expo-sqlite` (tabela `configuracao`) | Preferência por perfil, muda em tempo de uso |
+| Rodada (= Registro de histórico) | `expo-sqlite` (tabela `rodadas`) | Dado transacional, cresce a cada partida |
+| Rodada dupla | `expo-sqlite` (tabela `rodadas_duplas`) | Liga duas linhas de `rodadas` |
 | Item de leitura (banco de palavras) | asset JSON (`conteudo/leitura.json`) | Estático, versionado com o app, revisado sem formação técnica (A-06) — ver `contracts/item-leitura.schema.json` |
 | Tema de matemática contextualizada | asset JSON (`conteudo/matematica_temas.json`) | Estático, mesmo motivo — ver `contracts/tema-matematica.schema.json` |
 | Desafio de matemática (conta pura ou contextualizada) | **não persistido** | Gerado em memória a cada desafio (T027/T028); só o resultado agregado da rodada é guardado |
@@ -39,7 +39,7 @@ fica lembrada", CU-07).
 | Campo | Tipo | Regra |
 |---|---|---|
 | `perfil_id` | TEXT (PK, FK → `perfis.id`) | |
-| `voz_id` | TEXT, nullable | Identificador de voz TTS do aparelho (`flutter_tts`); nulo até o 1º teste de voz (CU-07) |
+| `voz_id` | TEXT, nullable | Identificador de voz TTS do aparelho (`expo-speech`); nulo até o 1º teste de voz (CU-07) |
 | `nome_ou_fonema` | TEXT | `"nome"` \| `"fonema"` — padrão `"fonema"` (D-26) |
 | `ultimo_nivel` | INTEGER | 1–5, padrão 1 |
 | `ultimas_classificacoes` | TEXT (JSON array) | padrão `["todas"]` (doc002 §2) |
