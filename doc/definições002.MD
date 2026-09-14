@@ -349,7 +349,7 @@ Detalhe completo em `specs/001-mvp-desafios-leitura-matematica/research.md`
 
 | # | Questão | O que falta |
 |---|---|---|
-| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para leitura pausada/silabada de criança | Testado e descartado (2026-09-15): modelo Vosk grande (FalaBrasil, 1.6GB, PT-BR) teve a mesma taxa de acerto (7%) que o modelo pequeno — não é falta de capacidade/treino do modelo. Dois caminhos restam: (1) regravar isolando a variável — mesma palavra fluida vs. pausada, pra medir o tamanho do efeito da pausa; (2) reconsiderar a tolerância fonética de D-08/D-09 ou a própria obrigatoriedade de Leitura·voz no MVP — talvez precise de fallback mais cedo que o D-10 (2 tentativas), ou o STT vire só sinal de "tentou", não avaliação de acerto — nenhum decidido ainda |
+| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para leitura pausada/silabada de criança | Vosk grande não ajuda (7%, igual ao pequeno — não é falta de capacidade do Vosk especificamente). **Whisper escala bem**: small 7% → medium 29% → large-v3 43%, ainda offline, ainda abaixo dos 80% mas melhora real. Nuvem pesquisada e não é solução clara: até o Google Cloud STT (produção) acerta só 9.6-14.7% de fala infantil — o gap é do domínio (criança), não de estar offline. Falta medir latência de medium/large-v3 em aparelho real antes de decidir qual embarcar; caminho de revisar o Princípio V (ir pra nuvem) fica como último recurso, não descartado mas o mais caro — ver research.md §T002 pra tabela completa |
 
 ### D-37 — tolerância tem dois eixos, não um
 

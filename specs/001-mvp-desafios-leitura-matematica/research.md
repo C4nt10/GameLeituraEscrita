@@ -195,19 +195,74 @@ Reforça a leitura da rodada 3: o problema é estrutural em como esses
 motores tratam pausa dentro de palavra, não algo que escala com tamanho
 de modelo.
 
-**Não fechar T002 como aprovado.** Dois caminhos realistas restam (o
-terceiro, "modelo Vosk maior", já foi testado e descartado nesta rodada):
+### Rodada 5 (2026-09-15) — "capacidade não ajuda" era certo só pro Vosk
 
-1. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
-   medir quanto da queda de acurácia é só efeito da pausa (ainda não
-   feito; mediria o tamanho do efeito, não mudaria a conclusão de que ele
-   existe).
-2. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria viabilidade
-   de Leitura · voz como modalidade obrigatória no MVP — se nem um modelo
-   grande passa de ~15% em condição real, talvez a modalidade precise de um
-   fallback mais agressivo (ex.: cair pra Leitura·montar mais cedo, não só
-   após 2 falhas — D-10), ou o STT sirva só como sinal de "tentou", não
-   como avaliação de acerto/erro.
+O dono do projeto perguntou se um motor **online** resolveria. Antes de
+mexer no Princípio V (funciona sem internet — não-negociável), busquei
+dado real sobre acurácia de STT em fala infantil especificamente,
+[assemblyai.com/blog/how-accurate-speech-to-text](https://www.assemblyai.com/blog/how-accurate-speech-to-text)
+e o estudo de reconhecimento de fala infantil que cita: **mesmo o Google
+Cloud Speech-to-Text — motor de nuvem, produção, empresa com escala
+máxima — acerta só 9.6% de utterances infantis (14.7% com critério
+relaxado), WER de 49%.** Bem perto do que medimos localmente (7-14%). "Ir
+pra nuvem" não é bala de prata pra voz de criança — o gap de acurácia pra
+fala infantil é conhecido e afeta motores de nuvem também.
+
+O mesmo dado mostra o **Whisper** (modelo cheio) muito à frente pra fala
+infantil: 36.8%/60.3% de acerto, WER 21.3% (vs. 49% Google, 30% Azure) —
+mas essa vantagem parece vir da **escala de treino do Whisper** (680 mil
+horas, 96 idiomas), não de estar na nuvem. Isso abre um caminho que
+**não** exige revisar o Princípio V: testar Whisper com um checkpoint
+maior que o "small" usado até aqui, ainda 100% offline.
+
+Testei `whisper medium` (769M parâmetros, vs. 39M do "small") contra os
+mesmos 14 áudios pausados:
+
+| Motor | Resultado |
+|---|---|
+| Whisper small | 1/14 (7%) |
+| Whisper medium | 4/14 (29%) |
+| Whisper large-v3 | **6/14 (43%)** |
+
+**Tendência clara e monotônica: 7% → 29% → 43%, subindo em cada salto de
+tamanho.** Isso é diferente do que vimos com Vosk (modelo 40x maior,
+mesma taxa de acerto, rodada 4) — **a conclusão "capacidade de modelo não
+ajuda" era certa só pro Vosk (Kaldi/lattice), não pro Whisper
+(transformer)**. Correção explícita da rodada 4: não é que tamanho de
+modelo nunca ajuda contra fala pausada — é que a arquitetura do Vosk
+especificamente não se beneficia de mais parâmetros do jeito que a do
+Whisper se beneficia.
+
+Ainda **abaixo do critério de aceite (≥ 80%)** mesmo no large-v3 — não é
+uma solução pronta, é a melhora mais real encontrada até aqui.
+
+**Trade-off que falta medir**: large-v3 tem ~3GB (fp32) — pesado pra
+embarcar num app infantil e mais lento de rodar num aparelho comum;
+medium (~1.5GB fp32, mais leve com quantização int8) já deu metade do
+ganho com fração do peso. Nenhum dos dois foi medido quanto a **tempo de
+resposta em dispositivo real** (T002 mediu só acurácia, rodando em
+desktop) — latência alta quebraria a experiência de qualquer forma
+(criança perde o engajamento esperando), então essa medição falta antes
+de decidir.
+
+**Não fechar T002 como aprovado. Caminhos, em ordem de custo crescente:**
+
+1. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
+   Python puro) num dispositivo Android real — se `medium` já rodar rápido
+   o bastante, 29% ainda não fecha os 80%, mas muda a conversa sobre qual
+   checkpoint embarcar.
+2. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
+   medir quanto da queda de acurácia é só efeito da pausa.
+3. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria
+   obrigatoriedade de Leitura · voz no MVP, se nenhum checkpoint viável de
+   embarcar for suficiente.
+4. Ir para um motor online **exigiria revisar o Princípio V** — decisão de
+   constituição, não de implementação. Dado o gap de acurácia infantil que
+   afeta nuvem também (Google 9.6-14.7%), e que Whisper offline já captura
+   a maior parte da vantagem do Whisper (a mesma arquitetura, só sem ser
+   hospedada), não está claro que valeria o custo de abrir mão do "funciona
+   sem internet". Não descartado, mas é o caminho mais caro e o menos
+   promissor dos quatro.
 
 Também corrigido no processo (independente do resultado): `testar.py`
 normalizava mal nomes de arquivo com `_`/espaço à direita (nasal escapado
