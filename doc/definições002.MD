@@ -214,9 +214,9 @@ ainda.
 | # | Questão | O que falta |
 |---|---|---|
 | **A-06** | Validação pedagógica das listas | Revisão de nível e classificação de cada palavra por alguém formado em alfabetização |
-| ~~A-07~~ | ~~Conjunto e volume de classificações no lançamento~~ | **Fechada — ver §11** |
+| ~~A-07~~ | ~~Conjunto e volume de classificações no lançamento~~ | **Fechada — ver §10** |
 | **A-08** | Traçado à mão | Fora do escopo inicial (montar é a escrita desta fase). Reavaliar depois da validação |
-| ~~A-09~~ | ~~Variação da frase no problema de matemática~~ | **Fechada — ver §11** |
+| ~~A-09~~ | ~~Variação da frase no problema de matemática~~ | **Fechada — ver §10** |
 
 ---
 
@@ -282,20 +282,7 @@ resultados juntos).
 
 ---
 
-## 10. Acréscimo à validação com a criança (001, seção 10)
-
-As perguntas do 001 continuam. Somam-se:
-
-7. No Leitura·montar, o tempo até a palavra sumir é suficiente pra ela ler, ou
-   frustra? (define o parâmetro de D-18)
-8. Ela entende e prefere conta pura ou problema contextualizado?
-9. Fonema ou nome da letra — qual ela responde melhor? (calibra o padrão de D-26)
-10. Se houver duas crianças disponíveis: o adversarial motiva ou frustra quem
-    tira menos? (informa a A-10 — se precisa travar por nível compatível)
-
----
-
-## 11. Fecha A-07 e A-09
+## 10. Fecha A-07 e A-09
 
 ### A-07 — conjunto e volume de classificações
 
@@ -330,3 +317,42 @@ possível evolução pós-validação, não como requisito do MVP.
 | D-34 | Mantém as 6 classificações propostas (animais, comida, casa, corpo, natureza, ações) | Fecha A-07 (parte 1); sem indício de ajuste necessário antes da validação |
 | D-35 | Mínimo de 12 palavras por nível × classificação (rodada máxima é 8) | Fecha A-07 (parte 2); folga evita repetir sempre a mesma sequência na mesma combinação |
 | D-36 | 2-3 variações de frase por operação no problema contextualizado, sorteio aleatório, sem variar por nível no MVP | Fecha A-09; evita decoreba de frase sem inflar o MVP com lógica por nível que a métrica não pede |
+
+---
+
+## 11. Viabilidade do STT offline — nova, abre A-11
+
+Spike de STT (`spike-stt/`, rodado em duas rodadas — 2026-09-12 e
+2026-09-14) mediu Vosk e faster-whisper contra 14 palavras/frase gravadas
+por humano, em condição realista (enunciado curto único, volume normal).
+Resultado: **nenhum motor passou de 14% de acerto**, mesmo depois de
+descartar problemas de metodologia da primeira rodada (áudio com múltiplas
+tentativas por arquivo). Um teste de controle com voz sintética limpa
+confirmou que o pipeline e os modelos funcionam corretamente (Vosk 4/4,
+Whisper 3/4) — a falha está isolada na gravação humana em ambiente
+doméstico comum, não no código.
+
+Detalhe completo em `specs/001-mvp-desafios-leitura-matematica/research.md`
+§T002.
+
+### O que isso abre
+
+| # | Questão | O que falta |
+|---|---|---|
+| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para o uso real (voz de criança, sem estúdio) | Três caminhos em aberto: (1) regravar em condição mais controlada antes de desistir da abordagem offline; (2) testar um modelo Vosk maior (~1GB+, mais pesado); (3) reconsiderar a tolerância fonética (D-08/D-09) ou a própria obrigatoriedade de Leitura·voz no MVP — nenhum decidido ainda |
+
+---
+
+## 12. Acréscimo à validação com a criança (001, seção 10)
+
+As perguntas do 001 continuam. Somam-se:
+
+7. No Leitura·montar, o tempo até a palavra sumir é suficiente pra ela ler, ou
+   frustra? (define o parâmetro de D-18)
+8. Ela entende e prefere conta pura ou problema contextualizado?
+9. Fonema ou nome da letra — qual ela responde melhor? (calibra o padrão de D-26)
+10. Se houver duas crianças disponíveis: o adversarial motiva ou frustra quem
+    tira menos? (informa a A-10 — se precisa travar por nível compatível)
+11. Ela é compreensível o bastante pro reconhecimento de fala funcionar, ou
+    A-11 já era esperado? (informa se A-11 é limite do motor ou também da
+    fala infantil em si)

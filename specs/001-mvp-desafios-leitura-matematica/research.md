@@ -70,38 +70,71 @@ dupla incompleta).
 
 ## T002 — Spike de STT
 
-**Status**: **inconclusivo, não fechado** (2026-09-12). Os 14 áudios
-chegaram e o spike rodou, mas o resultado (Vosk 2/14 = 14%, faster-whisper
-0/14 = 0%) não é um dado confiável sobre acurácia dos motores — é sintoma
-de qualidade de gravação, não de motor de STT. Registrar isso como
-resultado real seria a mesma desonestidade que a esteira já pegou uma vez
-neste projeto (DOCOCR-1): declarar validado o que não foi.
+**Status**: **rodado duas vezes, não fechado — resultado real, mas abaixo
+do critério de aceite.** Não é mais problema de metodologia (2026-09-14);
+é um resultado de verdade que expõe uma questão maior de produto.
 
-**Diagnóstico**: cada arquivo tem várias gravações de fala dentro de um
-único `.ogg`, separadas por silêncio — de 2 trechos (`A.ogg`) a **18**
-(`SAPATO.ogg`, 28 segundos de duração para uma palavra). `GATO.ogg` sozinho
-tem 9 trechos em 16 segundos. Isso não é o formato que o spike (nem o app
-real) espera: a captura de Leitura·voz é de um enunciado curto por toque no
-microfone, não uma gravação longa com múltiplas tentativas.
+### Rodada 1 (2026-09-12) — descartada por metodologia
 
-Uma tentativa de cortar automaticamente para o maior trecho contínuo de
-fala (`aparar.py`, via `ffmpeg silencedetect`) **piorou** o resultado
-(Vosk caiu pra 7%, Whisper continuou girando em torno de alucinações tipo
-"tchau"/"eca" características de entrada quase-silenciosa) — sinal de que
-o trecho mais longo detectado nem sempre é a palavra-alvo, pode ser
-respiração ou ruído de fundo entre tentativas. Cortar certo exigiria ouvir
-cada arquivo manualmente, o que derrota o propósito de um spike rápido.
+Os primeiros 14 áudios (`.ogg`) tinham várias gravações de fala dentro de
+um único arquivo, separadas por silêncio — de 2 trechos (`A.ogg`) a **18**
+(`SAPATO.ogg`, 28 segundos para uma palavra). Resultado (Vosk 14%,
+Whisper 0%) descartado como não confiável — não era o formato que o app
+real captura (um enunciado curto por toque no microfone).
 
-Também corrigido no processo, achado real e independente do resultado
-acima: `testar.py` normalizava mal os nomes de arquivo com `_` — `MAO_` e
-`PAO_` (nasal escapado) e `O_GATO_CORRE` (frase) nunca bateriam com a
-transcrição mesmo com reconhecimento perfeito, e a tabela quebrava com
-`UnicodeEncodeError` no console do Windows (cp1252) sempre que o STT
-devolvia acento fora do padrão. Ambos corrigidos e commitados.
+### Rodada 2 (2026-09-14) — áudio corrigido, resultado real
 
-**Próximo passo real**: regravar os 14 áudios como um único enunciado
-curto por arquivo (tocar gravar, falar a palavra uma vez, parar — do jeito
-que a criança realmente vai usar o microfone no app), não uma sessão longa
-com repetições. Só então o spike mede o que precisa medir. Motor de STT
-(`vosk_flutter` vs. custo de integrar whisper.cpp) continua em aberto até
-lá.
+Áudios regravados como um único enunciado curto por arquivo (0.4s a 7.5s,
+`.mp3`, volume normal −20 a −23dB, sem clipping). Resultado:
+
+| Cenário | Vosk | Whisper (small) |
+|---|---|---|
+| Áudio bruto | 1/14 (7%) | 1/14 (7%) |
+| Com 300ms de silêncio nas bordas (`adelay`+`apad`) | 2/14 (14%) | 0/14 (0%) |
+
+Bem abaixo do critério de aceite (≥ 80%). Antes de aceitar isso como
+limite real dos motores, validei se o **pipeline em si** funciona: gerei
+áudio sintético em pt-BR (voz "Microsoft Maria Desktop", já instalada no
+Windows) para 4 das palavras e rodei os dois motores contra ele.
+
+| Palavra (sintética, voz limpa) | Vosk | Whisper (small) |
+|---|---|---|
+| gato | ✅ gato | ✅ gato |
+| porta | ✅ porta | quase — "porto" |
+| sapato | ✅ sapato | ✅ sapato |
+| cavalo | ✅ cavalo | ✅ cavalo |
+
+**Pipeline e modelos funcionam corretamente** (Vosk 4/4, Whisper 3/4 com
+erro mínimo) — a falha está isolada nas gravações humanas em si, não no
+código nem na escolha de motor. Nível de volume normal não é garantia de
+qualidade: ruído de ambiente, reverberação e características do
+microfone/app de gravação usado não aparecem no `volumedetect`, mas
+degradam o reconhecimento.
+
+### O que isso significa pro produto
+
+Isto deixou de ser "escolher Vosk ou Whisper" e virou uma pergunta maior:
+**reconhecimento de fala offline embarcado pode não ser confiável o
+suficiente para o uso real** (voz de criança, aparelho doméstico comum,
+sem estúdio) — nenhum motor testado passou de 14% mesmo com áudio humano
+limpo e curto. Ver A-11 em `doc/definições002.MD` §11.
+
+**Não fechar T002 como aprovado.** Três caminhos possíveis, nenhum
+decidido ainda:
+
+1. Tentar gravar num ambiente mais controlado (mais perto do microfone,
+   sala mais silenciosa, outro app de gravação) — mais uma rodada antes de
+   desistir da abordagem offline.
+2. Testar um modelo Vosk maior (o atual é o "small" pt, ~40MB;
+   existe modelo pt maior, ~1GB+, mais pesado pra embarcar num app infantil
+   mas potencialmente mais preciso).
+3. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria viabilidade
+   de Leitura · voz como modalidade obrigatória no MVP — se nem 15% de
+   acerto em condição real for viável, talvez a modalidade precise de um
+   fallback mais agressivo (ex.: cair pra Leitura·montar mais cedo, não só
+   após 2 falhas).
+
+Também corrigido no processo (independente do resultado): `testar.py`
+normalizava mal nomes de arquivo com `_`/espaço à direita (nasal escapado
+e frase), e quebrava com `UnicodeEncodeError` no console do Windows
+(cp1252). Ambos corrigidos e commitados nas duas rodadas.
