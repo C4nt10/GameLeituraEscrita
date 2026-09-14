@@ -1,5 +1,7 @@
 spike-stt/.venv/
 spike-stt/modelo-vosk-pt/
+spike-stt/vosk-model-pt-fb*/
+spike-stt/*.zip
 spike-stt/ffmpeg-bin/
 spike-stt/audio/*.wav
 spike-stt/audio/*.m4a

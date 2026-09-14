@@ -164,20 +164,50 @@ assim (é higiene correta, sem custo), mas **não tratá-la como solução**
 pro problema de acurácia — o problema está no reconhecimento acústico em
 si, não só na comparação de texto depois.
 
-**Não fechar T002 como aprovado.** Três caminhos possíveis, nenhum
-decidido ainda:
+### Rodada 4 (2026-09-15) — modelo Vosk grande (FalaBrasil, 1.6GB), descarta a hipótese "falta de capacidade"
+
+Testei o caminho 2 dos três listados abaixo: `vosk-model-pt-fb-v0.1.1`
+(FalaBrasil/UFPA, 1.6GB, treinado em 8 bases públicas + 3 privadas de
+PT-BR — bem mais robusto que o "small" de 40MB usado até aqui). Baixado
+de [alphacephei.com/vosk/models](https://alphacephei.com/vosk/models).
+
+Achado técnico à parte: o arquivo `rescore/G.carpa` do modelo tem
+**2.27GB**, e a biblioteca `vosk` (Python, Windows) falhou ao carregá-lo
+(`ConstArpaLm <LmStates> section reading failed` — parece limite de
+arquivo grande na lib, não corrupção de download). Contornado movendo
+`rescore/` pra fora do caminho, o que desativa o rescoring de 2 passos
+(4-gram) mas mantém o modelo acústico maior e o grafo de decodificação
+completo — ainda uma comparação válida do "modelo bem maior/melhor treinado
+ajuda?", só que sem o refinamento final do rescore.
+
+**Resultado: não ajudou.** Vosk grande: 1/14 (7%) — igual ao modelo
+pequeno, só que errando de forma diferente. Preocupante: as transcrições
+do modelo grande são **mais confiantes em respostas erradas** ("gato" →
+"catorze", "casa" → "criar um certo", "cavalo" → "k voar pular") em vez de
+garbage claramente sem sentido — vocabulário maior parece ter dado mais
+chance de alucinar uma palavra real errada, não mais chance de acertar a
+certa.
+
+**Isso descarta a hipótese "só falta capacidade/treino do modelo".** Um
+modelo ~40x maior, especificamente treinado em português brasileiro, teve
+a mesma taxa de acerto que o modelo pequeno genérico contra fala pausada.
+Reforça a leitura da rodada 3: o problema é estrutural em como esses
+motores tratam pausa dentro de palavra, não algo que escala com tamanho
+de modelo.
+
+**Não fechar T002 como aprovado.** Dois caminhos realistas restam (o
+terceiro, "modelo Vosk maior", já foi testado e descartado nesta rodada):
 
 1. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
-   medir quanto da queda de acurácia é só efeito da pausa (mais preciso
-   que só "gravar num ambiente mais controlado").
-2. Testar um modelo Vosk maior (o atual é o "small" pt, ~40MB;
-   existe modelo pt maior, ~1GB+, mais pesado pra embarcar num app infantil
-   mas potencialmente mais preciso).
-3. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria viabilidade
-   de Leitura · voz como modalidade obrigatória no MVP — se nem 15% de
-   acerto em condição real for viável, talvez a modalidade precise de um
+   medir quanto da queda de acurácia é só efeito da pausa (ainda não
+   feito; mediria o tamanho do efeito, não mudaria a conclusão de que ele
+   existe).
+2. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria viabilidade
+   de Leitura · voz como modalidade obrigatória no MVP — se nem um modelo
+   grande passa de ~15% em condição real, talvez a modalidade precise de um
    fallback mais agressivo (ex.: cair pra Leitura·montar mais cedo, não só
-   após 2 falhas).
+   após 2 falhas — D-10), ou o STT sirva só como sinal de "tentou", não
+   como avaliação de acerto/erro.
 
 Também corrigido no processo (independente do resultado): `testar.py`
 normalizava mal nomes de arquivo com `_`/espaço à direita (nasal escapado

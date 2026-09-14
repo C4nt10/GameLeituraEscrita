@@ -349,7 +349,7 @@ Detalhe completo em `specs/001-mvp-desafios-leitura-matematica/research.md`
 
 | # | Questão | O que falta |
 |---|---|---|
-| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para leitura pausada/silabada de criança | Três caminhos em aberto: (1) regravar isolando a variável — mesma palavra fluida vs. pausada, pra medir quanto da queda é só a pausa; (2) testar um modelo Vosk maior (~1GB+, mais pesado); (3) se nenhum motor aguentar pausa mid-palavra, Leitura·voz pode precisar de um fallback mais cedo que o D-10 já previu (2 tentativas), ou reconsiderar se é obrigatória no MVP — nenhum decidido ainda |
+| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para leitura pausada/silabada de criança | Testado e descartado (2026-09-15): modelo Vosk grande (FalaBrasil, 1.6GB, PT-BR) teve a mesma taxa de acerto (7%) que o modelo pequeno — não é falta de capacidade/treino do modelo. Dois caminhos restam: (1) regravar isolando a variável — mesma palavra fluida vs. pausada, pra medir o tamanho do efeito da pausa; (2) reconsiderar a tolerância fonética de D-08/D-09 ou a própria obrigatoriedade de Leitura·voz no MVP — talvez precise de fallback mais cedo que o D-10 (2 tentativas), ou o STT vire só sinal de "tentou", não avaliação de acerto — nenhum decidido ainda |
 
 ### D-37 — tolerância tem dois eixos, não um
 
