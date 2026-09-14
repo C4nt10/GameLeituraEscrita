@@ -116,12 +116,17 @@ def main():
         texto_whisper = normalizar(rodar_whisper(wav))
 
         def bate(esperado: str, transcrito: str) -> bool:
-            # palavra unica: precisa aparecer como palavra inteira (nao substring de
-            # outra) na transcricao. Frase (varias palavras): substring basta, ja
-            # que o reconhecedor pode incluir hesitacao/filler ao redor.
+            # palavra unica: aceita como palavra inteira na transcricao OU como a
+            # concatenacao de todos os tokens transcritos (D-37 — se o motor
+            # fragmentou a transcricao por causa de uma pausa no meio da palavra,
+            # "ga" + "to" vira "gato" concatenado; a pausa nao pode reprovar uma
+            # leitura foneticamente correta, so a precisao do som/palavra conta).
+            # Frase (varias palavras): substring basta, ja que o reconhecedor pode
+            # incluir hesitacao/filler ao redor.
             if " " in esperado:
                 return esperado in transcrito
-            return esperado in transcrito.split() or transcrito == esperado
+            concatenado = transcrito.replace(" ", "")
+            return esperado in transcrito.split() or transcrito == esperado or concatenado == esperado
 
         ok_vosk = bate(esperado, texto_vosk)
         ok_whisper = bate(esperado, texto_whisper)

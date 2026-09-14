@@ -130,13 +130,39 @@ ingênua por igualdade de string rejeitaria uma leitura correta só por
 causa da fragmentação — a camada de avaliação precisa concatenar antes de
 comparar (D-37).
 
+### Rodada 3 (2026-09-15) — testar se a concatenação (D-37) recupera o resultado
+
+Apliquei a mitigação de D-37 no próprio `testar.py` (`bate()` agora aceita
+`esperado` como a concatenação de todos os tokens transcritos, não só
+igualdade exata) e rodei de novo contra os mesmos áudios da rodada 2.
+**Resultado idêntico**: Vosk 1/14 (7%), Whisper 1/14 (7%) — a concatenação
+não recuperou nenhum acerto a mais.
+
+**Isso é um achado real, e desmonta parte da hipótese anterior.** Olhando
+as transcrições linha a linha ("sapato" → "esta a tal", "porta" → "va! ta",
+"pato" → "ta? ta"), não são fragmentos corretos separados por uma pausa
+que a concatenação resolveria — são **sons genuinamente diferentes dos
+esperados**, não apenas mal segmentados. A fragmentação por pausa (D-37,
+efeito colateral técnico) continua sendo um cuidado correto pra manter no
+T028 — é boa prática e não custa nada — mas **não é a explicação principal
+do resultado ruim**. O problema é mais fundo: os modelos parecem errar a
+identidade dos sons/sílabas quando a fala é pausada, não só a colagem
+deles. Isso é consistente com um efeito acústico conhecido — coarticulação
+(a forma como um som influencia o seguinte) carrega informação real que o
+modelo usa pra reconhecer, e falta quando a fala é segmentada — mas neste
+ponto isso é uma hipótese, não algo verificado por este spike.
+
 ### O que isso significa pro produto
 
 Isto deixou de ser "escolher Vosk ou Whisper" e virou uma pergunta maior:
 **reconhecimento de fala offline embarcado pode não aguentar leitura
 pausada/silabada de criança** — nenhum motor testado passou de 14% mesmo
-com áudio humano limpo e curto simulando esse padrão. Ver A-11 em
-`doc/definições002.MD` §11.
+com áudio humano limpo e curto simulando esse padrão, e mitigar só na
+camada de comparação (D-37, rodada 3) não recuperou o resultado. Ver A-11
+em `doc/definições002.MD` §11. Manter a mitigação de D-37 no T028 mesmo
+assim (é higiene correta, sem custo), mas **não tratá-la como solução**
+pro problema de acurácia — o problema está no reconhecimento acústico em
+si, não só na comparação de texto depois.
 
 **Não fechar T002 como aprovado.** Três caminhos possíveis, nenhum
 decidido ainda:
