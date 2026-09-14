@@ -218,39 +218,64 @@ maior que o "small" usado até aqui, ainda 100% offline.
 Testei `whisper medium` (769M parâmetros, vs. 39M do "small") contra os
 mesmos 14 áudios pausados:
 
-| Motor | Resultado |
+| Motor | Resultado (1ª medição) |
 |---|---|
 | Whisper small | 1/14 (7%) |
 | Whisper medium | 4/14 (29%) |
-| Whisper large-v3 | **6/14 (43%)** |
+| Whisper large-v3 | 6/14 (43%) |
 
-**Tendência clara e monotônica: 7% → 29% → 43%, subindo em cada salto de
-tamanho.** Isso é diferente do que vimos com Vosk (modelo 40x maior,
-mesma taxa de acerto, rodada 4) — **a conclusão "capacidade de modelo não
-ajuda" era certa só pro Vosk (Kaldi/lattice), não pro Whisper
-(transformer)**. Correção explícita da rodada 4: não é que tamanho de
-modelo nunca ajuda contra fala pausada — é que a arquitetura do Vosk
-especificamente não se beneficia de mais parâmetros do jeito que a do
-Whisper se beneficia.
+### Rodada 6 (2026-09-15) — a medição em si tinha um furo em D-37
 
-Ainda **abaixo do critério de aceite (≥ 80%)** mesmo no large-v3 — não é
-uma solução pronta, é a melhora mais real encontrada até aqui.
+O dono do projeto perguntou, corretamente: **a comparação acima aplicava
+os dois eixos de tolerância de verdade?** Resposta honesta: só parte.
+`bate()` já concatenava tokens separados por espaço (D-37), mas **o
+Whisper pontua hesitação/pausa com vírgula, ponto e interrogação**
+("ca, sa" pra casa, "ta? ta" pra pato, "fa, va, lo" pra cavalo) —
+`normalizar()` só tirava pontuação das **bordas** da string
+(`.strip(".,!? ")`), não do meio. Uma transcrição como `"ca, sa"` virava
+`"ca, sa"` (vírgula preservada no meio), a concatenação dava `"ca,sa"`,
+e a comparação com `"casa"` falhava — **por causa da própria pontuação
+que marca a pausa que D-37 diz que não pode contar contra a criança.**
+Bug real na medição, não no motor.
 
-**Trade-off que falta medir**: large-v3 tem ~3GB (fp32) — pesado pra
-embarcar num app infantil e mais lento de rodar num aparelho comum;
-medium (~1.5GB fp32, mais leve com quantização int8) já deu metade do
-ganho com fração do peso. Nenhum dos dois foi medido quanto a **tempo de
+Corrigido (`normalizar()` agora remove pontuação em qualquer posição, não
+só nas bordas) e re-testado:
+
+| Motor | 1ª medição (furo em D-37) | Corrigido |
+|---|---|---|
+| Whisper small | 7% | 7% (sem mudança — erros eram genuínos) |
+| Whisper medium | 29% | 29% (sem mudança) |
+| Whisper large-v3 | 43% | **57% (8/14)** |
+
+O `large-v3` ganhou 2 acertos a mais (`casa`, `pato`) só por corrigir a
+medição — ele **já tinha reconhecido os sons certos**, só que separados
+por pontuação de pausa que a comparação anterior não ignorava. Vosk não
+muda (nunca pontuou hesitação nos testes, output sempre foi texto corrido
+sem pontuação interna).
+
+**57% é o número real do large-v3 contra fala pausada até aqui — bem mais
+perto dos 80% do que os 43% registrados antes.** Isso não muda a
+conclusão da rodada 5 (Whisper escala, Vosk não) — reforça ela, e mostra
+que a distância até o critério de aceite é menor do que parecia.
+
+**Trade-off que falta medir**: large-v3 (57%, o melhor resultado) tem
+~3GB (fp32) — pesado pra embarcar num app infantil e mais lento de rodar
+num aparelho comum; medium (29%, ~1.5GB fp32) é bem mais leve mas ficou
+mais perto do small (7%) que do large-v3 nesta amostra — a curva não é
+linear com o tamanho. Nenhum dos dois foi medido quanto a **tempo de
 resposta em dispositivo real** (T002 mediu só acurácia, rodando em
 desktop) — latência alta quebraria a experiência de qualquer forma
 (criança perde o engajamento esperando), então essa medição falta antes
 de decidir.
 
-**Não fechar T002 como aprovado. Caminhos, em ordem de custo crescente:**
+**Não fechar T002 como aprovado — 57% ainda é abaixo do critério de
+aceite, mas a distância diminuiu bastante.** Caminhos, em ordem de custo
+crescente:
 
 1. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
-   Python puro) num dispositivo Android real — se `medium` já rodar rápido
-   o bastante, 29% ainda não fecha os 80%, mas muda a conversa sobre qual
-   checkpoint embarcar.
+   Python puro) num dispositivo Android real — se `large-v3` rodar rápido
+   o bastante, 57% já é uma base bem mais próxima de fechar os 80% do que
+   se pensava antes da correção da rodada 6.
 2. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
    medir quanto da queda de acurácia é só efeito da pausa.
 3. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria

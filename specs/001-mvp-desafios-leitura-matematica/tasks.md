@@ -165,10 +165,14 @@ modalidade, chegar à tela de estrelas.
       classificação(ões), marcador fonético opcional) em
       `app/src/models/desafio_leitura`
 - [ ] T028 [US1] Implementar `avaliacao_leitura`: tolerância fonética sobre
-      a saída do STT (depende de T002 — motor de STT escolhido); concatena
-      resultados fragmentados por pausa antes de comparar, nunca usa
+      a saída do STT (depende de T002 — motor de STT escolhido); remove
+      qualquer pontuação que o motor insira pra marcar pausa/hesitação
+      (vírgula, ponto, interrogação — não só nas bordas, em qualquer
+      posição) e concatena fragmentos antes de comparar, nunca usa
       duração/pausa como critério — faz T020 e T020a passarem — em
-      `app/src/services/avaliacao_leitura` (D-08, D-09, D-37)
+      `app/src/services/avaliacao_leitura` (D-08, D-09, D-37; achado do
+      spike rodada 6, research.md §T002 — uma limpeza incompleta de
+      pontuação já mascarou 2 de 8 acertos numa medição)
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em

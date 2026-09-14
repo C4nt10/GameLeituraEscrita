@@ -80,6 +80,7 @@ def rodar_whisper(caminho_wav: Path, tamanho_modelo: str = "small") -> str:
 
 
 def normalizar(s: str) -> str:
+    import re
     import unicodedata
     s = s.lower().strip()
     s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
@@ -87,7 +88,13 @@ def normalizar(s: str) -> str:
     # separador de frase (O_GATO_CORRE = "o gato corre") — os dois casos
     # colapsam certo virando espaço e comprimindo espaço sobrando.
     s = s.replace("_", " ")
-    return " ".join(s.strip(".,!? ").split())
+    # D-37: o Whisper pontua hesitacao/pausa com virgula, ponto, interrogacao
+    # ("ca, sa", "ta? ta", "fa, va, lo") — essa pontuacao E a marca da pausa
+    # que a tolerancia tem que ignorar. Tirar so das bordas (strip) nao E
+    # suficiente, a pontuacao fica NO MEIO da transcricao. Sem isso, a
+    # concatenacao de bate() falha silenciosamente ("ca,sa" != "casa").
+    s = re.sub(r"[.,!?;:]+", " ", s)
+    return " ".join(s.split())
 
 
 def main():
