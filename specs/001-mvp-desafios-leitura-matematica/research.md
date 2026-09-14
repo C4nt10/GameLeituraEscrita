@@ -106,25 +106,44 @@ Windows) para 4 das palavras e rodei os dois motores contra ele.
 
 **Pipeline e modelos funcionam corretamente** (Vosk 4/4, Whisper 3/4 com
 erro mínimo) — a falha está isolada nas gravações humanas em si, não no
-código nem na escolha de motor. Nível de volume normal não é garantia de
-qualidade: ruído de ambiente, reverberação e características do
-microfone/app de gravação usado não aparecem no `volumedetect`, mas
-degradam o reconhecimento.
+código nem na escolha de motor.
+
+### Diagnóstico refinado (2026-09-15): a variável provável é a pausa, não o ruído
+
+As gravações humanas da rodada 2 simulavam deliberadamente o jeito real
+que uma criança em alfabetização lê: **pausando e travando dentro da
+palavra** ("ga... to"), não fala fluida de adulto. Isso muda a leitura do
+resultado — nível de volume normal não é garantia de qualidade, mas o
+fator dominante aqui é mais específico que "ruído doméstico": **motores de
+ASR (Vosk e Whisper) são treinados majoritariamente sobre fala contínua, e
+uma pausa longa no meio de uma palavra quebra a expectativa acústica/de
+modelo de linguagem de um jeito que nem ruído de fundo quebra.** É um caso
+difícil documentado de reconhecimento de fala — e coincide exatamente com
+o padrão de leitura que o produto precisa tratar como acerto, não como
+ruído (ver D-37 em `doc/definições002.MD` §11, criada a partir desta
+mesma investigação).
+
+Efeito colateral técnico a considerar em T028: se o motor fragmenta a
+transcrição por causa da pausa (ex. devolve `"ga"` e `"to"` como dois
+resultados separados em vez de um `"gato"` contínuo), uma comparação
+ingênua por igualdade de string rejeitaria uma leitura correta só por
+causa da fragmentação — a camada de avaliação precisa concatenar antes de
+comparar (D-37).
 
 ### O que isso significa pro produto
 
 Isto deixou de ser "escolher Vosk ou Whisper" e virou uma pergunta maior:
-**reconhecimento de fala offline embarcado pode não ser confiável o
-suficiente para o uso real** (voz de criança, aparelho doméstico comum,
-sem estúdio) — nenhum motor testado passou de 14% mesmo com áudio humano
-limpo e curto. Ver A-11 em `doc/definições002.MD` §11.
+**reconhecimento de fala offline embarcado pode não aguentar leitura
+pausada/silabada de criança** — nenhum motor testado passou de 14% mesmo
+com áudio humano limpo e curto simulando esse padrão. Ver A-11 em
+`doc/definições002.MD` §11.
 
 **Não fechar T002 como aprovado.** Três caminhos possíveis, nenhum
 decidido ainda:
 
-1. Tentar gravar num ambiente mais controlado (mais perto do microfone,
-   sala mais silenciosa, outro app de gravação) — mais uma rodada antes de
-   desistir da abordagem offline.
+1. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
+   medir quanto da queda de acurácia é só efeito da pausa (mais preciso
+   que só "gravar num ambiente mais controlado").
 2. Testar um modelo Vosk maior (o atual é o "small" pt, ~40MB;
    existe modelo pt maior, ~1GB+, mais pesado pra embarcar num app infantil
    mas potencialmente mais preciso).

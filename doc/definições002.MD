@@ -329,8 +329,18 @@ Resultado: **nenhum motor passou de 14% de acerto**, mesmo depois de
 descartar problemas de metodologia da primeira rodada (áudio com múltiplas
 tentativas por arquivo). Um teste de controle com voz sintética limpa
 confirmou que o pipeline e os modelos funcionam corretamente (Vosk 4/4,
-Whisper 3/4) — a falha está isolada na gravação humana em ambiente
-doméstico comum, não no código.
+Whisper 3/4) — a falha está isolada na gravação humana, não no código.
+
+**Diagnóstico mais específico (2026-09-15):** a rodada de 2026-09-14
+simulava deliberadamente o jeito real que uma criança em alfabetização lê
+— **pausando e travando dentro da palavra** ("ga... to"), sem entonação
+fluida. Isso é provavelmente a causa dominante do resultado ruim, mais que
+"ambiente doméstico": motores de ASR (Vosk e Whisper igual) são treinados
+majoritariamente sobre fala contínua, e uma pausa longa no meio de uma
+palavra quebra a expectativa acústica/de modelo de linguagem do jeito que
+nem ruído de fundo quebra. É um caso difícil conhecido de reconhecimento
+de fala — e é exatamente o padrão de leitura que o produto precisa aceitar
+como certo, não como ruído (ver D-37, abaixo).
 
 Detalhe completo em `specs/001-mvp-desafios-leitura-matematica/research.md`
 §T002.
@@ -339,7 +349,35 @@ Detalhe completo em `specs/001-mvp-desafios-leitura-matematica/research.md`
 
 | # | Questão | O que falta |
 |---|---|---|
-| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para o uso real (voz de criança, sem estúdio) | Três caminhos em aberto: (1) regravar em condição mais controlada antes de desistir da abordagem offline; (2) testar um modelo Vosk maior (~1GB+, mais pesado); (3) reconsiderar a tolerância fonética (D-08/D-09) ou a própria obrigatoriedade de Leitura·voz no MVP — nenhum decidido ainda |
+| **A-11** | Reconhecimento de fala offline pode não ser confiável o suficiente para leitura pausada/silabada de criança | Três caminhos em aberto: (1) regravar isolando a variável — mesma palavra fluida vs. pausada, pra medir quanto da queda é só a pausa; (2) testar um modelo Vosk maior (~1GB+, mais pesado); (3) se nenhum motor aguentar pausa mid-palavra, Leitura·voz pode precisar de um fallback mais cedo que o D-10 já previu (2 tentativas), ou reconsiderar se é obrigatória no MVP — nenhum decidido ainda |
+
+### D-37 — tolerância tem dois eixos, não um
+
+A pergunta "dá pra tolerar mais a leitura hesitante?" (dono do projeto,
+2026-09-15) expôs que D-08 tratava "tolerância fonética" como um conceito
+só. Ela precisa ser dois, com regras opostas:
+
+| Eixo | O que cobre | Tolerância |
+|---|---|---|
+| **Ritmo/pausa/entonação** | Quanto tempo demora, quantas pausas, se soa "fluida" | **Quase irrestrita.** Soletrar/segmentar em sílabas não é erro — é o método fônico funcionando (D-26). Nenhuma regra de avaliação pode usar duração, número de pausas ou "fluência" como critério de acerto/erro. |
+| **Precisão fonética** | Se o som/palavra produzido é o certo | **Continua rígida (D-09 inalterado).** Trocar o som inicial ("pato" por "gato") continua sendo erro, não importa a velocidade com que foi dito. |
+
+**Consequência prática (T028, `avaliacao_leitura`):** a comparação usa só
+o **conteúdo fonético final** transcrito, ignorando pausas/tempo. Se o
+motor de STT fragmentar a transcrição por causa de uma pausa (ex. devolver
+`"ga"` e `"to"` como dois resultados separados em vez de `"gato"`), a
+camada de avaliação deve **concatenar antes de comparar**, não reprovar
+por fragmentação — a fragmentação é characteristic do motor, não um erro
+da criança (Princípio III da constituição, adaptado: falha do
+reconhecimento não é culpa da criança).
+
+**Consequência prática (captura de áudio, telas de Leitura·voz):** o
+toque no microfone não pode ter um timeout curto nem cortar a gravação
+por silêncio breve — se o app corta a gravação assim que detecta uma
+pausa, ele nunca dá tempo da criança terminar de soletrar. Gravação para
+por toque explícito (soltar o botão/tocar de novo) ou um timeout **longo**
+(vários segundos de silêncio, não frações de segundo), nunca por VAD
+agressivo.
 
 ---
 

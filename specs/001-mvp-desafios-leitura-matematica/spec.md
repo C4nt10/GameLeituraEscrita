@@ -54,6 +54,11 @@ Repetir uma vez em cada modalidade.
 7. **Given** o microfone sem permissão do sistema, **When** a criança tenta
    Leitura · voz, **Then** o app explica o motivo real (não um erro
    genérico) e oferece caminho alternativo.
+8. **Given** um desafio de Leitura · voz, **When** a criança lê
+   soletrando/pausando dentro da palavra (ex. "ga... to"), sem entonação
+   fluida, **Then** o app aceita como acerto do mesmo jeito que aceitaria
+   uma leitura fluida — nem a captura de áudio corta por pausa curta, nem
+   a avaliação usa duração/número de pausas como critério (D-37).
 
 ---
 
@@ -224,7 +229,14 @@ combinado nos dois formatos (cooperativo e adversarial).
   (D-19).
 - **FR-004**: O sistema MUST tolerar variação de pronúncia razoável em
   Leitura · voz, e MUST rejeitar uma palavra foneticamente diferente da
-  esperada (ex.: troca do som inicial) (regras do CU-03, D-09).
+  esperada (ex.: troca do som inicial) (regras do CU-03, D-09). Essa
+  tolerância tem dois eixos com regras opostas (D-37, doc002 §11):
+  ritmo/pausa/entonação (quanto tempo demora, quantas pausas, soletrar em
+  sílabas) MUST ser quase irrestrito — nenhuma regra de avaliação MUST
+  usar duração ou número de pausas como critério de acerto/erro; precisão
+  fonética (o som/palavra certo) MUST continuar rígida, sem afrouxar D-09.
+  A captura de áudio MUST NOT cortar a gravação por um timeout curto nem
+  por VAD agressivo — a criança controla quando termina.
 - **FR-005**: O sistema MUST trocar automaticamente de Leitura · voz para
   Leitura · montar após 2 tentativas sem sucesso, com mensagem acolhedora
   (D-10).

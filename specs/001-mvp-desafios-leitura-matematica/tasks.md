@@ -130,6 +130,11 @@ modalidade, chegar à tela de estrelas.
 - [ ] T020 [P] [US1] Teste unitário: tolerância fonética aceita variação de
       pronúncia e rejeita troca do som inicial (D-09) em
       `app/src/__tests__/unit/tolerancia_fonetica_test`
+- [ ] T020a [P] [US1] Teste unitário: leitura soletrada/pausada dentro da
+      palavra (ex. transcrição fragmentada `"ga"` + `"to"`) é aceita como
+      acerto — comparação ignora pausa/duração, só concatena e compara
+      conteúdo fonético (US1 cenário 8, D-37) em
+      `app/src/__tests__/unit/tolerancia_pausa_test`
 - [ ] T021 [P] [US1] Teste de integração: troca automática para Leitura ·
       montar após 2 falhas em Leitura · voz (D-10) em
       `app/e2e/troca_modalidade.yaml`
@@ -160,8 +165,10 @@ modalidade, chegar à tela de estrelas.
       classificação(ões), marcador fonético opcional) em
       `app/src/models/desafio_leitura`
 - [ ] T028 [US1] Implementar `avaliacao_leitura`: tolerância fonética sobre
-      a saída do STT (depende de T002 — motor de STT escolhido) — faz
-      T020 passar — em `app/src/services/avaliacao_leitura` (D-08, D-09)
+      a saída do STT (depende de T002 — motor de STT escolhido); concatena
+      resultados fragmentados por pausa antes de comparar, nunca usa
+      duração/pausa como critério — faz T020 e T020a passarem — em
+      `app/src/services/avaliacao_leitura` (D-08, D-09, D-37)
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em
@@ -171,8 +178,9 @@ modalidade, chegar à tela de estrelas.
       embaralhadas) — faz T024 passar — em
       `app/src/screens/rodada/leitura_montar`
 - [ ] T031 [US1] Implementar tela de desafio — Leitura · voz (palavra
-      visível, app calado, captura de microfone, mostra o que entendeu) em
-      `app/src/screens/rodada/leitura_voz`
+      visível, app calado, captura de microfone, mostra o que entendeu;
+      gravação para por toque explícito ou timeout longo — nunca por VAD
+      agressivo/pausa curta, D-37) em `app/src/screens/rodada/leitura_voz`
 - [ ] T032 [US1] Implementar tela de resultado da rodada (estrelas,
       acertos/erros/precisão, contador de ajuda da modalidade) — faz
       T022 passar — em `app/src/screens/resultado`, reusando T018
@@ -411,7 +419,7 @@ teste correspondente.
 | User Story | Cenários no spec.md | Tarefas de teste |
 |---|---|---|
 | Foundational (sem US própria no spec, mas com contrato/regra testável) | — | T006–T011 |
-| US1 | 7 | T019–T026 (7 tarefas cobrindo os 7 cenários) |
+| US1 | 8 (cenário 8 adicionado 2026-09-15, D-37) | T019–T026 + T020a (8 tarefas cobrindo os 8 cenários) |
 | US2 | 4 | T034–T036 (regras de geração; cenários 1/2 cobertos via T029/T030/T040 de UI + unit acima) |
 | US3 | 5 | T041–T045 (5 tarefas cobrindo os 5 cenários) |
 | US4 | 4 | T050–T052 (cenário 2 coberto por T050) |
