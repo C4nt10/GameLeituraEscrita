@@ -168,11 +168,17 @@ modalidade, chegar à tela de estrelas.
       a saída do STT (depende de T002 — motor de STT escolhido); remove
       qualquer pontuação que o motor insira pra marcar pausa/hesitação
       (vírgula, ponto, interrogação — não só nas bordas, em qualquer
-      posição) e concatena fragmentos antes de comparar, nunca usa
-      duração/pausa como critério — faz T020 e T020a passarem — em
-      `app/src/services/avaliacao_leitura` (D-08, D-09, D-37; achado do
-      spike rodada 6, research.md §T002 — uma limpeza incompleta de
-      pontuação já mascarou 2 de 8 acertos numa medição)
+      posição), concatena fragmentos antes de comparar, e aceita distância
+      de edição pequena (≤1, a calibrar) **com trava dura**: o primeiro
+      som/letra precisa bater exatamente, nunca entra na tolerância —
+      opera D-09 concretamente ("pato" nunca passa como "gato", distâncias
+      diferentes ou não). Nunca usa duração/pausa como critério — faz T020
+      e T020a passarem — em `app/src/services/avaliacao_leitura` (D-08,
+      D-09, D-37; achados do spike rodadas 6-7, research.md §T002 — uma
+      limpeza incompleta de pontuação mascarou 2 acertos, tolerância
+      fonética real levou large-v3 de 57% pra 64%; trava validada contra
+      8 casos adversariais em `spike-stt/testar_tolerancia.py` — 8/8.
+      Reusar essa mesma lógica/casos como base de T020a, não reescrever)
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em

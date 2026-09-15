@@ -97,6 +97,48 @@ def normalizar(s: str) -> str:
     return " ".join(s.split())
 
 
+def distancia_levenshtein(a: str, b: str) -> int:
+    """Numero minimo de insercoes/remocoes/substituicoes pra transformar a em b."""
+    if a == b:
+        return 0
+    if not a:
+        return len(b)
+    if not b:
+        return len(a)
+    anterior = list(range(len(b) + 1))
+    for i, ca in enumerate(a, start=1):
+        atual = [i]
+        for j, cb in enumerate(b, start=1):
+            custo = 0 if ca == cb else 1
+            atual.append(min(anterior[j] + 1, atual[j - 1] + 1, anterior[j - 1] + custo))
+        anterior = atual
+    return anterior[-1]
+
+
+def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: int = 1) -> bool:
+    """Compara com tolerancia a pequena variacao de pronuncia (D-08), mas com trava
+    dura no primeiro som: nunca aceita troca do fonema inicial (D-09 — 'pato' nao
+    pode passar como leitura de 'gato', nao importa a distancia de edicao).
+
+    Frase (varias palavras): mantido como substring exato — tolerancia fonetica
+    por palavra ainda nao se estende a frase inteira neste spike.
+    """
+    if " " in esperado:
+        return esperado in transcrito
+    if not esperado:
+        return False
+    tokens = transcrito.split()
+    candidatos = tokens + ["".join(tokens)]
+    for candidato in candidatos:
+        if not candidato:
+            continue
+        if candidato[0] != esperado[0]:
+            continue  # D-09: som inicial diferente nunca passa, nao importa a distancia
+        if distancia_levenshtein(esperado, candidato) <= distancia_max:
+            return True
+    return False
+
+
 def main():
     arquivos = sorted(
         p for p in PASTA_AUDIO.iterdir()

@@ -258,6 +258,40 @@ perto dos 80% do que os 43% registrados antes.** Isso não muda a
 conclusão da rodada 5 (Whisper escala, Vosk não) — reforça ela, e mostra
 que a distância até o critério de aceite é menor do que parecia.
 
+### Rodada 7 (2026-09-15) — tolerância fonética de verdade (D-08), com trava do D-09
+
+Até aqui todo `bate()` comparava **exato** (depois de concatenar/limpar
+pontuação) — nunca testou a tolerância a variação de pronúncia que D-08
+já exige. Implementei `bate_com_tolerancia_fonetica()`: aceita distância
+de edição (Levenshtein) ≤ 1 contra qualquer token ou a concatenação,
+**com trava dura** — o primeiro som/letra tem que bater exatamente, nunca
+importa a distância (opera D-09 concretamente: "pato" nunca passa como
+leitura de "gato", os dois começam com som diferente, ficam fora do
+candidato antes mesmo de medir distância).
+
+| Motor | Estrita | Tolerante (distância ≤ 1, trava no som inicial) |
+|---|---|---|
+| Whisper small | 7% | 36% (5/14) |
+| Whisper medium | 29% | 43% (6/14) |
+| Whisper large-v3 | 57% | **64% (9/14)** |
+
+Achado que valida a abordagem, não só o número: **"M" foi transcrito como
+"e me"** (fragmentado) — a tolerância aceitou, e isso é **certo de
+verdade**: a letra M se fala "ême" em português (D-13/D-26), o motor
+reconheceu o som certo, só fragmentado pela pausa. Não é frouxidão, é
+tolerância fazendo exatamente o que D-08 pede.
+
+**Validação adversarial da trava (feita na sequência, mesma rodada):**
+`spike-stt/testar_tolerancia.py` testa a lógica sozinha, sem depender de
+áudio — 8 casos incluindo os pares adversariais diretos (`gato`/`pato` nos
+dois sentidos, `mão`/`pão`, `bola`/`pola`) e casos de variação legítima
+(`casa`/`caza`, `gato` fragmentado). **8/8 corretos** — a trava barra
+todo par adversarial testado e aceita toda variação legítima testada.
+Isso não prova que a trava é infalível pra todo caso futuro (novo
+conteúdo pode ter pares mínimos não cobertos aqui), mas tira o risco de
+"nunca foi testado contra o caso óbvio que preocupa" — que era o estado
+antes desta validação.
+
 **Trade-off que falta medir**: large-v3 (57%, o melhor resultado) tem
 ~3GB (fp32) — pesado pra embarcar num app infantil e mais lento de rodar
 num aparelho comum; medium (29%, ~1.5GB fp32) é bem mais leve mas ficou
@@ -268,26 +302,27 @@ desktop) — latência alta quebraria a experiência de qualquer forma
 (criança perde o engajamento esperando), então essa medição falta antes
 de decidir.
 
-**Não fechar T002 como aprovado — 57% ainda é abaixo do critério de
-aceite, mas a distância diminuiu bastante.** Caminhos, em ordem de custo
-crescente:
+**Não fechar T002 como aprovado — 64% (large-v3 + tolerância fonética)
+ainda é abaixo do critério de aceite, mas é a base mais forte encontrada
+até aqui, e já validada contra o caso adversarial óbvio.** Caminhos
+restantes, em ordem de custo crescente:
 
 1. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
    Python puro) num dispositivo Android real — se `large-v3` rodar rápido
-   o bastante, 57% já é uma base bem mais próxima de fechar os 80% do que
-   se pensava antes da correção da rodada 6.
+   o bastante, 64% já é uma base bem mais próxima de fechar os 80% do que
+   se pensava antes das correções das rodadas 6 e 7.
 2. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
    medir quanto da queda de acurácia é só efeito da pausa.
-3. Reconsiderar a tolerância fonética de D-08/D-09 ou a própria
-   obrigatoriedade de Leitura · voz no MVP, se nenhum checkpoint viável de
-   embarcar for suficiente.
+3. Reconsiderar a tolerância fonética de D-08/D-09 (ex.: distância máxima
+   maior que 1) ou a própria obrigatoriedade de Leitura · voz no MVP, se
+   nenhum checkpoint viável de embarcar for suficiente.
 4. Ir para um motor online **exigiria revisar o Princípio V** — decisão de
    constituição, não de implementação. Dado o gap de acurácia infantil que
    afeta nuvem também (Google 9.6-14.7%), e que Whisper offline já captura
    a maior parte da vantagem do Whisper (a mesma arquitetura, só sem ser
    hospedada), não está claro que valeria o custo de abrir mão do "funciona
    sem internet". Não descartado, mas é o caminho mais caro e o menos
-   promissor dos quatro.
+   promissor.
 
 Também corrigido no processo (independente do resultado): `testar.py`
 normalizava mal nomes de arquivo com `_`/espaço à direita (nasal escapado
