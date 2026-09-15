@@ -94,6 +94,10 @@ def normalizar(s: str) -> str:
     # suficiente, a pontuacao fica NO MEIO da transcricao. Sem isso, a
     # concatenacao de bate() falha silenciosamente ("ca,sa" != "casa").
     s = re.sub(r"[.,!?;:]+", " ", s)
+    # mesmo motivo, achado na rodada 8: o Whisper tambem fragmenta silaba
+    # com hifen ("ca-ca", "ga-bo-ca-ca-ze-co-he") — sem isso "ca-ca" nao
+    # concatena pra "caca"/"casa", fica preso como token unico com hifen.
+    s = s.replace("-", " ")
     return " ".join(s.split())
 
 

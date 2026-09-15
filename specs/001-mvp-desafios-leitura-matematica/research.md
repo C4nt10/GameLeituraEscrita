@@ -292,31 +292,88 @@ conteúdo pode ter pares mínimos não cobertos aqui), mas tira o risco de
 "nunca foi testado contra o caso óbvio que preocupa" — que era o estado
 antes desta validação.
 
-**Trade-off que falta medir**: large-v3 (57%, o melhor resultado) tem
-~3GB (fp32) — pesado pra embarcar num app infantil e mais lento de rodar
-num aparelho comum; medium (29%, ~1.5GB fp32) é bem mais leve mas ficou
-mais perto do small (7%) que do large-v3 nesta amostra — a curva não é
-linear com o tamanho. Nenhum dos dois foi medido quanto a **tempo de
-resposta em dispositivo real** (T002 mediu só acurácia, rodando em
-desktop) — latência alta quebraria a experiência de qualquer forma
-(criança perde o engajamento esperando), então essa medição falta antes
-de decidir.
+### Rodada 8 (2026-09-15) — vocabulário no prompt + fix de hífen: 86%, primeira vez acima do critério
 
-**Não fechar T002 como aprovado — 64% (large-v3 + tolerância fonética)
-ainda é abaixo do critério de aceite, mas é a base mais forte encontrada
-até aqui, e já validada contra o caso adversarial óbvio.** Caminhos
-restantes, em ordem de custo crescente:
+O dono do projeto pediu mais um tratamento pra aumentar o número. Dois
+testados:
 
-1. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
+**1. `initial_prompt` com o vocabulário da rodada.** No app real, sempre
+se sabe o conjunto de palavras possíveis daquela combinação
+nível×classificação (FR-011 já garante ≥12 itens). Passar essa lista como
+`initial_prompt` do faster-whisper é reconhecimento com vocabulário
+restrito — técnica padrão de produto de voz (é como assistentes de voz
+enviesam pra nomes de contato, ou um IVR enviesa pras opções do menu), não
+"colar a resposta": o modelo ainda decide pela evidência acústica, o
+prompt só influencia o modelo de linguagem.
+
+**Checagem de segurança antes de confiar nisso** (o risco óbvio: será que
+o prompt não faz o modelo "chutar" uma palavra da lista só por ela estar
+lá, violando D-09?): testei com voz sintética limpa dizendo "pato" com
+`gato` no vocabulário do prompt — reconheceu "pato" correto, não "gato".
+Testei de novo com a gravação humana real e difícil de "pato" — não virou
+"gato" (a trava barrou), só continuou não reconhecendo a palavra certa
+também. **Pior caso observado: falso negativo (continua não sabendo),
+nunca falso positivo (nunca credita a palavra errada).**
+
+**2. Fix de mais um buraco na limpeza de pontuação**: o Whisper também
+fragmenta sílaba com **hífen** ("ca-ca" pra "casa", achado ao rodar com
+prompt) — mesmo problema da vírgula/ponto da rodada 6, só que com outro
+caractere. `normalizar()` agora trata hífen como pausa (vira espaço) do
+mesmo jeito. Revalidei `testar_tolerancia.py` depois do fix — **8/8,
+trava continua de pé**.
+
+| Motor/tratamento | Resultado |
+|---|---|
+| large-v3, estrito | 57% |
+| large-v3, + tolerância fonética (rodada 7) | 64% |
+| large-v3, + `initial_prompt` do vocabulário | 79% |
+| large-v3, + fix do hífen | **86% (12/14)** |
+
+**Primeira vez acima do critério de aceite (≥80%).** Os 2 que continuam
+errando: `cavalo` (reconhecido como "pa va lo" — som inicial genuinamente
+diferente, a trava do D-09 rejeita corretamente) e a frase `o gato corre`
+(comparação de frase ainda não ganhou tolerância, só a de palavra única).
+
+**Ressalva séria, que impede fechar T002 mesmo com 86%:** essa lógica de
+comparação (concatenação, limpeza de pontuação/hífen, tolerância com
+trava) foi **ajustada olhando os erros destes mesmos 14 áudios**, rodada
+após rodada (6, 7 e 8). Isso é risco real de **overfitting numa amostra
+de 14 itens, 1 pessoa só**. Parte da melhora pode ser regra genuinamente
+melhor (o fix de pontuação certamente é — corrige um bug de verdade,
+independente da amostra); parte pode ser só "aprendi as manias de
+transcrição deste teste específico" e não generaliza pra áudio novo.
+**Antes de tratar 86% como número real, falta testar contra áudio novo
+que não foi usado pra ajustar nada** — outra pessoa lendo, ou a mesma
+pessoa gravando de novo sem eu ter visto o resultado antes de fixar a
+lógica.
+
+**Trade-off que ainda falta medir**: large-v3 (~3GB fp32, ou quantizado
+int8 aqui usado no teste) é pesado pra embarcar e mais lento que os
+menores; nenhuma medição de **tempo de resposta em dispositivo real**
+foi feita (tudo rodou em desktop) — latência alta quebra a experiência de
+qualquer forma. `initial_prompt` também tem custo: o app precisa montar e
+passar a lista de vocabulário a cada desafio, pequeno mas não nulo.
+
+**Não fechar T002 como aprovado — 86% é o melhor número até aqui, mas com
+duas pendências sérias antes de virar decisão.** Caminhos restantes, em
+ordem de custo crescente:
+
+1. **Validar contra áudio novo** (não usado pra ajustar `normalizar()`/
+   `bate_com_tolerancia_fonetica()`) — o teste mais barato e mais
+   importante agora, é o que decide se 86% é real ou overfit na amostra
+   de 14. Regravar as mesmas 14 palavras (ou um conjunto novo) sem mexer
+   mais na lógica de comparação até depois de rodar.
+2. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
    Python puro) num dispositivo Android real — se `large-v3` rodar rápido
-   o bastante, 64% já é uma base bem mais próxima de fechar os 80% do que
-   se pensava antes das correções das rodadas 6 e 7.
-2. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
-   medir quanto da queda de acurácia é só efeito da pausa.
-3. Reconsiderar a tolerância fonética de D-08/D-09 (ex.: distância máxima
+   o bastante, o número validado no passo 1 já dá base pra decidir qual
+   checkpoint embarcar.
+3. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
+   medir quanto da queda de acurácia original (antes de qualquer
+   tratamento) era só efeito da pausa.
+4. Reconsiderar a tolerância fonética de D-08/D-09 (ex.: distância máxima
    maior que 1) ou a própria obrigatoriedade de Leitura · voz no MVP, se
-   nenhum checkpoint viável de embarcar for suficiente.
-4. Ir para um motor online **exigiria revisar o Princípio V** — decisão de
+   a validação do passo 1 não se sustentar.
+5. Ir para um motor online **exigiria revisar o Princípio V** — decisão de
    constituição, não de implementação. Dado o gap de acurácia infantil que
    afeta nuvem também (Google 9.6-14.7%), e que Whisper offline já captura
    a maior parte da vantagem do Whisper (a mesma arquitetura, só sem ser

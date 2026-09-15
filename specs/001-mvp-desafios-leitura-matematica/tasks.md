@@ -32,14 +32,17 @@ tinha essa disciplina.
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
       gravados e registrar o resultado em `research.md`. **Status
-      (2026-09-12): rodado, resultado inconclusivo** — os áudios
-      recebidos tinham múltiplas tentativas por arquivo (2 a 18 trechos de
-      fala por gravação), não um enunciado único; precisa regravar antes
-      do critério de aceite valer. **Critério de aceite**: Vosk é mantido
-      como motor (research.md, T001) se acertar **≥ 80% das 14 palavras
-      (12/14)**; abaixo disso, avaliar o custo extra de whisper.cpp (ver
-      "Consequência arquitetural" em research.md) antes de prosseguir
-      para T028
+      (2026-09-15, rodada 8): 86% (12/14)** com whisper large-v3 +
+      tolerância fonética (trava D-09 validada) + `initial_prompt` de
+      vocabulário — primeira vez acima do critério de aceite. **Não
+      fechar ainda**: medido na mesma amostra usada pra ajustar a lógica
+      de comparação (risco de overfitting) e sem medir latência em
+      dispositivo real. Próximo passo: validar contra áudio novo sem
+      mexer mais na lógica, e medir tempo de resposta num Android real —
+      ver research.md §T002 pra timeline completa (rodadas 1-8).
+      **Critério de aceite**: motor mantido se acertar **≥ 80% das 14
+      palavras (12/14)** *num teste validado contra áudio novo*, não só
+      na amostra de ajuste
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)
@@ -178,7 +181,15 @@ modalidade, chegar à tela de estrelas.
       limpeza incompleta de pontuação mascarou 2 acertos, tolerância
       fonética real levou large-v3 de 57% pra 64%; trava validada contra
       8 casos adversariais em `spike-stt/testar_tolerancia.py` — 8/8.
-      Reusar essa mesma lógica/casos como base de T020a, não reescrever)
+      Reusar essa mesma lógica/casos como base de T020a, não reescrever.
+      **Também**: passar o vocabulário da combinação nível×classificação
+      da rodada como `initial_prompt`/hint do motor de STT (rodada 8 do
+      spike — reconhecimento com vocabulário restrito, técnica padrão,
+      não "colar a resposta": levou large-v3 de 64% pra 86%, sem falso
+      positivo observado mesmo em áudio difícil). **Ressalva a resolver
+      antes de embarcar**: 86% foi medido na mesma amostra de 14 áudios
+      usada pra ajustar a lógica — risco de overfitting, precisa validar
+      contra áudio novo (T002) antes de tratar como número real)
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em
