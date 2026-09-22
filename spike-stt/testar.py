@@ -248,6 +248,54 @@ def bate_por_fuzz_ratio(esperado: str, transcrito: str, limiar: int = 80,
     return False
 
 
+def bate_por_fonetizador_externo(esperado: str, transcrito: str, distancia_max: int = 1,
+                                  vocabulario_conhecido_fon: "set[str] | None" = None,
+                                  usar_damerau: bool = True) -> bool:
+    """Mesma estrutura/travas de bate_com_tolerancia_fonetica, mas usando
+    `fonetizador_externo.fonetiza()` (biblioteca de terceiros, vendorizada em
+    `fonetizador_externo.py` — github.com/alvelvis/fonetizador, sem licenca
+    declarada, ok pra investigacao/spike, NAO pra produto sem resolver isso)
+    em vez do fonema aproximado caseiro (`_classe_fonema_inicial` +
+    `fonetica.fonemizar_pt`).
+
+    Achado ao integrar (2026-09-22, rodada 17): `fonetiza()` so funciona
+    palavra por palavra — passar string com espaco devolve resultado
+    inconsistente (nao e so "nao transforma", produz fonema errado). Por
+    isso aqui SEMPRE fonemiza token por token antes de concatenar, nunca a
+    string bruta com espaco.
+
+    `vocabulario_conhecido_fon` deve vir JA fonemizado (aplicar `fonetiza()`
+    em cada palavra do banco antes de montar o set) — comparar fonema com
+    string crua do banco não faria sentido.
+    """
+    from fonetizador_externo import fonetiza
+
+    if " " in esperado:
+        return esperado in transcrito
+    if not esperado:
+        return False
+    fon_esperado = fonetiza(esperado)
+    if not fon_esperado:
+        return False
+    fonema_inicial_esperado = fon_esperado[0]
+    tokens = transcrito.split()
+    fon_tokens = [fonetiza(t) for t in tokens if t]
+    candidatos_fon = fon_tokens + ["".join(fon_tokens)]
+    dist_fn = distancia_damerau_levenshtein if usar_damerau else distancia_levenshtein
+    for fon_cand in candidatos_fon:
+        if not fon_cand:
+            continue
+        if fon_cand == fon_esperado:
+            return True
+        if fon_cand[0] != fonema_inicial_esperado:
+            continue  # D-09: fonema inicial diferente nunca passa
+        if vocabulario_conhecido_fon and fon_cand in vocabulario_conhecido_fon and fon_cand != fon_esperado:
+            continue  # e o fonema de outra palavra real e diferente do banco
+        if dist_fn(fon_esperado, fon_cand) <= distancia_max:
+            return True
+    return False
+
+
 def main():
     arquivos = sorted(
         p for p in PASTA_AUDIO.iterdir()

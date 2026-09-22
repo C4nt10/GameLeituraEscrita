@@ -714,15 +714,86 @@ variância execução-a-execução, qualquer número isolado tem uma margem de
 incerteza de alguns pontos percentuais — a faixa 62-76% descreve melhor
 o que esperar do que qualquer número único.
 
+### Rodada 17 (2026-09-22) — fonetizador externo (github.com/alvelvis/fonetizador): também pior
+
+Pedido do dono do projeto: testar a biblioteca `foneticabr`/método
+`fonetizar` — não existe no PyPI sob esse nome, e o único repositório
+`FoneticaBR` no GitHub é PL/SQL (Oracle), inutilizável aqui. O candidato
+mais próximo real é
+[`alvelvis/fonetizador`](https://github.com/alvelvis/fonetizador) — sua
+função pública se chama `fonetiza()`, não `fonetizar()` (nome
+aproximado, mesmo projeto). **Sem licença declarada no repositório** —
+aceitável pra investigação/spike, mas não deve virar dependência de
+produto sem resolver isso com o autor ou trocar por alternativa
+licenciada. Vendorizado localmente em `spike-stt/fonetizador_externo.py`
+(não está no PyPI, não dá pra `pip install`).
+
+É uma transcrição fonética bem mais completa que o `fonetica.py` caseiro
+da rodada 14 — cobre tonicidade, ditongos, redução de vogal átona final
+(`corre`→ termina em som de "i", `carro`→ termina em som de "u", regra
+real do português brasileiro que o fonemizador caseiro não tinha) e o
+mesmo caso de "c"/"g" que já tratávamos.
+
+**Achado de integração, antes de qualquer resultado**: `fonetiza()` só
+funciona **palavra por palavra** — passar uma string com espaço não
+"simplesmente não transforma", produz fonema **inconsistente**
+(`fonetiza("e me")` ≠ `fonetiza("e") + fonetiza("me")`). Implementação
+(`bate_por_fonetizador_externo()`) sempre fonemiza token por token antes
+de concatenar, nunca a string bruta com espaço — mesmo cuidado do D-37,
+aplicado agora na camada fonética.
+
+**Checagem adversarial** (19 casos): **18/19**. A única "falha" é
+esperada, não bug: `perna`/`prena`, que a rodada 15 tinha aceitado via
+Damerau-Levenshtein na ortografia. A distância fonética REAL entre elas
+(via este fonemizador) é **3**, não 1 — `perna` mantém o "r" preso à
+sílaba anterior (tepe/coda), `prena` tem "pr" como encontro consonantal
+no início — estruturas de sílaba genuinamente diferentes, não só letras
+trocadas de lugar. **Isso não invalida a decisão da rodada 15** (o mais
+provável ainda é que a criança disse "perna" certo e o Whisper errou a
+ordem na transcrição, não que ela disse outra coisa), mas mostra que
+aquela tolerância foi uma escolha prática (aceitar provável erro do
+motor), não uma equivalência fonética de verdade — vale registrar a
+diferença.
+
+Rodado contra os 3 Whisper, mesmo vocabulário no prompt, comparando com
+o método atual (Damerau-Levenshtein na ortografia):
+
+| Motor | Damerau-Levenshtein (atual) | Fonetizador externo |
+|---|---|---|
+| Whisper small | 67% (14/21) | 67% (14/21) |
+| Whisper medium | 71% (15/21) | 67% (14/21) |
+| Whisper large-v3 | 71% (15/21) | **57% (12/21)** |
+
+**Zero vitórias pro fonetizador externo — empatou ou perdeu em todos.**
+Causa raiz, olhando os casos que divergem (`cavalo`→"ca va lo",
+`casa`→"ca ca"): fonemizar **cada fragmento isoladamente** introduz
+ruído de tonicidade que a concatenação de letras crua não tinha — "ca"
+sozinho recebe marcação de sílaba tônica diferente da que "ca" tem
+dentro de "cavalo"/"casa" inteiras, então o fonema do fragmento concatenado
+se afasta mais da palavra completa do que a simples soma de letras se
+afastava. Paradoxo real: **uma transcrição fonética mais rigorosa piora
+quando o texto de entrada já vem fragmentado** (que é exatamente o
+padrão de leitura pausada de criança que este spike inteiro investiga) —
+ferramentas feitas pra texto contínuo bem formado carregam uma
+suposição que nosso caso de uso quebra estruturalmente.
+
+**Conclusão: mais uma técnica testada e descartada.** Mantida
+`bate_por_fonetizador_externo()` em `testar.py` (documentada), mas **não
+recomendada**. Depois de 4 tentativas de trocar/refinar o critério de
+comparação (tolerância com trava — vencedora, rodada 7/12; Damerau —
+pequeno ganho real, rodada 15; `fuzz.ratio` — pior, rodada 16;
+fonetizador externo — pior, rodada 17), o método atual continua sendo o
+melhor validado: `bate_com_tolerancia_fonetica(..., usar_damerau=True)`.
+
 **Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
 um número mais honesto agora: **62-76% é a melhor estimativa atual**
 (faixa, não ponto único — rodada 16 mostrou variância execução-a-execução
 do próprio Whisper) (Whisper, qualquer tamanho, com vocabulário no prompt
-e Damerau-Levenshtein), não 86%. `fuzz.ratio` testado e descartado
-(rodada 16, pior que o método atual). Caminhos restantes, em ordem de
-custo crescente — o que dava pra testar sem depender de mais nada do dono
-do projeto já foi testado (rodadas 1-16); os que sobram **exigem ação de
-fora do spike**:
+e Damerau-Levenshtein), não 86%. `fuzz.ratio` (rodada 16) e o fonetizador
+externo (rodada 17) testados e descartados — nenhum superou o método
+atual. Caminhos restantes, em ordem de custo crescente — o que dava pra
+testar sem depender de mais nada do dono do projeto já foi testado
+(rodadas 1-17); os que sobram **exigem ação de fora do spike**:
 
 **Correção importante (2026-09-21):** as 15 rodadas deste spike **já
 foram feitas com voz de uma criança real em fase de alfabetização**, não
