@@ -306,6 +306,20 @@ enviesam pra nomes de contato, ou um IVR enviesa pras opções do menu), não
 "colar a resposta": o modelo ainda decide pela evidência acústica, o
 prompt só influencia o modelo de linguagem.
 
+> **Isto NÃO é treinar/fazer fine-tuning do modelo** — é uma dica de
+> contexto passada a cada chamada de `transcribe()`, que influencia só a
+> busca de decodificação daquela transcrição específica. Os pesos do
+> `large-v3` continuam sendo exatamente os do checkpoint original baixado
+> do Hugging Face, sem nenhuma alteração permanente. Nenhum treinamento
+> rodou neste spike, em nenhuma rodada — sem isso ficar claro, a queda de
+> 86% (rodada 8) para 57% em palavras novas (rodada 9) poderia parecer
+> "o modelo decorou as 14 palavras de treino", o que é uma leitura errada:
+> o modelo está igualmente "frio" (pesos inalterados) para as 23 palavras
+> testadas nas duas rodadas. A queda vem da **lógica de comparação**
+> (`normalizar()`, tolerância), ajustada olhando as manias de transcrição
+> destas 14 palavras especificamente — não do modelo "sabendo mais" sobre
+> elas.
+
 **Checagem de segurança antes de confiar nisso** (o risco óbvio: será que
 o prompt não faz o modelo "chutar" uma palavra da lista só por ela estar
 lá, violando D-09?): testei com voz sintética limpa dizendo "pato" com
