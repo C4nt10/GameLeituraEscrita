@@ -951,3 +951,28 @@ Também corrigido no processo (independente do resultado): `testar.py`
 normalizava mal nomes de arquivo com `_`/espaço à direita (nasal escapado
 e frase), e quebrava com `UnicodeEncodeError` no console do Windows
 (cp1252). Ambos corrigidos e commitados nas duas rodadas.
+
+### Encerramento do spike (2026-09-22)
+
+**T002 fechado por agora**, a pedido do dono do projeto. Fechado como
+**investigação concluída**, não como "problema resolvido" — as 19
+rodadas esgotaram tudo que dava pra testar sem depender de mais nada de
+fora do spike (motores diferentes, ajuste de vocabulário via prompt, 4
+técnicas de comparação, inclusive um ASR fonético nativo). O resultado
+honesto continua **62-81%**, abaixo do critério de aceite (≥80%) na
+leitura estrita.
+
+O que sobrevive ao fechamento, sem bloquear o resto do roadmap:
+
+1. **Medir latência real + testar STT nativo Android** — só é possível
+   com o ambiente do T003 montado (Android SDK/emulador); não é uma
+   incógnita de acurácia, é de performance/plataforma.
+2. **Decisão de produto**: aceitar 62-81% pro MVP como está, ou revisar
+   D-08/D-09/a obrigatoriedade de Leitura · voz — não é mais uma questão
+   técnica, pode ser decidida a qualquer momento pelo dono do projeto,
+   independente do calendário do T003.
+
+Se qualquer uma dessas pendências mudar o cenário (dispositivo real
+disponível, ou decisão de produto sobre o critério), reabrir T002 com uma
+nova rodada numerada, mantendo o histórico das 19 rodadas anteriores
+intacto.

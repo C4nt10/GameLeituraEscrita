@@ -30,8 +30,14 @@ tinha essa disciplina.
       TypeScript**, ver [`research.md`](./research.md) (revisado em
       2026-09-13, trocado de Flutter pela familiaridade de quem constrói);
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
-- [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
-      gravados e registrar o resultado em `research.md`. **Status final
+- [x] T002 **FECHADO por agora (2026-09-22)** — Rodar o spike de STT
+      (`spike-stt/testar.py`) com os 14 áudios gravados e registrar o
+      resultado em `research.md`. Spike concluído: 19 rodadas, todas as
+      avenidas testáveis sem dispositivo real esgotadas (motores, ajuste
+      de vocabulário, 4 métodos de comparação, ASR fonético nativo).
+      Fechado como investigação, **não como "problema resolvido"** — o
+      resultado fica **abaixo do critério de aceite** e a decisão de
+      produto sobre isso segue em aberto (ver abaixo). **Status final
       (2026-09-22, rodada 19 — 19 rodadas ao todo)**: **62-81%** (faixa,
       não ponto único — variância execução-a-execução do Whisper,
       achado da rodada 16) (Whisper small/medium/large-v3, com
@@ -51,7 +57,12 @@ tinha essa disciplina.
       2026-09-21). Ver research.md §T002 (rodadas 1-19) pra timeline e
       análise completas. **Critério de aceite**: não cumprido nos motores
       offline embarcáveis testados até aqui; decisão de produto pendente
-      sobre se 62-81% é aceitável pro MVP
+      sobre se 62-81% é aceitável pro MVP. **Pendências que sobrevivem ao
+      fechamento do spike** (não bloqueiam T003 em diante): (1) medir
+      latência real + testar STT nativo Android — retomar quando o T003
+      montar o ambiente Android; (2) decisão do dono do produto sobre
+      aceitar 62-81% pro MVP ou revisar D-08/D-09/obrigatoriedade de
+      Leitura · voz — não técnica, pode acontecer a qualquer momento
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)
