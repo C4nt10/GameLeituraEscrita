@@ -32,19 +32,19 @@ tinha essa disciplina.
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
       gravados e registrar o resultado em `research.md`. **Status
-      (2026-09-21, rodada 9 — validação a frio, sem mexer na lógica
-      antes de rodar)**: as 14 palavras originais, gravadas de novo numa
-      sessão nova, **replicaram 86% exato** (mesmos 2 erros de antes —
-      não foi sorte). Mas 7 palavras novas do banco de conteúdo real
-      (fora do que ajustou a lógica) caíram pra **57%**. Critério de
-      aceite tecnicamente cumprido nas 14 palavras específicas; não
-      cumprido se o padrão for generalização pro banco de conteúdo
-      inteiro. **Decisão de produto pendente, não técnica** — ver
-      research.md §T002 (rodadas 1-9) pra timeline e análise completas.
-      **Critério de aceite original**: motor mantido se acertar
-      **≥ 80% das 14 palavras (12/14)** *num teste validado contra áudio
-      novo* — cumprido; critério não previa o caso "generaliza menos pra
-      conteúdo nunca visto", que apareceu na prática
+      (2026-09-21, rodada 10 — contexto de prompt corrigido pra derivar
+      do banco de conteúdo real, de forma uniforme, em vez de lista solta
+      arbitrária)**: **70% (14/20)** — os 86% das rodadas 8-9 não se
+      sustentaram: 7 das 14 palavras originais nunca estiveram no banco
+      real, e o `initial_prompt` usado pra elas não representava o que o
+      app geraria de verdade. Com contexto uniforme e realista pra todas,
+      as mesmas 14 palavras/mesmo áudio caíram de 86% pra ~77% — o ganho
+      do prompt é sensível ao conteúdo exato da lista, não um efeito
+      estável. **70% é a melhor estimativa atual, abaixo do critério de
+      aceite.** Ver research.md §T002 (rodadas 1-10) pra timeline e
+      análise completas. **Critério de aceite**: motor mantido se acertar
+      **≥ 80%** *com contexto de prompt realista e consistente* — não
+      cumprido
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)

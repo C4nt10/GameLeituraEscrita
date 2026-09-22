@@ -52,6 +52,7 @@
   { "palavra": "gaivota", "nivel": 3, "classificacoes": ["animais"] },
   { "palavra": "lagarto", "nivel": 3, "classificacoes": ["animais"] },
   { "palavra": "pardal", "nivel": 3, "classificacoes": ["animais"] },
+  { "palavra": "cavalo", "nivel": 3, "classificacoes": ["animais"] },
 
   { "palavra": "elefante", "nivel": 4, "classificacoes": ["animais"] },
   { "palavra": "tigre", "nivel": 4, "classificacoes": ["animais"], "marcador_fonetico": "encontro_consonantal" },
@@ -85,6 +86,7 @@
   { "palavra": "leite", "nivel": 2, "classificacoes": ["comida"] },
   { "palavra": "queijo", "nivel": 2, "classificacoes": ["comida"] },
   { "palavra": "melão", "nivel": 2, "classificacoes": ["comida"] },
+  { "palavra": "pão", "nivel": 2, "classificacoes": ["comida"] },
 
   { "palavra": "banana", "nivel": 3, "classificacoes": ["comida"] },
   { "palavra": "laranja", "nivel": 3, "classificacoes": ["comida"] },
@@ -129,6 +131,8 @@
   { "palavra": "bule", "nivel": 2, "classificacoes": ["casa"] },
   { "palavra": "balde", "nivel": 2, "classificacoes": ["casa"] },
   { "palavra": "lousa", "nivel": 2, "classificacoes": ["casa"] },
+  { "palavra": "bola", "nivel": 2, "classificacoes": ["casa"] },
+  { "palavra": "casa", "nivel": 2, "classificacoes": ["casa"] },
 
   { "palavra": "quarto", "nivel": 3, "classificacoes": ["casa"] },
   { "palavra": "janela", "nivel": 3, "classificacoes": ["casa"] },
@@ -142,6 +146,7 @@
   { "palavra": "garagem", "nivel": 3, "classificacoes": ["casa"] },
   { "palavra": "gaveta", "nivel": 3, "classificacoes": ["casa"] },
   { "palavra": "corredor", "nivel": 3, "classificacoes": ["casa"] },
+  { "palavra": "porta", "nivel": 3, "classificacoes": ["casa"] },
 
   { "palavra": "banheiro", "nivel": 4, "classificacoes": ["casa"], "marcador_fonetico": "digrafo" },
   { "palavra": "colchão", "nivel": 4, "classificacoes": ["casa"], "marcador_fonetico": "digrafo" },
@@ -169,6 +174,7 @@
   { "palavra": "colo", "nivel": 2, "classificacoes": ["corpo"] },
   { "palavra": "cara", "nivel": 2, "classificacoes": ["corpo"] },
   { "palavra": "peito", "nivel": 2, "classificacoes": ["corpo"] },
+  { "palavra": "mão", "nivel": 2, "classificacoes": ["corpo"] },
 
   { "palavra": "perna", "nivel": 3, "classificacoes": ["corpo"] },
   { "palavra": "costas", "nivel": 3, "classificacoes": ["corpo"] },
@@ -182,6 +188,7 @@
   { "palavra": "canela", "nivel": 3, "classificacoes": ["corpo"] },
   { "palavra": "coluna", "nivel": 3, "classificacoes": ["corpo"] },
   { "palavra": "sovaco", "nivel": 3, "classificacoes": ["corpo"] },
+  { "palavra": "sapato", "nivel": 3, "classificacoes": ["corpo"] },
 
   { "palavra": "braço", "nivel": 4, "classificacoes": ["corpo"], "marcador_fonetico": "encontro_consonantal" },
   { "palavra": "ombro", "nivel": 4, "classificacoes": ["corpo"], "marcador_fonetico": "encontro_consonantal" },

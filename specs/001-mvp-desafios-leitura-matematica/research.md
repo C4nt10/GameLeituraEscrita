@@ -413,17 +413,54 @@ conjuntos:
   Levenshtein) teria aceitado esse caso. Refinamento real, não testado
   ainda.
 
-**Isso muda a leitura de T002**: o critério de aceite tal como está
-escrito em `tasks.md` ("≥80% das 14 palavras, validado contra áudio
-novo") **foi tecnicamente cumprido** — 86% numa sessão nova. Mas o
-espírito da pergunta (esse motor é confiável pro jogo de verdade, com
-centenas de palavras possíveis) aponta pra 57-74%, não 86%. **Decisão de
-produto, não técnica**: tratar 86% como suficiente (o critério original
-foi sobre essas 14 palavras especificamente) ou tratar 57-74% como o
-número real (generalização pro banco de conteúdo inteiro).
+### Rodada 10 (2026-09-21) — contexto consistente pra todas: 86% não se sustenta
 
-**Não fechar T002 sozinho — esta decisão é do dono do projeto.** Caminhos
-restantes, em ordem de custo crescente:
+O dono do projeto pediu pra fornecer "o contexto atualizado" ao Whisper.
+Ao investigar isso a sério, achei um problema de metodologia: das 14
+palavras originais, **7 (`bola`, `casa`, `cavalo`, `mão`, `pão`, `porta`,
+`sapato`) nunca estiveram no banco de conteúdo real** (`conteudo/
+leitura.json`) — são exemplos históricos do `doc001`/`doc002`
+("bola, casa, pato" nível 2; "porta, sapato, cavalo" nível 3) que nunca
+viraram entrada de conteúdo de verdade. O `initial_prompt` que usei nas
+rodadas 8-9 pra essas 14 era uma **lista solta arbitrária** (as 14
+palavras do próprio teste), não o vocabulário real de nível×classificação
+que o app geraria — diferente do que fiz corretamente pras 7 palavras
+novas.
+
+Corrigido: adicionei essas 7 ao banco (rascunho, mesma ressalva de sempre
+— `conteudo/README.md`), nas classificações que os próprios docs já
+sugeriam (`porta`/`cavalo` nível 3, `bola`/`casa`/`mão`/`pão` nível 2), e
+rodei **todas as 20 palavras válidas com contexto derivado do banco,
+de forma uniforme** — o mesmo processo que o app real usaria pra montar
+o prompt de qualquer rodada.
+
+**Resultado: 70% (14/20), não 86%.** E o mais revelador não é o número
+final, é a comparação direta: as **mesmas 14 palavras**, com o **mesmo
+áudio**, só trocando o conteúdo do prompt (lista solta arbitrária →
+vocabulário real do banco), caíram de 86% pra ~77% — `p` e `porta`, que
+antes acertavam, agora erraram (`p` → "b", `porta` → "ta").
+
+**Isso é o achado mais importante das 10 rodadas**: o ganho do
+`initial_prompt` **não é um efeito estável e generalizável** — é sensível
+ao conteúdo exato da lista (tamanho, quais palavras estão perto
+foneticamente, quantos itens). Uma lista de 14 itens heterogêneos (que
+por acaso incluía sempre a palavra-alvo) enviesou melhor que o
+vocabulário real de 12-13 itens da mesma classificação. **86% não deve
+ser tratado como o número real do `initial_prompt` — foi, em boa parte,
+artefato da lista específica usada, não uma propriedade confiável da
+técnica.** 70% (ou os 57% do conjunto totalmente novo) são leituras mais
+honestas do que esperar em produção.
+
+**Isso muda a leitura de T002 outra vez**: o critério de aceite tal como
+está escrito em `tasks.md` foi cumprido na rodada 9 (86%) só porque o
+teste ainda não usava contexto realista e consistente. Com o teste
+metodologicamente correto (rodada 10), **o número cai pra 70%, abaixo do
+critério — T002 não deveria ser considerado aprovado com base nos números
+das rodadas 8-9.**
+
+**Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
+um número mais honesto agora: **70% é a melhor estimativa atual**, não
+86%. Caminhos restantes, em ordem de custo crescente:
 
 1. Testar Damerau-Levenshtein (transposição como 1 edição) — barato,
    pode recuperar casos como `perna`/`prena` sem abrir a trava do D-09.

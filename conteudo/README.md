@@ -15,12 +15,17 @@ Quando o projeto for criado, movem para `app/assets/conteudo/` (`plan.md`
 
 ## O que tem
 
-- `leitura.json` — 265 entradas: alfabeto completo (nível 1, 26 letras),
+- `leitura.json` — 272 entradas: alfabeto completo (nível 1, 26 letras),
   e 6 classificações (animais, comida, casa, corpo, natureza, ações) nos
   níveis 2 a 5, seguindo os critérios de nível do `doc/definições002.MD`
   §6 (nível 2 = dissílabas simples, nível 3 = CVC/trissílaba regular,
   nível 4 = dígrafo/encontro consonantal/palavra longa, nível 5 = frases
-  de 3-5 palavras). Valida contra
+  de 3-5 palavras). Ganhou 7 entradas em 2026-09-21 (`bola`, `casa`, `mão`,
+  `pão` nível 2; `porta`, `cavalo`, `sapato` nível 3) — eram
+  exemplos históricos do `doc001`/`doc002` que nunca tinham virado
+  conteúdo de verdade, achado ao investigar o spike de STT
+  (`specs/001-mvp-desafios-leitura-matematica/research.md` §T002, rodada
+  10). Valida contra
   [`../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json`](../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json)
   (ainda não rodei o teste de contrato T006 contra este arquivo — projeto
   `app/` não criado ainda; conferi a estrutura manualmente com Python).
@@ -32,23 +37,24 @@ Quando o projeto for criado, movem para `app/assets/conteudo/` (`plan.md`
 
 | Classificação | Nível 2 | Nível 3 | Nível 4 | Nível 5 (frases) |
 |---|---|---|---|---|
-| animais | 13 ✅ | 12 ✅ | 12 ✅ | 6 ⚠️ |
-| comida | 12 ✅ | 12 ✅ | 12 ✅ | 4 ⚠️ |
-| casa | 12 ✅ | 12 ✅ | 12 ✅ | 4 ⚠️ |
-| corpo | **8 ⚠️** | 12 ✅ | 12 ✅ | 4 ⚠️ |
+| animais | 13 ✅ | 13 ✅ | 12 ✅ | 6 ⚠️ |
+| comida | 13 ✅ | 12 ✅ | 12 ✅ | 4 ⚠️ |
+| casa | 14 ✅ | 13 ✅ | 12 ✅ | 4 ⚠️ |
+| corpo | **9 ⚠️** | 13 ✅ | 12 ✅ | 4 ⚠️ |
 | natureza | 12 ✅ | 12 ✅ | 12 ✅ | 4 ⚠️ |
 | ações | 12 ✅ | 12 ✅ | 12 ✅ | 4 ⚠️ |
 
 **Lacunas conhecidas, deliberadamente não forçadas com palavra ruim só
 pra bater 12:**
 
-1. **`corpo` nível 2 tem só 8 palavras.** Nomes de partes do corpo em
-   português tendem a ter encontro consonantal (braço, perna, ombro) ou
-   dígrafo (orelha, unha) — sobra pouco vocabulário dissílabo simples de
-   verdade. Por FR-011/D-35, **essa combinação não deve aparecer como
-   opção selecionável em US3 até alguém encontrar mais 4 palavras
-   legítimas** (ou a regra permanece e a combinação fica oculta — o que
-   já é o comportamento correto do `banco_de_conteudo`, T008/T014).
+1. **`corpo` nível 2 tem só 9 palavras** (era 8, ganhou `mão` em
+   2026-09-21). Nomes de partes do corpo em português tendem a ter
+   encontro consonantal (braço, perna, ombro) ou dígrafo (orelha, unha) —
+   sobra pouco vocabulário dissílabo simples de verdade. Por FR-011/D-35,
+   **essa combinação não deve aparecer como opção selecionável em US3 até
+   alguém encontrar mais 3 palavras legítimas** (ou a regra permanece e a
+   combinação fica oculta — o que já é o comportamento correto do
+   `banco_de_conteudo`, T008/T014).
 2. **Todo nível 5 (frases) está abaixo de 12** em todas as classificações
    (4 a 6 frases cada). É suficiente para rodadas de tamanho 3, mas não
    para 5 ou 8 sem repetir — mesma regra do FR-011 se aplica. Escrever
