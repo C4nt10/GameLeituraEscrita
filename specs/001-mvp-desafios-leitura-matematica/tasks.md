@@ -31,20 +31,22 @@ tinha essa disciplina.
       2026-09-13, trocado de Flutter pela familiaridade de quem constrói);
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
-      gravados e registrar o resultado em `research.md`. **Status
-      (2026-09-21, rodada 10 — contexto de prompt corrigido pra derivar
-      do banco de conteúdo real, de forma uniforme, em vez de lista solta
-      arbitrária)**: **70% (14/20)** — os 86% das rodadas 8-9 não se
-      sustentaram: 7 das 14 palavras originais nunca estiveram no banco
-      real, e o `initial_prompt` usado pra elas não representava o que o
-      app geraria de verdade. Com contexto uniforme e realista pra todas,
-      as mesmas 14 palavras/mesmo áudio caíram de 86% pra ~77% — o ganho
-      do prompt é sensível ao conteúdo exato da lista, não um efeito
-      estável. **70% é a melhor estimativa atual, abaixo do critério de
-      aceite.** Ver research.md §T002 (rodadas 1-10) pra timeline e
-      análise completas. **Critério de aceite**: motor mantido se acertar
-      **≥ 80%** *com contexto de prompt realista e consistente* — não
-      cumprido
+      gravados e registrar o resultado em `research.md`. **Status final
+      (2026-09-21, rodada 15 + correção)**: **67-76%** (Whisper
+      small/medium/large-v3, com vocabulário no prompt, tolerância
+      fonética + Damerau-Levenshtein) contra voz de **criança real** em
+      alfabetização (não adulto — as 15 rodadas sempre foram com a
+      criança; erro de registro em versões anteriores desta linha,
+      corrigido). Vosk descartado (10-19%, vocabulário base insuficiente
+      pro idioma do banco). Abaixo do critério de aceite (≥80%) em todos
+      os motores testáveis sem dispositivo real. **Única pendência real
+      restante**: medir latência + testar STT nativo Android
+      (`SpeechRecognizer`, modo on-device) — exige Android SDK/emulador,
+      **adiado pro T003** (mesmo setup serve pros dois, decisão do dono
+      do projeto em 2026-09-21). Ver research.md §T002 (rodadas 1-15)
+      pra timeline e análise completas. **Critério de aceite**: não
+      cumprido nos motores offline embarcáveis testados até aqui;
+      decisão de produto pendente sobre se 67-76% é aceitável pro MVP
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)
