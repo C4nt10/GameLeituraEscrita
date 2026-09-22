@@ -671,6 +671,19 @@ não uma estimativa por proxy.
    acurácia quando há prompt de vocabulário. Bloqueado até existir um
    dispositivo/emulador Android configurado (T003 ainda pendente). **Esta
    é a única pendência técnica real que resta.**
+1b. **Testar o STT nativo do Android (`SpeechRecognizer`, modo
+   on-device) contra os mesmos áudios** — pergunta do dono do projeto em
+   2026-09-21. Não dá pra testar em Python puro (precisa de emulador
+   Android + Android Studio + um app mínimo injetando os áudios como
+   microfone virtual); iOS (`SFSpeechRecognizer`) nem isso — exige macOS/
+   Xcode, indisponível nesta máquina. **Decisão: adiado pra quando o T003
+   rodar** (o setup de Android SDK/emulador serve pros dois — testar STT
+   nativo e rodar o app de verdade — não é esforço duplicado). Ao testar,
+   confirmar que o reconhecimento roda **on-device de verdade**
+   (`EXTRA_PREFER_OFFLINE`, checar `isOnDeviceRecognitionAvailable()`) —
+   o modo padrão do Android pode cair pra nuvem silenciosamente conforme
+   idioma/configuração, o que violaria o Princípio V se fosse parar no
+   produto sem essa checagem.
 2. Testar com mais de uma criança/sessão, se possível — os 67-76% vêm de
    uma criança só; robustez estatística melhora com mais vozes, mas isso
    já é refinamento, não pré-requisito (diferente do que a versão anterior
