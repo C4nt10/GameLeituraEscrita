@@ -451,6 +451,30 @@ artefato da lista específica usada, não uma propriedade confiável da
 técnica.** 70% (ou os 57% do conjunto totalmente novo) são leituras mais
 honestas do que esperar em produção.
 
+### Rodada 11 (2026-09-21) — teste de teto: contexto = exatamente as palavras avaliadas
+
+Pedido explícito do dono do projeto, já nomeando o risco: um único
+arquivo de contexto com **exatamente** as palavras sob avaliação (as 21
+válidas — 20 palavras + a frase — todas juntas, mesma lista fixa pra
+cada transcrição, não uma por item). **Isto é deliberadamente um teste de
+teto/limite superior, não uma estimativa de produção** — numa rodada
+real do jogo, o prompt vem do vocabulário de UMA combinação
+nível×classificação (12-14 itens, rodada 10), nunca de "todas as
+respostas possíveis da nossa validação inteira" misturando categorias.
+
+**Resultado: 76% (16/21)** — entre os 70% da rodada 10 (contexto
+realista) e os 86% infladas das rodadas 8-9 (lista arbitrária velha).
+Recuperou `perna` (agora "perna" exato, antes "prena").
+
+**Leitura correta deste número**: confirma que universo de candidatos
+menor/mais fechado tende a ajudar um pouco — mas 76% aqui usa um
+universo artificialmente pequeno (21 palavras no total, cobrindo *todos*
+os níveis e classificações de uma vez) que não corresponde a nenhuma
+rodada real do jogo. **Não substitui os 70% da rodada 10 como estimativa
+de produção** — é mais um ponto de dado confirmando que o `initial_prompt`
+ajuda, na medida certa do tamanho do universo de candidatos, sem virar
+uma técnica confiável e estável o bastante pra fechar T002 sozinha.
+
 **Isso muda a leitura de T002 outra vez**: o critério de aceite tal como
 está escrito em `tasks.md` foi cumprido na rodada 9 (86%) só porque o
 teste ainda não usava contexto realista e consistente. Com o teste
