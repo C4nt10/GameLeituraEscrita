@@ -32,24 +32,26 @@ tinha essa disciplina.
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
       gravados e registrar o resultado em `research.md`. **Status final
-      (2026-09-22, rodada 18 — 18 rodadas ao todo)**: **62-81%** (faixa,
+      (2026-09-22, rodada 19 — 19 rodadas ao todo)**: **62-81%** (faixa,
       não ponto único — variância execução-a-execução do Whisper,
-      achado desta rodada) (Whisper small/medium/large-v3, com
+      achado da rodada 16) (Whisper small/medium/large-v3, com
       vocabulário no prompt, tolerância fonética + Damerau-Levenshtein;
-      `thefuzz`/`fuzz.ratio` e fonetizador externo testados e descartados, piores que o método
-      atual) contra voz de **criança real** em alfabetização (não adulto
-      — todas as rodadas sempre foram com a criança; erro de registro em
-      versões anteriores desta linha, corrigido). Vosk descartado
-      (10-19%, vocabulário base insuficiente pro idioma do banco). Abaixo
-      do critério de aceite (≥80%) em todos os motores testáveis sem
-      dispositivo real. **Única pendência real restante**: medir latência
-      + testar STT nativo Android (`SpeechRecognizer`, modo on-device) —
-      exige Android SDK/emulador, **adiado pro T003** (mesmo setup serve
-      pros dois, decisão do dono do projeto em 2026-09-21). Ver
-      research.md §T002 (rodadas 1-18) pra timeline e análise completas.
-      **Critério de aceite**: não cumprido nos motores offline
-      embarcáveis testados até aqui; decisão de produto pendente sobre
-      se 62-81% é aceitável pro MVP
+      `thefuzz`/`fuzz.ratio`, fonetizador externo e ASR fonético nativo
+      (`wav2vec2-lv-60-espeak-cv-ft`, rodada 19 — 35%, bem pior, e sem
+      mecanismo de vocabulário no prompt) testados e descartados, piores
+      que o método atual) contra voz de **criança real** em alfabetização
+      (não adulto — todas as rodadas sempre foram com a criança; erro de
+      registro em versões anteriores desta linha, corrigido). Vosk
+      descartado (10-19%, vocabulário base insuficiente pro idioma do
+      banco). Abaixo do critério de aceite (≥80%) em todos os motores
+      testáveis sem dispositivo real. **Única pendência real restante**:
+      medir latência + testar STT nativo Android (`SpeechRecognizer`,
+      modo on-device) — exige Android SDK/emulador, **adiado pro T003**
+      (mesmo setup serve pros dois, decisão do dono do projeto em
+      2026-09-21). Ver research.md §T002 (rodadas 1-19) pra timeline e
+      análise completas. **Critério de aceite**: não cumprido nos motores
+      offline embarcáveis testados até aqui; decisão de produto pendente
+      sobre se 62-81% é aceitável pro MVP
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)

@@ -834,19 +834,71 @@ licença. Documentado, não implementado como padrão em T028 ainda —
 decisão de produto sobre se vale a complexidade adicional (rodar 2
 comparações em vez de 1 a cada resposta) por ~1 palavra a mais em 21.
 
+### Rodada 19 (2026-09-22) — ASR fonético nativo (`wav2vec2-lv-60-espeak-cv-ft`): descartado
+
+Motivação: o dono do projeto pediu análise de um paper (SSRN, "A Hybrid
+Post-Processing Approach for Improving Child Speech-to-Text Accuracy via
+Phoneme-Aware Rule-Based Correction", Zane A. Graper, dez/2025). **Leitura
+crítica**: o paper propõe uma arquitetura de 3 estágios (ASR fonético →
+correção por regras de fonologia infantil → decoder seq2seq IPA→texto),
+mas **não tem nenhum resultado empírico** — a seção "Results" só afirma
+que o pipeline "funciona" funcionalmente, sem WER antes/depois em lugar
+nenhum, e explicitamente adia validação quantitativa pra trabalho futuro.
+A única ideia transferível de fato (não validada pelo paper, só a
+arquitetura): usar um ASR que já produz fonemas diretamente
+(`facebook/wav2vec2-lv-60-espeak-cv-ft`), em vez de fonemizar a saída de
+texto do Whisper depois — pulando o estágio 3 do paper (decoder
+IPA→texto), já que aqui o vocabulário é fechado (comparação direta contra
+a palavra esperada, não geração livre).
+
+**Sanity check com áudio limpo (TTS, mesma voz usada nas rodadas
+anteriores)** — antes de gastar esforço no áudio real e difícil, o mesmo
+cuidado usado pra validar Vosk/Whisper na rodada 2: de 4 palavras
+(`gato`, `porta`, `sapato`, `cavalo`), só `cavalo` saiu limpo. `gato`
+ganhou um fonema `n` que a palavra não tem; `sapato` saiu com caracteres
+estranhos (`5`) e inserções; `porta` trocou a consoante inicial `p`→`b`.
+Já era pior que o sanity check do Whisper (rodada 2: Vosk 4/4, Whisper
+3/4) e do Vosk, num áudio limpo e sintético — sinal de alerta antes mesmo
+do teste real.
+
+Rodado mesmo assim contra os 20 itens de palavra única do conjunto real
+(frases fora de escopo dessa comparação fonema-a-fonema), com tolerância
+proporcional ao tamanho do fonema esperado (mais generosa que o
+`distancia_max=1` do método vencedor, e **sem** a trava de
+`vocabulario_conhecido` — ainda mais permissivo que o padrão):
+
+**7/20 (35%)** — muito abaixo de qualquer configuração do Whisper testada
+(62-81%). Exemplos do tipo de erro: `banana`→`"b ɑ5 m ʉ n a"` (dist. 5),
+`perna`→`"p ʌ r aɪ j ʌ n n aː"` (dist. 9), `porta`→`"ɑ t a"` (perdeu a
+consoante inicial toda).
+
+Há também uma **limitação estrutural**, não só de acurácia: esse modelo é
+um reconhecedor acústico puro (fonema por fonema), **sem mecanismo de
+`initial_prompt`/viés de vocabulário** — a alavanca que, sozinha, tirou o
+Whisper de 57% pra 76-81% (rodadas 8-18). Mesmo que a acurácia bruta
+melhorasse, não há como aplicar a mesma técnica que gerou o maior ganho
+até agora.
+
+**Conclusão, sem inflar**: avenida testada e **descartada**. Nem o sanity
+check limpo nem o teste real sustentam essa direção — pior em acurácia
+bruta e sem a alavanca que mais ajudou até aqui. Volta a fechar o leque:
+depois de 19 rodadas, a melhor opção continua sendo Whisper + vocabulário
+no prompt + Damerau-Levenshtein (rodada 15), com o ensemble opcional
+`atual OU fuzz.ratio` (rodada 18) como teto observado uma vez.
+
 **Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
 um número mais honesto agora: **62-81% é a melhor estimativa atual**
 (faixa, não ponto único — rodada 16 mostrou variância execução-a-execução
 do próprio Whisper; o topo, 81%, só apareceu 1 vez, no `medium`, via o
 ensemble da rodada 18) (Whisper, qualquer tamanho, com vocabulário no
 prompt e Damerau-Levenshtein; `fuzz.ratio` isolado não ajuda, mas somado
-ao método atual via OU recupera 1 caso). `fuzz.ratio` sozinho (rodada 16)
-e o fonetizador externo sozinho (rodada 17) testados e descartados —
-nenhum supera o método atual sozinho; **só o ensemble `atual OU
-fuzz.ratio` cruzou 80%**, uma vez, no `medium` (rodada 18). Caminhos
-restantes, em ordem de custo crescente — o que dava pra testar sem
-depender de mais nada do dono do projeto já foi testado (rodadas 1-18);
-os que sobram **exigem ação de fora do spike**:
+ao método atual via OU recupera 1 caso). `fuzz.ratio` sozinho (rodada 16),
+o fonetizador externo sozinho (rodada 17) e o ASR fonético nativo (rodada
+19) testados e descartados — nenhum supera o método atual sozinho; **só o
+ensemble `atual OU fuzz.ratio` cruzou 80%**, uma vez, no `medium` (rodada
+18). Caminhos restantes, em ordem de custo crescente — o que dava pra
+testar sem depender de mais nada do dono do projeto já foi testado
+(rodadas 1-19); os que sobram **exigem ação de fora do spike**:
 
 **Correção importante (2026-09-21):** as 15 rodadas deste spike **já
 foram feitas com voz de uma criança real em fase de alfabetização**, não
