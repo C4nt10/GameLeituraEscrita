@@ -522,6 +522,60 @@ palavra-alvo isolada — e usar classificação de fonema aproximado pro
 "c"/"g", não só a letra. Isto é requisito novo, não estava em D-08/D-09
 originais porque a ambiguidade nunca tinha sido testada até esta rodada.
 
+### Rodada 13 (2026-09-21) — comparação final entre todos os motores, com a lógica corrigida
+
+Pedido do dono do projeto: rodar todos os motores testados no spike lado
+a lado, com a comparação final (fonema aproximado + guard de vocabulário
+conhecido, rodada 12), vocabulário restrito por item em cada engine —
+`grammar` do Vosk (`KaldiRecognizer` aceita lista de palavras como
+gramática), `initial_prompt` do Whisper — derivado do banco real por
+nível×classificação (rodada 10), igual pra todos, contra os 21 itens
+válidos da sessão de 2026-09-21.
+
+| Motor | Resultado |
+|---|---|
+| Vosk small | 19% (4/21) |
+| Vosk grande (FalaBrasil) | 10% (2/21) |
+| Whisper small | 71% (15/21) |
+| Whisper medium | **76% (16/21)** |
+| Whisper large-v3 | 67% (14/21) |
+
+**Achado 1 — Vosk descartado de vez, com um motivo novo.** Restringir a
+gramática não ajudou (piorou até, no caso do modelo grande: 10% vs. ~7%
+sem restrição nas rodadas anteriores). E apareceu um problema estrutural
+novo: **vários avisos do próprio Vosk** ("Ignoring word missing in
+vocabulary") pra palavras do nosso banco — `leão`, `feijão`, `colchão`,
+`jacaré`, `pescoço`, `furacão`, `armário`, `televisão`, `pântano`,
+`vulcão`, entre outras. O vocabulário base do Vosk (fechado, por modelo)
+não cobre parte do português que o jogo usa — diferente do Whisper, que
+decodifica por subpalavra e não tem esse limite fixo.
+
+**Achado 2 — o mais importante desta rodada**: com vocabulário restrito
+aplicado de forma justa a **todos** os tamanhos de Whisper (não só ao
+large-v3, como nas rodadas 8-10), **o tamanho do modelo passou a importar
+muito menos**. Sem prompt (rodada 5): 7% → 29% → 43-57%, escalando forte
+com o tamanho. Com prompt (esta rodada): 71% → 76% → 67% — os três
+tamanhos ficam na mesma faixa, a ordem entre eles nem é mais monotônica
+(medium > large-v3 nesta amostra, provavelmente ruído de amostra pequena,
+21 itens). **Implicação prática real**: talvez não seja necessário
+embarcar o `large-v3` (~3GB) — o `small` (~75MB quantizado) já chega
+numa faixa parecida, uma vez que o app sempre vai fornecer o vocabulário
+da rodada como prompt. Isso muda a conversa sobre viabilidade de embarcar
+no app (tamanho de instalação, tempo de carregamento) — ainda falta medir
+latência em dispositivo real (pendência que segue de pé desde a rodada
+8), mas agora com uma pergunta adicional: "`small` com prompt te dá quase
+o mesmo resultado que `large-v3` — vale o peso extra?"
+
+**Lembrete sobre a pergunta "é fonética de verdade?"**: continua sendo
+comparação ortográfica com heurística de classe de fonema pro "c"/"g"
+(rodada 12) — não é análise de som/IPA. "Fonética" aqui é aproximação
+prática, não garantia formal.
+
+**Nenhum número desta rodada foi usado pra ajustar a lógica** — a
+comparação (fonema + vocabulário) já estava fechada e commitada antes
+desta rodada rodar; isto é um teste de comparação entre motores, não mais
+um ciclo de ajuste da lógica em si.
+
 **Isso muda a leitura de T002 outra vez**: o critério de aceite tal como
 está escrito em `tasks.md` foi cumprido na rodada 9 (86%) só porque o
 teste ainda não usava contexto realista e consistente. Com o teste
