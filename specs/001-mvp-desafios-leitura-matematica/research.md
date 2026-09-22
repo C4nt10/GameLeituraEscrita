@@ -354,25 +354,73 @@ foi feita (tudo rodou em desktop) — latência alta quebra a experiência de
 qualquer forma. `initial_prompt` também tem custo: o app precisa montar e
 passar a lista de vocabulário a cada desafio, pequeno mas não nulo.
 
-**Não fechar T002 como aprovado — 86% é o melhor número até aqui, mas com
-duas pendências sérias antes de virar decisão.** Caminhos restantes, em
-ordem de custo crescente:
+### Rodada 9 (2026-09-21) — validação a frio: replica no conjunto ajustado, cai no conjunto novo
 
-1. **Validar contra áudio novo** (não usado pra ajustar `normalizar()`/
-   `bate_com_tolerancia_fonetica()`) — o teste mais barato e mais
-   importante agora, é o que decide se 86% é real ou overfit na amostra
-   de 14. Regravar as mesmas 14 palavras (ou um conjunto novo) sem mexer
-   mais na lógica de comparação até depois de rodar.
+Sessão nova de gravação, uma semana depois, **sem tocar em nenhuma linha
+de `normalizar()`/`bate_com_tolerancia_fonetica()` antes de rodar** — a
+validação contra overfitting que a rodada 8 deixou pendente. Dois
+conjuntos:
+
+- **As mesmas 14 palavras, gravadas de novo** (sessão nova, mesma pessoa) —
+  testa se 86% se repete ou foi sorte de uma gravação específica.
+- **7 palavras novas** (de 8 pedidas — `correr` não foi gravada; vieram 2
+  extras não planejadas, `comida`/`corpo`, que são nomes de classificação,
+  não itens de conteúdo — sem vocabulário de prompt pra elas), tiradas do
+  banco real (`conteudo/leitura.json`), cobrindo níveis/classificações que
+  as 14 originais não cobriam — testa se a lógica generaliza além do que
+  foi usado pra ajustá-la. Prompt de vocabulário passado por item, igual o
+  app real faria: todas as palavras do mesmo nível×classificação (ex.
+  `leão` recebeu o vocabulário completo de nível 2 × animais).
+
+| Conjunto | Resultado |
+|---|---|
+| 14 originais (sessão nova) | **12/14 (86%) — idêntico à rodada 8, inclusive as mesmas 2 falhas** (`cavalo`, `o gato corre`) |
+| 7 palavras novas (generalização) | **4/7 (57%)** |
+| Total combinado | 17/23 (74%) |
+
+**Leitura honesta dos dois números, que apontam em direções opostas:**
+
+- **86% replicado é notícia real e boa** — não foi sorte de uma gravação,
+  nem ajuste artificial só pra essa amostra: a mesma pessoa, lendo as
+  mesmas palavras do mesmo jeito pausado, numa sessão totalmente nova,
+  bateu o mesmo número, com os mesmos dois itens difíceis (sinal de que
+  `cavalo` e a frase são genuinamente mais difíceis pra esse motor/estilo,
+  não ruído aleatório).
+- **57% em conteúdo novo é o número que preocupa** — mostra que parte do
+  ganho das rodadas 6-8 não generaliza igual pra palavras que nunca
+  entraram no ajuste da lógica. Ainda bem acima do baseline original
+  (~7-14%), mas abaixo do critério de aceite.
+- Erros do conjunto novo, olhando caso a caso: `banana` → "b a l a"
+  (confusão acústica genuína), `escova` → "cova" (som inicial sumiu,
+  travado corretamente pela regra D-09), `perna` → "prena" — **este
+  último é troca de posição de duas letras (metátese), que Levenshtein
+  simples conta como 2 edições (substituir 2 vezes) em vez de 1**; um
+  algoritmo que reconhece transposição como 1 edição só (Damerau-
+  Levenshtein) teria aceitado esse caso. Refinamento real, não testado
+  ainda.
+
+**Isso muda a leitura de T002**: o critério de aceite tal como está
+escrito em `tasks.md` ("≥80% das 14 palavras, validado contra áudio
+novo") **foi tecnicamente cumprido** — 86% numa sessão nova. Mas o
+espírito da pergunta (esse motor é confiável pro jogo de verdade, com
+centenas de palavras possíveis) aponta pra 57-74%, não 86%. **Decisão de
+produto, não técnica**: tratar 86% como suficiente (o critério original
+foi sobre essas 14 palavras especificamente) ou tratar 57-74% como o
+número real (generalização pro banco de conteúdo inteiro).
+
+**Não fechar T002 sozinho — esta decisão é do dono do projeto.** Caminhos
+restantes, em ordem de custo crescente:
+
+1. Testar Damerau-Levenshtein (transposição como 1 edição) — barato,
+   pode recuperar casos como `perna`/`prena` sem abrir a trava do D-09.
 2. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
-   Python puro) num dispositivo Android real — se `large-v3` rodar rápido
-   o bastante, o número validado no passo 1 já dá base pra decidir qual
-   checkpoint embarcar.
+   Python puro) num dispositivo Android real.
 3. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
    medir quanto da queda de acurácia original (antes de qualquer
    tratamento) era só efeito da pausa.
 4. Reconsiderar a tolerância fonética de D-08/D-09 (ex.: distância máxima
-   maior que 1) ou a própria obrigatoriedade de Leitura · voz no MVP, se
-   a validação do passo 1 não se sustentar.
+   maior que 1, ou proporcional ao tamanho da palavra) ou a própria
+   obrigatoriedade de Leitura · voz no MVP.
 5. Ir para um motor online **exigiria revisar o Princípio V** — decisão de
    constituição, não de implementação. Dado o gap de acurácia infantil que
    afeta nuvem também (Google 9.6-14.7%), e que Whisper offline já captura

@@ -32,17 +32,19 @@ tinha essa disciplina.
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
       gravados e registrar o resultado em `research.md`. **Status
-      (2026-09-15, rodada 8): 86% (12/14)** com whisper large-v3 +
-      tolerância fonética (trava D-09 validada) + `initial_prompt` de
-      vocabulário — primeira vez acima do critério de aceite. **Não
-      fechar ainda**: medido na mesma amostra usada pra ajustar a lógica
-      de comparação (risco de overfitting) e sem medir latência em
-      dispositivo real. Próximo passo: validar contra áudio novo sem
-      mexer mais na lógica, e medir tempo de resposta num Android real —
-      ver research.md §T002 pra timeline completa (rodadas 1-8).
-      **Critério de aceite**: motor mantido se acertar **≥ 80% das 14
-      palavras (12/14)** *num teste validado contra áudio novo*, não só
-      na amostra de ajuste
+      (2026-09-21, rodada 9 — validação a frio, sem mexer na lógica
+      antes de rodar)**: as 14 palavras originais, gravadas de novo numa
+      sessão nova, **replicaram 86% exato** (mesmos 2 erros de antes —
+      não foi sorte). Mas 7 palavras novas do banco de conteúdo real
+      (fora do que ajustou a lógica) caíram pra **57%**. Critério de
+      aceite tecnicamente cumprido nas 14 palavras específicas; não
+      cumprido se o padrão for generalização pro banco de conteúdo
+      inteiro. **Decisão de produto pendente, não técnica** — ver
+      research.md §T002 (rodadas 1-9) pra timeline e análise completas.
+      **Critério de aceite original**: motor mantido se acertar
+      **≥ 80% das 14 palavras (12/14)** *num teste validado contra áudio
+      novo* — cumprido; critério não previa o caso "generaliza menos pra
+      conteúdo nunca visto", que apareceu na prática
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)
