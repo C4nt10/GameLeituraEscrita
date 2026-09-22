@@ -785,15 +785,68 @@ pequeno ganho real, rodada 15; `fuzz.ratio` — pior, rodada 16;
 fonetizador externo — pior, rodada 17), o método atual continua sendo o
 melhor validado: `bate_com_tolerancia_fonetica(..., usar_damerau=True)`.
 
+### Rodada 18 (2026-09-22) — empilhar os 3 métodos (OU): cruza 80% pela primeira vez, mas só no `medium`
+
+Pedido do dono do projeto: em vez de escolher um método só, considerar
+acerto se **qualquer um dos 3** (atual/Damerau, `fuzz.ratio`, fonetizador
+externo) aceitar. Antes de rodar contra áudio real: **validei o ensemble
+inteiro contra os 19 casos adversariais** — como nenhum dos 3 métodos
+tinha, sozinho, dado falso positivo (só ficavam rígidos demais em casos
+legítimos), a hipótese era que o "OU" só recuperaria recall sem abrir
+brecha de segurança nova. Confirmado: **19/19** — nenhum par adversarial
+escapou pela combinação.
+
+Rodado contra os 3 Whisper:
+
+| Motor | Método atual (Damerau) | Ensemble (OU dos 3) |
+|---|---|---|
+| Whisper small | 67% (14/21) | 67% (14/21) — sem mudança |
+| Whisper medium | 76% (16/21) | **81% (17/21) — primeira vez ≥80%** |
+| Whisper large-v3 | 71% (15/21) | 71% (15/21) — sem mudança |
+
+O único caso recuperado foi `banana` → `"b a n a"`, e **só via
+`fuzz.ratio`** (o mesmo achado positivo isolado da rodada 16 — tolera 2
+deleções no fim de palavra longa). **O fonetizador externo não recuperou
+nenhum caso nesta rodada** — sua contribuição ao ensemble foi zero.
+
+**Leitura honesta, sem inflar**: sim, muda o cenário — é a primeira vez
+que um número cruza 80% com metodologia validada (contexto realista,
+trava de D-09 íntegra, sem overfitting de amostra). Mas com ressalvas
+reais:
+
+1. **Só o `medium` cruzou, e só nesta execução específica.** A rodada 16
+   já mostrou que o `beam_search` do Whisper tem variância
+   execução-a-execução de vários pontos percentuais — não há garantia de
+   que rodar de novo ainda dá 81%.
+2. **Ganho vem de 1 método só, dos 3.** Empilhar o fonetizador externo
+   (com sua complexidade de integração token-a-token e licença não
+   resolvida) não trouxe nada nesta amostra — um ensemble mais simples,
+   `atual OU fuzz.ratio` (2 métodos, sem dependência não-licenciada),
+   teria dado exatamente o mesmo resultado.
+3. Amostra pequena (21 itens): recuperar 1 caso a mais é uma mudança de
+   ~5 pontos percentuais — significativo na proporção, mas é literalmente
+   1 palavra.
+
+**Recomendação, se for pra usar ensemble**: `bate_com_tolerancia_fonetica(...,
+usar_damerau=True) OU bate_por_fuzz_ratio(..., limiar=80)` — 2 métodos,
+não 3, mesmo resultado desta rodada, sem carregar a dependência sem
+licença. Documentado, não implementado como padrão em T028 ainda —
+decisão de produto sobre se vale a complexidade adicional (rodar 2
+comparações em vez de 1 a cada resposta) por ~1 palavra a mais em 21.
+
 **Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
-um número mais honesto agora: **62-76% é a melhor estimativa atual**
+um número mais honesto agora: **62-81% é a melhor estimativa atual**
 (faixa, não ponto único — rodada 16 mostrou variância execução-a-execução
-do próprio Whisper) (Whisper, qualquer tamanho, com vocabulário no prompt
-e Damerau-Levenshtein), não 86%. `fuzz.ratio` (rodada 16) e o fonetizador
-externo (rodada 17) testados e descartados — nenhum superou o método
-atual. Caminhos restantes, em ordem de custo crescente — o que dava pra
-testar sem depender de mais nada do dono do projeto já foi testado
-(rodadas 1-17); os que sobram **exigem ação de fora do spike**:
+do próprio Whisper; o topo, 81%, só apareceu 1 vez, no `medium`, via o
+ensemble da rodada 18) (Whisper, qualquer tamanho, com vocabulário no
+prompt e Damerau-Levenshtein; `fuzz.ratio` isolado não ajuda, mas somado
+ao método atual via OU recupera 1 caso). `fuzz.ratio` sozinho (rodada 16)
+e o fonetizador externo sozinho (rodada 17) testados e descartados —
+nenhum supera o método atual sozinho; **só o ensemble `atual OU
+fuzz.ratio` cruzou 80%**, uma vez, no `medium` (rodada 18). Caminhos
+restantes, em ordem de custo crescente — o que dava pra testar sem
+depender de mais nada do dono do projeto já foi testado (rodadas 1-18);
+os que sobram **exigem ação de fora do spike**:
 
 **Correção importante (2026-09-21):** as 15 rodadas deste spike **já
 foram feitas com voz de uma criança real em fase de alfabetização**, não
