@@ -119,6 +119,33 @@ def distancia_levenshtein(a: str, b: str) -> int:
     return anterior[-1]
 
 
+def distancia_damerau_levenshtein(a: str, b: str) -> int:
+    """Como distancia_levenshtein, mas troca de posicao de 2 letras adjacentes
+    ("perna"/"prena") conta como 1 edicao, nao 2 — pendente desde a rodada 9
+    do spike (ver research.md §T002), onde "perna" foi transcrito "prena" e
+    a tolerancia (distancia_max=1) rejeitou por ser 2 no Levenshtein simples.
+    """
+    if a == b:
+        return 0
+    la, lb = len(a), len(b)
+    d = [[0] * (lb + 1) for _ in range(la + 1)]
+    for i in range(la + 1):
+        d[i][0] = i
+    for j in range(lb + 1):
+        d[0][j] = j
+    for i in range(1, la + 1):
+        for j in range(1, lb + 1):
+            custo = 0 if a[i - 1] == b[j - 1] else 1
+            d[i][j] = min(
+                d[i - 1][j] + 1,
+                d[i][j - 1] + 1,
+                d[i - 1][j - 1] + custo,
+            )
+            if i > 1 and j > 1 and a[i - 1] == b[j - 2] and a[i - 2] == b[j - 1]:
+                d[i][j] = min(d[i][j], d[i - 2][j - 2] + custo)
+    return d[la][lb]
+
+
 _VOGAIS_FRONTAIS = set("ei")  # depois de c/g, som suave: ce/ci = /s/-/ʒ/... (ce, ci, ge, gi)
 _VOGAIS_POSTERIORES = set("aou")  # depois de c/g, som forte: ca/co/cu, ga/go/gu
 
@@ -145,7 +172,8 @@ def _classe_fonema_inicial(palavra: str) -> str:
 
 
 def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: int = 1,
-                                  vocabulario_conhecido: "set[str] | None" = None) -> bool:
+                                  vocabulario_conhecido: "set[str] | None" = None,
+                                  usar_damerau: bool = False) -> bool:
     """Compara com tolerancia a pequena variacao de pronuncia (D-08), mas com trava
     dura no primeiro FONEMA (aproximado): nunca aceita troca do som inicial (D-09 —
     'pato' nao pode passar como leitura de 'gato', nem 'galo' como leitura de
@@ -180,7 +208,8 @@ def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: 
             continue  # D-09: som inicial diferente nunca passa, nao importa a distancia
         if vocabulario_conhecido and candidato in vocabulario_conhecido:
             continue  # e uma palavra DIFERENTE e real do banco — nao e ruido de "esperado"
-        if distancia_levenshtein(esperado, candidato) <= distancia_max:
+        dist_fn = distancia_damerau_levenshtein if usar_damerau else distancia_levenshtein
+        if dist_fn(esperado, candidato) <= distancia_max:
             return True
     return False
 

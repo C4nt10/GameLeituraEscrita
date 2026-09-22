@@ -16,6 +16,11 @@ aceita de "gelo" (mesma letra "g", som inicial diferente: /g/ forte vs
 `_classe_fonema_inicial()` em testar.py — casos abaixo travam a
 regressão.
 
+Achado da rodada 15: `usar_damerau=True` conta troca de posição de 2
+letras adjacentes ("perna"/"prena") como 1 edição, não 2 — recupera
+casos reais de transcrição sem abrir colisão nova no banco (revarrido,
+zero colisões). Casos abaixo travam essa regressão também.
+
 Uso:
     python testar_tolerancia.py
 """
@@ -46,6 +51,13 @@ CASOS = [
     ("casa", "cama", False, "o inverso tambem"),
 ]
 
+# casos so testados com usar_damerau=True — (esperado, transcrito, deveria_passar, motivo)
+CASOS_DAMERAU = [
+    ("perna", "prena", True, "transposicao de 2 letras adjacentes conta como 1 edicao — rodada 15"),
+    ("gato", "pato", False, "trava do D-09 continua valendo com damerau tambem"),
+    ("gato", "galo", False, "guard de vocabulario continua valendo com damerau tambem"),
+]
+
 
 def main():
     falhas = 0
@@ -57,7 +69,16 @@ def main():
             falhas += 1
             print(f"FALHOU: esperado={esperado!r} transcrito={transcrito!r} "
                   f"esperava={deveria_passar} obteve={resultado} — {motivo}")
-    total = len(CASOS)
+    for esperado, transcrito, deveria_passar, motivo in CASOS_DAMERAU:
+        resultado = bate_com_tolerancia_fonetica(esperado, transcrito, distancia_max=1,
+                                                   vocabulario_conhecido=VOCAB_SIMULADO,
+                                                   usar_damerau=True)
+        ok = resultado == deveria_passar
+        if not ok:
+            falhas += 1
+            print(f"FALHOU (damerau): esperado={esperado!r} transcrito={transcrito!r} "
+                  f"esperava={deveria_passar} obteve={resultado} — {motivo}")
+    total = len(CASOS) + len(CASOS_DAMERAU)
     if falhas:
         print(f"\n{total - falhas}/{total} OK — {falhas} FALHA(S). Trava do D-09 comprometida.")
         raise SystemExit(1)

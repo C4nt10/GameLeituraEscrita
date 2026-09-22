@@ -203,7 +203,13 @@ modalidade, chegar à tela de estrelas.
       um candidato que seja, ele mesmo, outra palavra real e diferente do
       banco carregado por T014) — sem os dois, a trava de D-09 furava
       contra o próprio banco de conteúdo (272 itens revarridos, zero
-      colisão depois do fix, `spike-stt/testar_tolerancia.py` 16/16))
+      colisão depois do fix). **Também**: usar distância Damerau-
+      Levenshtein (transposição de 2 letras adjacentes = 1 edição, não 2
+      — recupera casos reais como "perna" transcrito "prena") em vez de
+      Levenshtein simples — ganho pequeno mas seguro, revalidado contra o
+      banco inteiro sem abrir colisão nova (rodada 15).
+      `spike-stt/testar_tolerancia.py` tem 19 casos de regressão — reusar
+      como base de T020a, não reescrever)
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em
@@ -427,7 +433,13 @@ teste correspondente.
       (D-35, FR-011)
 - [ ] T068 Sessão de observação com criança real seguindo `doc/
       definições001.MD` §10 + `doc/definições002.MD` §10 (perguntas 1-10),
-      medindo SC-001 a SC-006 de `spec.md`
+      medindo SC-001 a SC-006 de `spec.md`. **Inclui validar A-11**: as
+      15 rodadas do spike de STT (`research.md` §T002) mediram só voz de
+      adulto simulando pausa infantil, nunca criança de verdade — os
+      67-76% de acurácia encontrados podem não se sustentar (formantes e
+      timbre diferentes). Gravar a mesma leitura pausada com a criança e
+      rodar contra `spike-stt/testar.py`/`fonetica.py` antes de tratar
+      esse número como decisão de produto
 - [ ] T069 Registrar resultado da sessão de observação e decidir A-06/A-09/
       A-10 remanescentes em `doc/definições003.MD` (consolidação prevista
       em `doc/definições002.MD`)

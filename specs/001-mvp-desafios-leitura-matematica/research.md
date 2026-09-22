@@ -623,23 +623,55 @@ número real fica na faixa 67-76% conforme o tamanho do modelo**, sempre
 abaixo do critério — T002 não deveria ser considerado aprovado com base
 nos números das rodadas 8-9.
 
+### Rodada 15 (2026-09-21) — Damerau-Levenshtein: recupera `perna`, sem abrir colisão nova
+
+Item 1 da lista de caminhos (abaixo) resolvido. `distancia_damerau_levenshtein()`
+conta troca de posição de 2 letras adjacentes como 1 edição, não 2 —
+"perna"/"prena" (a mesma transcrição que se repetiu em várias rodadas)
+passa a bater. Antes de usar pra valer: revarri o banco inteiro (272
+itens) procurando colisões novas que o Damerau poderia abrir (ele aceita
+mais coisas que o Levenshtein simples, na mesma distância) — **nenhuma
+colisão nova**. Revalidei os 16 casos adversariais — 16/16.
+
+| Motor | Levenshtein simples | Damerau-Levenshtein |
+|---|---|---|
+| Whisper small | 71% (15/21) | 71% (15/21) |
+| Whisper medium | 76% (16/21) | 76% (16/21) |
+| Whisper large-v3 | 67% (14/21) | **71% (15/21)** |
+
+Só o `large-v3` tinha um caso de transposição pra recuperar. Ganho
+pequeno mas real e seguro — `bate_com_tolerancia_fonetica()` ganhou o
+parâmetro `usar_damerau` (`False` por padrão, mantém compatibilidade;
+`True` ativa o recurso).
+
 **Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
 um número mais honesto agora: **67-76% é a melhor estimativa atual**
-(Whisper, qualquer tamanho, com vocabulário no prompt), não 86%. Caminhos
-restantes, em ordem de custo crescente:
+(Whisper, qualquer tamanho, com vocabulário no prompt e Damerau-Levenshtein),
+não 86%. Caminhos restantes, em ordem de custo crescente — o que dava pra
+testar sem depender de mais nada do dono do projeto já foi testado
+(rodadas 1-15); os que sobram **exigem ação de fora do spike**:
 
-1. Testar Damerau-Levenshtein (transposição como 1 edição) — barato,
-   pode recuperar casos como `perna`/`prena` sem abrir a trava do D-09.
-2. Medir latência de `small`/`medium`/`large-v3` (via whisper.cpp
-   quantizado, não Python puro) num dispositivo Android real — decide
-   qual checkpoint embarcar, já que a rodada 13 mostrou que o tamanho do
-   modelo importa pouco pra acurácia quando há prompt de vocabulário.
+1. **Medir latência em dispositivo real** (via whisper.cpp quantizado,
+   não Python puro, num Android real) — decide qual checkpoint embarcar,
+   já que a rodada 13 mostrou que o tamanho do modelo importa pouco pra
+   acurácia quando há prompt de vocabulário. Bloqueado até existir um
+   dispositivo/emulador Android configurado (T003 ainda pendente).
+2. **Validar com a voz de uma criança de verdade**, não um adulto
+   simulando pausa (é o que todas as 15 rodadas mediram até aqui) —
+   o `doc001` §10 e o `T068` do `tasks.md` já previam isso como etapa
+   necessária antes de considerar qualquer decisão de produto fechada.
+   Voz de criança tem formantes/timbre diferentes de adulto; os números
+   67-76% podem não se sustentar (pra cima ou pra baixo) com o usuário
+   real. Isto não é mais "ajuste de lógica" — é a validação de produto
+   que estava sempre pendente, spike nenhum substitui.
 3. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
    medir quanto da queda de acurácia original (antes de qualquer
-   tratamento) era só efeito da pausa.
+   tratamento) era só efeito da pausa. Valor menor agora que já temos o
+   número real com o padrão de leitura que a criança vai usar de fato.
 4. Reconsiderar a tolerância fonética de D-08/D-09 (ex.: distância máxima
    maior que 1, ou proporcional ao tamanho da palavra) ou a própria
-   obrigatoriedade de Leitura · voz no MVP.
+   obrigatoriedade de Leitura · voz no MVP — decisão de produto, não mais
+   investigação técnica.
 5. Ir para um motor online **exigiria revisar o Princípio V** — decisão de
    constituição, não de implementação. Dado o gap de acurácia infantil que
    afeta nuvem também (Google 9.6-14.7%), e que Whisper offline já captura
