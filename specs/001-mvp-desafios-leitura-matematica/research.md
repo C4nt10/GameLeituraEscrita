@@ -576,21 +576,64 @@ comparação (fonema + vocabulário) já estava fechada e commitada antes
 desta rodada rodar; isto é um teste de comparação entre motores, não mais
 um ciclo de ajuste da lógica em si.
 
+### Rodada 14 (2026-09-21) — ortográfica vs. fonética real, lado a lado, só Whisper
+
+Pedido explícito do dono do projeto: comparar os 3 tamanhos de Whisper
+pontuando a **mesma transcrição** de dois jeitos — a comparação
+ortográfica com heurística de "c"/"g" (rodada 12) e uma comparação
+**fonética de verdade** (não mais aproximação): implementei
+`fonetica.fonemizar_pt()`, um conversor grafema→fonema aproximado pra
+PT-BR cobrindo dígrafos (ch/lh/nh/rr/ss), qu/gu antes de e/i, c/g
+conforme a vogal seguinte, "j" sempre igual ao "g" suave, "s" intervocálico
+como /z/, "x" aproximado a /ʃ/, e nasalização (vogal+m/n em fim de
+sílaba, ão/ãe/õe). Validado contra os mesmos 12 casos adversariais da
+rodada 12 antes de usar pra valer — 12/12.
+
+Sem Vosk nesta rodada (pedido explícito — já descartado na rodada 13).
+Mesma transcrição de cada modelo, pontuada pelos dois métodos:
+
+| Motor | Ortográfica (c/g) | Fonética (fonemizador completo) |
+|---|---|---|
+| Whisper small | 71% (15/21) | 71% (15/21) |
+| Whisper medium | 76% (16/21) | 76% (16/21) |
+| Whisper large-v3 | 67% (14/21) | 67% (14/21) |
+
+**Zero divergências** — nenhuma palavra, em nenhum dos 3 modelos, mudou
+de veredito entre os dois métodos de comparação.
+
+**Leitura honesta**: isso não significa "fonética não faz diferença
+nunca" — significa que, **neste conjunto de 21 palavras específico**, a
+única ambiguidade fonética real que existia (o "c"/"g", já corrigido na
+rodada 12) foi suficiente; os outros fenômenos que o fonemizador cobre
+(dígrafos, s/z, nasalização, j) simplesmente não apareceram como ponto de
+discórdia nas transcrições reais coletadas até aqui. **Não está provado
+que os dois métodos são equivalentes em geral** — só que são equivalentes
+*nesta amostra*. Um conjunto de teste com mais dígrafos/nasalização
+poderia revelar divergência que este não revelou. Ficaram os dois
+implementados (`testar.bate_com_tolerancia_fonetica`, mais simples e já
+usado em T028/tasks.md; `fonetica.bate_por_fonema_real`, mais completo,
+disponível se uma expansão futura do banco de conteúdo expuser um caso
+onde a heurística pontual do "c"/"g" não for suficiente).
+
 **Isso muda a leitura de T002 outra vez**: o critério de aceite tal como
 está escrito em `tasks.md` foi cumprido na rodada 9 (86%) só porque o
 teste ainda não usava contexto realista e consistente. Com o teste
-metodologicamente correto (rodada 10), **o número cai pra 70%, abaixo do
-critério — T002 não deveria ser considerado aprovado com base nos números
-das rodadas 8-9.**
+metodologicamente correto (rodada 10, confirmado nas rodadas 13-14), **o
+número real fica na faixa 67-76% conforme o tamanho do modelo**, sempre
+abaixo do critério — T002 não deveria ser considerado aprovado com base
+nos números das rodadas 8-9.
 
 **Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
-um número mais honesto agora: **70% é a melhor estimativa atual**, não
-86%. Caminhos restantes, em ordem de custo crescente:
+um número mais honesto agora: **67-76% é a melhor estimativa atual**
+(Whisper, qualquer tamanho, com vocabulário no prompt), não 86%. Caminhos
+restantes, em ordem de custo crescente:
 
 1. Testar Damerau-Levenshtein (transposição como 1 edição) — barato,
    pode recuperar casos como `perna`/`prena` sem abrir a trava do D-09.
-2. Medir latência de `medium`/`large-v3` (via whisper.cpp quantizado, não
-   Python puro) num dispositivo Android real.
+2. Medir latência de `small`/`medium`/`large-v3` (via whisper.cpp
+   quantizado, não Python puro) num dispositivo Android real — decide
+   qual checkpoint embarcar, já que a rodada 13 mostrou que o tamanho do
+   modelo importa pouco pra acurácia quando há prompt de vocabulário.
 3. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
    medir quanto da queda de acurácia original (antes de qualquer
    tratamento) era só efeito da pausa.
