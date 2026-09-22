@@ -433,13 +433,14 @@ teste correspondente.
       (D-35, FR-011)
 - [ ] T068 Sessão de observação com criança real seguindo `doc/
       definições001.MD` §10 + `doc/definições002.MD` §10 (perguntas 1-10),
-      medindo SC-001 a SC-006 de `spec.md`. **Inclui validar A-11**: as
-      15 rodadas do spike de STT (`research.md` §T002) mediram só voz de
-      adulto simulando pausa infantil, nunca criança de verdade — os
-      67-76% de acurácia encontrados podem não se sustentar (formantes e
-      timbre diferentes). Gravar a mesma leitura pausada com a criança e
-      rodar contra `spike-stt/testar.py`/`fonetica.py` antes de tratar
-      esse número como decisão de produto
+      medindo SC-001 a SC-006 de `spec.md`. **Nota sobre A-11**: as 15
+      rodadas do spike de STT (`research.md` §T002) já foram gravadas com
+      uma criança real em fase de alfabetização (não adulto simulando —
+      correção de registro em 2026-09-21), então 67-76% já é o número
+      real contra o usuário-alvo, não estimativa por proxy. Se der pra
+      testar com **outra(s) criança(s)** nesta sessão, roda de novo contra
+      `spike-stt/testar.py`/`fonetica.py` pra ganhar robustez estatística
+      (n=1 hoje) — não é pré-requisito, é reforço
 - [ ] T069 Registrar resultado da sessão de observação e decidir A-06/A-09/
       A-10 remanescentes em `doc/definições003.MD` (consolidação prevista
       em `doc/definições002.MD`)

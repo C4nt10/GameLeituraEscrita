@@ -110,9 +110,15 @@ código nem na escolha de motor.
 
 ### Diagnóstico refinado (2026-09-15): a variável provável é a pausa, não o ruído
 
-As gravações humanas da rodada 2 simulavam deliberadamente o jeito real
-que uma criança em alfabetização lê: **pausando e travando dentro da
-palavra** ("ga... to"), não fala fluida de adulto. Isso muda a leitura do
+**Correção (2026-09-21): as gravações de todas as rodadas deste spike
+são de uma criança de verdade, em fase de alfabetização — não um adulto
+simulando** (registrado errado em várias passagens anteriores deste
+documento; corrigido aqui e nas rodadas 9/13-15 abaixo). Isso muda a
+leitura de tudo que segue: os números de acurácia não são estimativa por
+proxy, são o resultado real contra o usuário-alvo. As gravações têm
+exatamente o padrão esperado de leitura em alfabetização: **pausando e
+travando dentro da palavra** ("ga... to"), não fala fluida de adulto.
+Isso muda a leitura do
 resultado — nível de volume normal não é garantia de qualidade, mas o
 fator dominante aqui é mais específico que "ruído doméstico": **motores de
 ASR (Vosk e Whisper) são treinados majoritariamente sobre fala contínua, e
@@ -157,7 +163,7 @@ ponto isso é uma hipótese, não algo verificado por este spike.
 Isto deixou de ser "escolher Vosk ou Whisper" e virou uma pergunta maior:
 **reconhecimento de fala offline embarcado pode não aguentar leitura
 pausada/silabada de criança** — nenhum motor testado passou de 14% mesmo
-com áudio humano limpo e curto simulando esse padrão, e mitigar só na
+com áudio de criança real, limpo e curto, e mitigar só na
 camada de comparação (D-37, rodada 3) não recuperou o resultado. Ver A-11
 em `doc/definições002.MD` §11. Manter a mitigação de D-37 no T028 mesmo
 assim (é higiene correta, sem custo), mas **não tratá-la como solução**
@@ -651,19 +657,24 @@ não 86%. Caminhos restantes, em ordem de custo crescente — o que dava pra
 testar sem depender de mais nada do dono do projeto já foi testado
 (rodadas 1-15); os que sobram **exigem ação de fora do spike**:
 
+**Correção importante (2026-09-21):** as 15 rodadas deste spike **já
+foram feitas com voz de uma criança real em fase de alfabetização**, não
+um adulto simulando — isso estava registrado errado em várias passagens
+anteriores deste documento (corrigido acima e em `doc/definições002.MD`
+§11). **O item "validar com criança real" não é mais uma pendência — já
+está satisfeito.** Os 67-76% são o resultado real contra o usuário-alvo,
+não uma estimativa por proxy.
+
 1. **Medir latência em dispositivo real** (via whisper.cpp quantizado,
    não Python puro, num Android real) — decide qual checkpoint embarcar,
    já que a rodada 13 mostrou que o tamanho do modelo importa pouco pra
    acurácia quando há prompt de vocabulário. Bloqueado até existir um
-   dispositivo/emulador Android configurado (T003 ainda pendente).
-2. **Validar com a voz de uma criança de verdade**, não um adulto
-   simulando pausa (é o que todas as 15 rodadas mediram até aqui) —
-   o `doc001` §10 e o `T068` do `tasks.md` já previam isso como etapa
-   necessária antes de considerar qualquer decisão de produto fechada.
-   Voz de criança tem formantes/timbre diferentes de adulto; os números
-   67-76% podem não se sustentar (pra cima ou pra baixo) com o usuário
-   real. Isto não é mais "ajuste de lógica" — é a validação de produto
-   que estava sempre pendente, spike nenhum substitui.
+   dispositivo/emulador Android configurado (T003 ainda pendente). **Esta
+   é a única pendência técnica real que resta.**
+2. Testar com mais de uma criança/sessão, se possível — os 67-76% vêm de
+   uma criança só; robustez estatística melhora com mais vozes, mas isso
+   já é refinamento, não pré-requisito (diferente do que a versão anterior
+   deste documento dizia).
 3. Regravar isolando a variável — a mesma palavra fluida vs. pausada, pra
    medir quanto da queda de acurácia original (antes de qualquer
    tratamento) era só efeito da pausa. Valor menor agora que já temos o
