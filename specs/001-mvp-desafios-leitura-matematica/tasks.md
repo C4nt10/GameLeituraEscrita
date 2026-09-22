@@ -187,11 +187,23 @@ modalidade, chegar à tela de estrelas.
       **Também**: passar o vocabulário da combinação nível×classificação
       da rodada como `initial_prompt`/hint do motor de STT (rodada 8 do
       spike — reconhecimento com vocabulário restrito, técnica padrão,
-      não "colar a resposta": levou large-v3 de 64% pra 86%, sem falso
-      positivo observado mesmo em áudio difícil). **Ressalva a resolver
-      antes de embarcar**: 86% foi medido na mesma amostra de 14 áudios
-      usada pra ajustar a lógica — risco de overfitting, precisa validar
-      contra áudio novo (T002) antes de tratar como número real)
+      não "colar a resposta"). **Número validado (rodada 10, com
+      metodologia correta): ~70%**, não os 86% das rodadas 8-9 (que usavam
+      lista de prompt arbitrária, não realista — não confiar nesse número).
+      **Comparação NÃO é fonética de verdade, é ortográfica** (distância de
+      edição sobre as letras da transcrição) — achado da rodada 12
+      (research.md §T002): isso escondia 2 bugs reais que fariam D-09
+      furar na prática — "c"/"g" mudam de som conforme a vogal seguinte em
+      português ("gato" ≠ "gelo" foneticamente, mesma letra), e mesmo com
+      fonema certo, distância ≤1 deixava palavra real trocar por outra
+      ("gato"/"galo", "cama"/"casa"). **Requisitos que T028 precisa
+      herdar de `spike-stt/testar.py` (não reinventar)**:
+      `_classe_fonema_inicial()` (trava por classe de fonema aproximada,
+      não letra crua) e o parâmetro `vocabulario_conhecido` (nunca aceita
+      um candidato que seja, ele mesmo, outra palavra real e diferente do
+      banco carregado por T014) — sem os dois, a trava de D-09 furava
+      contra o próprio banco de conteúdo (272 itens revarridos, zero
+      colisão depois do fix, `spike-stt/testar_tolerancia.py` 16/16))
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em

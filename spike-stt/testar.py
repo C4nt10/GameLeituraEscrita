@@ -119,10 +119,47 @@ def distancia_levenshtein(a: str, b: str) -> int:
     return anterior[-1]
 
 
-def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: int = 1) -> bool:
+_VOGAIS_FRONTAIS = set("ei")  # depois de c/g, som suave: ce/ci = /s/-/ʒ/... (ce, ci, ge, gi)
+_VOGAIS_POSTERIORES = set("aou")  # depois de c/g, som forte: ca/co/cu, ga/go/gu
+
+
+def _classe_fonema_inicial(palavra: str) -> str:
+    """Aproxima o FONEMA inicial, nao so a LETRA — cobre o caso classico do
+    portugues onde 'c'/'g' mudam de som conforme a vogal seguinte ('gato' som
+    forte /g/, 'gelo' som suave /Z/; mesma letra 'g', fonema diferente).
+
+    Achado real (2026-09-21, pergunta do dono do projeto): a trava anterior
+    comparava so a LETRA inicial (candidato[0] == esperado[0]), e isso deixava
+    'galo' passar como leitura aceita de 'gelo' — palavras diferentes, letra
+    igual, fonema inicial diferente. Sem essa funcao, D-09 nao era cumprido
+    de verdade nesse caso, so nos casos onde a letra tambem era diferente.
+    """
+    if len(palavra) < 2 or palavra[0] not in "cg":
+        return palavra[0] if palavra else ""
+    seguinte = palavra[1]
+    if seguinte in _VOGAIS_FRONTAIS:
+        return palavra[0] + "~suave"  # ce/ci, ge/gi
+    if seguinte in _VOGAIS_POSTERIORES:
+        return palavra[0] + "~forte"  # ca/co/cu, ga/go/gu
+    return palavra[0] + "~cluster"  # cr/cl/gr/gl etc. — som forte tambem, classe propria
+
+
+def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: int = 1,
+                                  vocabulario_conhecido: "set[str] | None" = None) -> bool:
     """Compara com tolerancia a pequena variacao de pronuncia (D-08), mas com trava
-    dura no primeiro som: nunca aceita troca do fonema inicial (D-09 — 'pato' nao
-    pode passar como leitura de 'gato', nao importa a distancia de edicao).
+    dura no primeiro FONEMA (aproximado): nunca aceita troca do som inicial (D-09 —
+    'pato' nao pode passar como leitura de 'gato', nem 'galo' como leitura de
+    'gelo', nao importa a distancia de edicao).
+
+    Achado real (rodada 12, mesma investigacao): mesmo com o fonema inicial
+    certo, distancia<=1 ainda deixa 'gato'/'galo' e 'cama'/'casa' colidirem —
+    palavras REAIS e diferentes do banco de conteudo, a so 1 letra uma da
+    outra. `vocabulario_conhecido` (opcional: o conjunto de todas as palavras
+    validas do banco, normalizadas) fecha essa brecha: um candidato dentro da
+    distancia so passa se ele NAO for, ele mesmo, uma palavra diferente e
+    conhecida do banco — nesse caso e mais provavel que a crianca tenha lido
+    (ou o motor tenha ouvido) a OUTRA palavra de verdade, nao uma variacao
+    ruidosa da esperada.
 
     Frase (varias palavras): mantido como substring exato — tolerancia fonetica
     por palavra ainda nao se estende a frase inteira neste spike.
@@ -131,13 +168,18 @@ def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: 
         return esperado in transcrito
     if not esperado:
         return False
+    classe_esperado = _classe_fonema_inicial(esperado)
     tokens = transcrito.split()
     candidatos = tokens + ["".join(tokens)]
     for candidato in candidatos:
         if not candidato:
             continue
-        if candidato[0] != esperado[0]:
+        if candidato == esperado:
+            return True  # identico sempre passa, mesmo que tambem esteja no vocabulario
+        if _classe_fonema_inicial(candidato) != classe_esperado:
             continue  # D-09: som inicial diferente nunca passa, nao importa a distancia
+        if vocabulario_conhecido and candidato in vocabulario_conhecido:
+            continue  # e uma palavra DIFERENTE e real do banco — nao e ruido de "esperado"
         if distancia_levenshtein(esperado, candidato) <= distancia_max:
             return True
     return False

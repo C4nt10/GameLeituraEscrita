@@ -475,6 +475,53 @@ de produção** — é mais um ponto de dado confirmando que o `initial_prompt`
 ajuda, na medida certa do tamanho do universo de candidatos, sem virar
 uma técnica confiável e estável o bastante pra fechar T002 sozinha.
 
+### Rodada 12 (2026-09-21) — "a inferência é por comparação fonética de verdade?": não era, e isso escondia 2 bugs reais
+
+Pergunta direta do dono do projeto. **Resposta: não.**
+`bate_com_tolerancia_fonetica()` sempre foi comparação **ortográfica**
+(distância de edição sobre as LETRAS da transcrição do Whisper), não
+fonética de verdade (não compara sons/fonemas) — funciona razoavelmente
+porque o português tem ortografia bem próxima da fala, mas "razoavelmente"
+não é "de verdade", e a pergunta expôs exatamente onde isso quebra.
+
+**Bug 1 — a trava do D-09 comparava LETRA, não FONEMA.** O "c"/"g" do
+português muda de som conforme a vogal seguinte (`gato` = /g/ forte,
+`gelo` = /ʒ/ suave — mesma letra "g", fonema diferente). Testei
+diretamente: `bate_com_tolerancia_fonetica("gelo", "galo")` devolvia
+`True` — **"galo" passava como leitura aceita de "gelo"**, duas palavras
+reais e diferentes do banco (`natureza` e `animais`, ambas nível 2).
+Corrigido com `_classe_fonema_inicial()`: classifica "ca/co/cu"/"ga/go/gu"
+(som forte) separado de "ce/ci"/"ge/gi" (som suave) antes de comparar,
+em vez de só a letra.
+
+**Bug 2 — mesmo com o fonema certo, distância ≤1 ainda deixava palavra
+real trocar por outra palavra real.** Varri o banco inteiro (272 itens)
+procurando pares que colidiriam dentro da mesma rodada (mesmo
+nível×classificação): achei **`gato`/`galo`** (nível 2, animais) e
+`cama`/`casa` (nível 2, casa) — nos dois casos, mesmo fonema inicial,
+1 letra de distância, mas são palavras diferentes de verdade, não ruído
+de transcrição uma da outra. Corrigido: `bate_com_tolerancia_fonetica()`
+ganhou o parâmetro opcional `vocabulario_conhecido` — um candidato dentro
+da distância só passa se ele **não for, ele mesmo, outra palavra
+diferente e real do banco**. Revarri o banco inteiro depois do fix:
+**zero colisões restantes** nos 272 itens.
+
+**Nenhum número já reportado (57%-86% nas rodadas 6-11) foi contaminado
+por esses 2 bugs** — nenhum dos áudios testados até aqui esbarrou neles
+por acaso. Mas eram riscos reais e latentes pro banco de conteúdo INTEIRO
+(que continua crescendo — T067 ainda precisa validar isso de novo depois
+de qualquer expansão de conteúdo), e ficariam sem detecção até acontecer
+de verdade com uma criança, o que seria uma violação de D-09/Princípio IV
+sem ninguém perceber. `spike-stt/testar_tolerancia.py` ganhou 8 casos
+novos (16 no total) cobrindo os dois bugs — 16/16 passa depois do fix.
+
+**Consequência pro T028 (avaliação real)**: `avaliacao_leitura` precisa
+receber o vocabulário conhecido (do banco de conteúdo carregado,
+`banco_de_conteudo`/T014) como parâmetro, não só comparar contra a
+palavra-alvo isolada — e usar classificação de fonema aproximado pro
+"c"/"g", não só a letra. Isto é requisito novo, não estava em D-08/D-09
+originais porque a ambiguidade nunca tinha sido testada até esta rodada.
+
 **Isso muda a leitura de T002 outra vez**: o critério de aceite tal como
 está escrito em `tasks.md` foi cumprido na rodada 9 (86%) só porque o
 teste ainda não usava contexto realista e consistente. Com o teste
