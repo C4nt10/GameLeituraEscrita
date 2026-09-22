@@ -32,21 +32,24 @@ tinha essa disciplina.
       `plan.md` atualizado, sem mais NEEDS CLARIFICATION em Language/Version
 - [ ] T002 Rodar o spike de STT (`spike-stt/testar.py`) com os 14 áudios
       gravados e registrar o resultado em `research.md`. **Status final
-      (2026-09-21, rodada 15 + correção)**: **67-76%** (Whisper
-      small/medium/large-v3, com vocabulário no prompt, tolerância
-      fonética + Damerau-Levenshtein) contra voz de **criança real** em
-      alfabetização (não adulto — as 15 rodadas sempre foram com a
-      criança; erro de registro em versões anteriores desta linha,
-      corrigido). Vosk descartado (10-19%, vocabulário base insuficiente
-      pro idioma do banco). Abaixo do critério de aceite (≥80%) em todos
-      os motores testáveis sem dispositivo real. **Única pendência real
-      restante**: medir latência + testar STT nativo Android
-      (`SpeechRecognizer`, modo on-device) — exige Android SDK/emulador,
-      **adiado pro T003** (mesmo setup serve pros dois, decisão do dono
-      do projeto em 2026-09-21). Ver research.md §T002 (rodadas 1-15)
-      pra timeline e análise completas. **Critério de aceite**: não
-      cumprido nos motores offline embarcáveis testados até aqui;
-      decisão de produto pendente sobre se 67-76% é aceitável pro MVP
+      (2026-09-22, rodada 16 — 16 rodadas ao todo)**: **62-76%** (faixa,
+      não ponto único — variância execução-a-execução do Whisper,
+      achado desta rodada) (Whisper small/medium/large-v3, com
+      vocabulário no prompt, tolerância fonética + Damerau-Levenshtein;
+      `thefuzz`/`fuzz.ratio` testado e descartado, pior que o método
+      atual) contra voz de **criança real** em alfabetização (não adulto
+      — todas as rodadas sempre foram com a criança; erro de registro em
+      versões anteriores desta linha, corrigido). Vosk descartado
+      (10-19%, vocabulário base insuficiente pro idioma do banco). Abaixo
+      do critério de aceite (≥80%) em todos os motores testáveis sem
+      dispositivo real. **Única pendência real restante**: medir latência
+      + testar STT nativo Android (`SpeechRecognizer`, modo on-device) —
+      exige Android SDK/emulador, **adiado pro T003** (mesmo setup serve
+      pros dois, decisão do dono do projeto em 2026-09-21). Ver
+      research.md §T002 (rodadas 1-16) pra timeline e análise completas.
+      **Critério de aceite**: não cumprido nos motores offline
+      embarcáveis testados até aqui; decisão de produto pendente sobre
+      se 62-76% é aceitável pro MVP
 - [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
       `app/e2e/`)
@@ -438,7 +441,7 @@ teste correspondente.
       medindo SC-001 a SC-006 de `spec.md`. **Nota sobre A-11**: as 15
       rodadas do spike de STT (`research.md` §T002) já foram gravadas com
       uma criança real em fase de alfabetização (não adulto simulando —
-      correção de registro em 2026-09-21), então 67-76% já é o número
+      correção de registro em 2026-09-21), então 62-76% já é o número
       real contra o usuário-alvo, não estimativa por proxy. Se der pra
       testar com **outra(s) criança(s)** nesta sessão, roda de novo contra
       `spike-stt/testar.py`/`fonetica.py` pra ganhar robustez estatística

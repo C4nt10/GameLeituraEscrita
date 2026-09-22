@@ -625,7 +625,7 @@ onde a heurística pontual do "c"/"g" não for suficiente).
 está escrito em `tasks.md` foi cumprido na rodada 9 (86%) só porque o
 teste ainda não usava contexto realista e consistente. Com o teste
 metodologicamente correto (rodada 10, confirmado nas rodadas 13-14), **o
-número real fica na faixa 67-76% conforme o tamanho do modelo**, sempre
+número real fica na faixa 62-76% conforme o tamanho do modelo**, sempre
 abaixo do critério — T002 não deveria ser considerado aprovado com base
 nos números das rodadas 8-9.
 
@@ -650,19 +650,86 @@ pequeno mas real e seguro — `bate_com_tolerancia_fonetica()` ganhou o
 parâmetro `usar_damerau` (`False` por padrão, mantém compatibilidade;
 `True` ativa o recurso).
 
+### Rodada 16 (2026-09-22) — `thefuzz`/`fuzz.ratio` ≥80%: pior que o que já tínhamos
+
+Pedido do dono do projeto: testar `thefuzz.fuzz.ratio()` (similaridade
+proporcional 0-100, baseada em `python-Levenshtein`) com limiar de 80%
+como critério de acerto, no lugar da distância de edição fixa (`≤1`).
+Implementei `bate_por_fuzz_ratio()` — mesma estrutura/travas de sempre
+(fonema inicial aproximado + guard de vocabulário conhecido, D-09), só
+trocando o critério de comparação final.
+
+**Checagem adversarial antes de usar pra valer** (os 19 casos de
+`testar_tolerancia.py`): **17/19** — 2 falhas, e as duas são rejeição de
+variação **legítima** que devia ter passado: `casa`/`caza` e
+`gato`/`gata`, ambos com `ratio=75`, abaixo do limiar de 80. Causa
+matemática: **qualquer palavra de 4 letras com 1 substituição sempre dá
+exatamente 75%** (`2×3 acertos / 8 letras totais × 100`) — o limiar fixo
+de 80% é estrutural mente rígido demais pra palavras curtas, que são a
+maioria do conteúdo nos níveis 1-2 do jogo.
+
+Rodado contra os 3 Whisper (mesmas transcrições, mesmo vocabulário no
+prompt), comparando com o Damerau-Levenshtein da rodada 15:
+
+| Motor | Damerau-Levenshtein (≤1) | `fuzz.ratio` (≥80%) |
+|---|---|---|
+| Whisper small | 62% (13/21) | 57% (12/21) |
+| Whisper medium | 71% (15/21) | 71% (15/21) |
+| Whisper large-v3 | 71% (15/21) | 62% (13/21) |
+
+*(números da baseline levemente diferentes das rodadas 13/15 —
+não-determinismo do `beam_search` do Whisper entre execuções, ver
+ressalva abaixo)*
+
+**`fuzz.ratio` ≥80% perdeu ou empatou em todos os 3 modelos, nunca
+ganhou.** Os casos que ele erra e o Damerau acerta confirmam o problema
+da checagem adversarial: `"m"` → `"e me"` (a letra "M" dita "ême" —
+achado da rodada 7, validado desde então) foi **rejeitado** pelo
+`fuzz.ratio` (`ratio("m","eme")=50%`) — palavra de 1 letra é ainda mais
+penalizada que palavra de 4. `"a"` → `"ah"` também rejeitado
+(`ratio=67%`). Só um caso favoreceu o `fuzz.ratio` (`"banana"` →
+`"b a n a"`, aceito por ele e rejeitado pelo Damerau — a similaridade
+proporcional tolera 2 deleções no fim de uma palavra de 6 letras, o que a
+distância fixa `≤1` não permite; parece um acerto legítimo, mas não
+compensa as perdas nas palavras curtas).
+
+**Conclusão: `fuzz.ratio` com limiar fixo não substitui o que já
+tínhamos.** Um limiar único não serve pra um vocabulário com palavras de
+1 a ~10 letras ao mesmo tempo — precisaria de limiar adaptativo por
+tamanho de palavra pra ser competitivo, o que é essencialmente
+reinventar, de forma mais complicada, o que `distancia_max` já resolve
+de forma simples. Mantida a função `bate_por_fuzz_ratio()` em
+`testar.py` (documentada, não removida), mas **não recomendada** — o
+método vencedor continua sendo `bate_com_tolerancia_fonetica(...,
+usar_damerau=True)`.
+
+**Ressalva nova, encontrada nesta rodada**: os números de baseline
+(Damerau-Levenshtein) vieram diferentes entre a rodada 15 (67/76/71%) e
+esta execução (62/71/71%) — mesma lógica, mesmos áudios, mesmo prompt.
+A causa é não-determinismo do `beam_search` do faster-whisper entre
+execuções (a busca por feixe pode convergir pra transcrições levemente
+diferentes em decisões de fronteira). **Isso é uma limitação real da
+metodologia do spike inteiro**: com amostra pequena (21 itens) e alguma
+variância execução-a-execução, qualquer número isolado tem uma margem de
+incerteza de alguns pontos percentuais — a faixa 62-76% descreve melhor
+o que esperar do que qualquer número único.
+
 **Não fechar T002 sozinho — esta decisão é do dono do projeto**, mas com
-um número mais honesto agora: **67-76% é a melhor estimativa atual**
-(Whisper, qualquer tamanho, com vocabulário no prompt e Damerau-Levenshtein),
-não 86%. Caminhos restantes, em ordem de custo crescente — o que dava pra
-testar sem depender de mais nada do dono do projeto já foi testado
-(rodadas 1-15); os que sobram **exigem ação de fora do spike**:
+um número mais honesto agora: **62-76% é a melhor estimativa atual**
+(faixa, não ponto único — rodada 16 mostrou variância execução-a-execução
+do próprio Whisper) (Whisper, qualquer tamanho, com vocabulário no prompt
+e Damerau-Levenshtein), não 86%. `fuzz.ratio` testado e descartado
+(rodada 16, pior que o método atual). Caminhos restantes, em ordem de
+custo crescente — o que dava pra testar sem depender de mais nada do dono
+do projeto já foi testado (rodadas 1-16); os que sobram **exigem ação de
+fora do spike**:
 
 **Correção importante (2026-09-21):** as 15 rodadas deste spike **já
 foram feitas com voz de uma criança real em fase de alfabetização**, não
 um adulto simulando — isso estava registrado errado em várias passagens
 anteriores deste documento (corrigido acima e em `doc/definições002.MD`
 §11). **O item "validar com criança real" não é mais uma pendência — já
-está satisfeito.** Os 67-76% são o resultado real contra o usuário-alvo,
+está satisfeito.** Os 62-76% são o resultado real contra o usuário-alvo,
 não uma estimativa por proxy.
 
 1. **Medir latência em dispositivo real** (via whisper.cpp quantizado,
@@ -684,7 +751,7 @@ não uma estimativa por proxy.
    o modo padrão do Android pode cair pra nuvem silenciosamente conforme
    idioma/configuração, o que violaria o Princípio V se fosse parar no
    produto sem essa checagem.
-2. Testar com mais de uma criança/sessão, se possível — os 67-76% vêm de
+2. Testar com mais de uma criança/sessão, se possível — os 62-76% vêm de
    uma criança só; robustez estatística melhora com mais vozes, mas isso
    já é refinamento, não pré-requisito (diferente do que a versão anterior
    deste documento dizia).

@@ -214,6 +214,40 @@ def bate_com_tolerancia_fonetica(esperado: str, transcrito: str, distancia_max: 
     return False
 
 
+def bate_por_fuzz_ratio(esperado: str, transcrito: str, limiar: int = 80,
+                         vocabulario_conhecido: "set[str] | None" = None) -> bool:
+    """Mesma estrutura/travas de bate_com_tolerancia_fonetica (fonema inicial
+    aproximado + guard de vocabulario conhecido — D-09), mas troca a distancia
+    de edicao fixa (<=1) pela similaridade proporcional do thefuzz
+    (`fuzz.ratio`, 0-100), com limiar >= 80. Pedido do dono do projeto
+    (2026-09-22, rodada 16): validar se um limiar PROPORCIONAL ao tamanho da
+    palavra (em vez de contagem fixa de edicoes) muda o resultado — palavras
+    curtas toleram menos edicao absoluta, palavras longas toleram mais, o que
+    a distancia fixa (<=1) nao capturava.
+    """
+    from thefuzz import fuzz
+
+    if " " in esperado:
+        return esperado in transcrito
+    if not esperado:
+        return False
+    classe_esperado = _classe_fonema_inicial(esperado)
+    tokens = transcrito.split()
+    candidatos = tokens + ["".join(tokens)]
+    for candidato in candidatos:
+        if not candidato:
+            continue
+        if candidato == esperado:
+            return True
+        if _classe_fonema_inicial(candidato) != classe_esperado:
+            continue  # D-09: som inicial diferente nunca passa, nao importa a similaridade
+        if vocabulario_conhecido and candidato in vocabulario_conhecido:
+            continue  # e uma palavra DIFERENTE e real do banco
+        if fuzz.ratio(esperado, candidato) >= limiar:
+            return True
+    return False
+
+
 def main():
     arquivos = sorted(
         p for p in PASTA_AUDIO.iterdir()
