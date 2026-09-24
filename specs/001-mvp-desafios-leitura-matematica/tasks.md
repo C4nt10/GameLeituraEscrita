@@ -202,16 +202,23 @@ modalidade, chegar à tela de estrelas.
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T019 [P] [US1] Teste unitário: geração de 4 alternativas de letra sem
-      repetição em `app/src/__tests__/unit/alternativas_letra_test`
-- [ ] T020 [P] [US1] Teste unitário: tolerância fonética aceita variação de
+- [x] T019 [P] [US1] Teste unitário: geração de 4 alternativas de letra sem
+      repetição em `app/src/__tests__/unit/alternativas_letra_test`.
+      **Concluído (2026-09-24)** — não há regra de "próxima da correta"
+      documentada pra letras (a regra do doc001 §4 é especificamente de
+      matemática); implementado como sorteio sem repetição a partir de um
+      pool de candidatas injetável.
+- [x] T020 [P] [US1] Teste unitário: tolerância fonética aceita variação de
       pronúncia e rejeita troca do som inicial (D-09) em
-      `app/src/__tests__/unit/tolerancia_fonetica_test`
-- [ ] T020a [P] [US1] Teste unitário: leitura soletrada/pausada dentro da
+      `app/src/__tests__/unit/tolerancia_fonetica_test`. **Concluído
+      (2026-09-24)** — porta fiel dos 19 casos adversariais de
+      `spike-stt/testar_tolerancia.py`, não reescrita.
+- [x] T020a [P] [US1] Teste unitário: leitura soletrada/pausada dentro da
       palavra (ex. transcrição fragmentada `"ga"` + `"to"`) é aceita como
       acerto — comparação ignora pausa/duração, só concatena e compara
       conteúdo fonético (US1 cenário 8, D-37) em
-      `app/src/__tests__/unit/tolerancia_pausa_test`
+      `app/src/__tests__/unit/tolerancia_pausa_test`. **Concluído
+      (2026-09-24)**.
 - [ ] T021 [P] [US1] Teste de integração: troca automática para Leitura ·
       montar após 2 falhas em Leitura · voz (D-10) em
       `app/e2e/troca_modalidade.yaml`
@@ -238,9 +245,12 @@ modalidade, chegar à tela de estrelas.
 
 ### Implementation for User Story 1
 
-- [ ] T027 [P] [US1] Modelar `DesafioLeitura` (palavra/letra, nível,
+- [x] T027 [P] [US1] Modelar `DesafioLeitura` (palavra/letra, nível,
       classificação(ões), marcador fonético opcional) em
-      `app/src/models/desafio_leitura`
+      `app/src/models/desafio_leitura`. **Concluído (2026-09-24)** —
+      diferença de `ItemLeitura` (registro estático do banco): carrega
+      `modalidade` (spec.md Key Entities — a instância jogada numa
+      rodada, não o registro do banco em si).
 - [ ] T028 [US1] Implementar `avaliacao_leitura`: tolerância fonética sobre
       a saída do STT (depende de T002 — motor de STT escolhido); remove
       qualquer pontuação que o motor insira pra marcar pausa/hesitação
@@ -281,7 +291,17 @@ modalidade, chegar à tela de estrelas.
       Levenshtein simples — ganho pequeno mas seguro, revalidado contra o
       banco inteiro sem abrir colisão nova (rodada 15).
       `spike-stt/testar_tolerancia.py` tem 19 casos de regressão — reusar
-      como base de T020a, não reescrever)
+      como base de T020a, não reescrever). **Concluído (2026-09-24)** —
+      `app/src/services/avaliacao_leitura`: porta fiel de
+      `normalizar`/`distanciaLevenshtein`/`distanciaDamerauLevenshtein`/
+      `classeFonemaInicial`/`bateComToleranciaFonetica` do
+      `spike-stt/testar.py`, mais `avaliarLeitura()` (pipeline completo,
+      Damerau por padrão) e `construirPromptVocabulario()`. **Escopo real
+      entregue vs. pendente**: a lógica de comparação está completa e
+      testada (T020/T020a, 24 casos). A chamada de verdade ao motor de
+      STT (`whisper.rn`, ainda não instalado — precisa de `expo prebuild`
+      porque não roda no Expo Go) fica pra T031 (tela de Leitura·voz),
+      que é quem de fato tem o áudio do microfone pra mandar pro motor.
 - [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em
