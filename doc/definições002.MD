@@ -396,3 +396,32 @@ As perguntas do 001 continuam. Somam-se:
 11. Ela é compreensível o bastante pro reconhecimento de fala funcionar, ou
     A-11 já era esperado? (informa se A-11 é limite do motor ou também da
     fala infantil em si)
+
+---
+
+## 13. Orientação de tela — nova, abre A-12
+
+Pergunta levantada ao confirmar suporte a tablet (`plan.md` já tratava
+tablet como plataforma-alvo, mas nenhum documento de produto tinha
+decidido orientação). O scaffold do T003 saiu com `orientation: "portrait"`
+(padrão do template Expo, não uma escolha deliberada do produto).
+
+### D-38 — retrato e paisagem, adaptativo (não travado)
+
+**Decisão (2026-09-24):** o app aceita as duas orientações; nenhuma tela
+trava a rotação. Motivo: tablet infantil (iPad, Fire Kids e similares) é
+usado com frequência em paisagem — travar em retrato forçaria a criança a
+segurar o aparelho de um jeito que não é o hábito dela nesses casos.
+
+**Consequência prática:** cada uma das 8 telas do MVP (protótipo em
+`design/prototipo.html`) precisa de layout que funcione nas duas
+orientações — não são 16 telas novas, mas o teste de aceitação de cada
+tela (E2E via Maestro, `app/e2e/`) deve cobrir ambas, não só retrato. Isso
+entra na Fase 3+ (implementação de tela), não bloqueia a Fase 2
+(Foundational, que é toda lógica sem UI).
+
+### O que isso abre
+
+| # | Questão | O que falta |
+|---|---|---|
+| **A-12** | Layout adaptativo retrato/paisagem para as 8 telas do MVP | Nenhuma tela foi desenhada ainda (Fase 3 em diante) — a disposição em paisagem de cada uma (grade de alternativas, botão de microfone, tela de resultado) ainda não foi decidida, só o princípio geral (D-38) |

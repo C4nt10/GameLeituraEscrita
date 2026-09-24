@@ -55,7 +55,11 @@ do histórico).
 **Target Platform**: dispositivos móveis (tablet/celular), touch, uso
 majoritário sem supervisão direta no momento do toque. Multiplataforma
 (Android no mínimo; iOS desejável) — decisão de produto já tomada
-("Multiplataforma com modelo embutido").
+("Multiplataforma com modelo embutido"). **Orientação: retrato e paisagem,
+adaptativo** (D-38, `doc/definições002.MD` §13) — tablet infantil é usado
+em paisagem com frequência; `app.json` configurado com `orientation:
+"default"` (sem trava) no T003. Cada tela do MVP precisa de layout pras
+duas orientações — decisão pendente de UI concreta pra Fase 3 (A-12).
 
 **Project Type**: mobile-app (single codebase, sem projeto de backend
 separado).
