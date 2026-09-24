@@ -589,27 +589,44 @@ os campos e o cálculo por perfil.
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T050 [P] [US4] Teste unitário: resumo geral (total, precisão média,
+- [x] T050 [P] [US4] Teste unitário: resumo geral (total, precisão média,
       média de estrelas) calculado por perfil, sem cruzar modalidades
-      (US4 cenário 4) em `app/src/__tests__/unit/resumo_historico_test`
-- [ ] T051 [P] [US4] Teste de integração: antes da primeira rodada, o
+      (US4 cenário 4) em `app/src/__tests__/unit/resumo_historico_test`.
+      **Concluído (2026-09-25)** — agrupa por modalidade pra leitura
+      (Ditado/Leitura·montar/Leitura·voz, D-20 explícito) e matemática
+      como grupo único (pura+contextualizada juntas — D-20 não as
+      distingue como medindo habilidades diferentes, só as 3 modalidades
+      de leitura são citadas; interpretação, não confirmada literalmente
+      no doc).
+- [x] T051 [P] [US4] Teste de integração: antes da primeira rodada, o
       histórico mostra mensagem explicando que estará vazio, não uma tela
       em branco sem contexto (US4 cenário 1) em
-      `app/e2e/historico_vazio.yaml`
-- [ ] T052 [P] [US4] Teste de integração: apagar o histórico exige
+      `app/e2e/historico_vazio.yaml`. **Escrito (2026-09-25)**. Não
+      executado (sem device/Maestro CLI).
+- [x] T052 [P] [US4] Teste de integração: apagar o histórico exige
       confirmação antes de executar (US4 cenário 3, CU-06) em
-      `app/e2e/historico_exclusao_confirma.yaml`
+      `app/e2e/historico_exclusao_confirma.yaml`. **Escrito
+      (2026-09-25)**, implementado via `Alert.alert` nativo. Não
+      executado.
 
 ### Implementation for User Story 4
 
-- [ ] T053 [US4] Implementar tela de histórico (lista mais recente→mais
+- [x] T053 [US4] Implementar tela de histórico (lista mais recente→mais
       antiga, resumo geral, mensagem de vazio antes da 1ª rodada) — faz
-      T050 e T051 passarem — em `app/src/screens/historico`, ligada a T015
-- [ ] T054 [US4] Implementar exclusão do histórico com confirmação — faz
-      T052 passar — em `app/src/screens/historico` (CU-06)
+      T050 e T051 passarem — em `app/src/screens/historico`, ligada a T015.
+      **Concluído (2026-09-25)** — data formatada "Hoje"/"Ontem"/data
+      (CU-06). Acessível pela tela inicial e ao final de uma rodada
+      (CU-06 passo 1) — link em `TelaConfiguracao` e botão opcional em
+      `TelaResultado`.
+- [x] T054 [US4] Implementar exclusão do histórico com confirmação — faz
+      T052 passar — em `app/src/screens/historico` (CU-06). **Concluído
+      (2026-09-25)** — `historico.limparHistoricoDoPerfil` (nova função,
+      apaga todas as rodadas do perfil; `excluirRodada` já existia pra 1
+      rodada só, mas CU-06 pede apagar o histórico inteiro).
 
 **Checkpoint**: histórico completo e correto para uso sozinho e futuro modo
-dupla.
+dupla. ✅ (2026-09-25) 81/81 testes, `tsc`/`eslint` limpos, build web
+exportado com sucesso.
 
 ---
 

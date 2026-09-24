@@ -27,6 +27,7 @@ export default function RotaRodadaMatematica() {
       onSairDaRodada={() => router.back()}
       onJogarDeNovo={() => router.back()}
       onSubirDeNivel={() => router.back()}
+      onVerHistorico={() => router.push('/historico')}
     />
   );
 }

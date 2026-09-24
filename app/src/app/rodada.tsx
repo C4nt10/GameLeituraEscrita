@@ -42,6 +42,7 @@ export default function RotaRodadaLeitura() {
       onSairDaRodada={() => router.back()}
       onJogarDeNovo={() => router.back()}
       onSubirDeNivel={() => router.back()}
+      onVerHistorico={() => router.push('/historico')}
     />
   );
 }

@@ -46,6 +46,7 @@ export interface RodadaMatematicaProps {
   onSairDaRodada: () => void;
   onJogarDeNovo: () => void;
   onSubirDeNivel: (novoNivel: number) => void;
+  onVerHistorico?: () => void;
 }
 
 type FaseRodada = 'jogando' | 'resultado';
@@ -64,6 +65,7 @@ export function RodadaMatematica({
   onSairDaRodada,
   onJogarDeNovo,
   onSubirDeNivel,
+  onVerHistorico,
 }: RodadaMatematicaProps) {
   const desafios = useMemo(
     () => Array.from({ length: configuracao.tamanho }, () => gerarDesafio(configuracao)),
@@ -144,6 +146,7 @@ export function RodadaMatematica({
         proximoNivelSugerido={temSugestao ? nivelSugerido : undefined}
         onJogarDeNovo={onJogarDeNovo}
         onSubirDeNivel={() => onSubirDeNivel(configuracao.nivel + 1)}
+        onVerHistorico={onVerHistorico}
       />
     );
   }

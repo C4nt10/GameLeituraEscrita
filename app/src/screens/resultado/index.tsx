@@ -73,6 +73,8 @@ export interface TelaResultadoProps {
   proximoNivelSugerido?: number;
   onJogarDeNovo: () => void;
   onSubirDeNivel: () => void;
+  /** CU-06 — histórico acessível ao final de uma rodada, além da tela inicial. */
+  onVerHistorico?: () => void;
 }
 
 export function TelaResultado({
@@ -84,6 +86,7 @@ export function TelaResultado({
   proximoNivelSugerido,
   onJogarDeNovo,
   onSubirDeNivel,
+  onVerHistorico,
 }: TelaResultadoProps) {
   return (
     <View style={estilos.raiz}>
@@ -128,6 +131,11 @@ export function TelaResultado({
         <Botao onPress={onSubirDeNivel} variante="fantasma" acessibilidade="subir de nível">
           ⬆️ Subir de nível
         </Botao>
+        {onVerHistorico && (
+          <Botao onPress={onVerHistorico} variante="fantasma" acessibilidade="ver histórico">
+            📜 Ver histórico
+          </Botao>
+        )}
       </View>
     </View>
   );

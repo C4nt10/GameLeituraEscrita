@@ -53,6 +53,8 @@ export interface TelaConfiguracaoProps {
   onAbrirEscolhaDeVoz: () => void;
   /** D-26/FR-021 — salva assim que muda, igual à voz escolhida (CU-07). */
   onAlterarNomeOuFonema: (valor: 'nome' | 'fonema') => void;
+  /** CU-06 — histórico acessível pela tela inicial. */
+  onAbrirHistorico: () => void;
 }
 
 export function TelaConfiguracao({
@@ -62,6 +64,7 @@ export function TelaConfiguracao({
   onIniciar,
   onAbrirEscolhaDeVoz,
   onAlterarNomeOuFonema,
+  onAbrirHistorico,
 }: TelaConfiguracaoProps) {
   const [nomeOuFonema, setNomeOuFonema] = useState<'nome' | 'fonema'>(
     configuracaoInicial.nomeOuFonema,
@@ -221,6 +224,10 @@ export function TelaConfiguracao({
 
       <TouchableOpacity onPress={onAbrirEscolhaDeVoz} accessibilityRole="button">
         <Text style={estilos.linkVoz}>🔊 escolher e testar a voz</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={onAbrirHistorico} accessibilityRole="button">
+        <Text style={estilos.linkVoz}>📜 ver histórico</Text>
       </TouchableOpacity>
 
       <Botao onPress={iniciar} acessibilidade="começar">

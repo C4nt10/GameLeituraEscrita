@@ -1,0 +1,13 @@
+# T051 — antes da primeira rodada, o histórico mostra mensagem
+# explicando que estará vazio, não uma tela em branco sem contexto (US4
+# cenário 1, Princípio I). Implementado em `TelaHistorico`: quando
+# `rodadas.length === 0`, mostra a explicação em vez de uma lista vazia.
+#
+# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
+# máquina (mesma ressalva de sempre). appId é placeholder.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: '📜 ver histórico'
+- assertVisible: 'Ainda não há nenhuma rodada registrada'

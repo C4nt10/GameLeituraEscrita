@@ -177,3 +177,13 @@ export async function excluirRodada(id: string): Promise<void> {
   const db = await obterBanco();
   await db.runAsync('DELETE FROM rodadas WHERE id = ?', id);
 }
+
+/**
+ * Apaga todo o histórico do perfil (CU-06: "pode ser apagado, sempre
+ * com confirmação" — a confirmação é responsabilidade da tela, igual a
+ * `excluirRodada`).
+ */
+export async function limparHistoricoDoPerfil(perfilId: string): Promise<void> {
+  const db = await obterBanco();
+  await db.runAsync('DELETE FROM rodadas WHERE perfil_id = ?', perfilId);
+}

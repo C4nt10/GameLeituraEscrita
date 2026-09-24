@@ -58,6 +58,7 @@ export interface RodadaLeituraProps {
   onSairDaRodada: () => void;
   onJogarDeNovo: () => void;
   onSubirDeNivel: (novoNivel: number) => void;
+  onVerHistorico?: () => void;
 }
 
 type FaseRodada = 'jogando' | 'resultado';
@@ -69,6 +70,7 @@ export function RodadaLeitura({
   onSairDaRodada,
   onJogarDeNovo,
   onSubirDeNivel,
+  onVerHistorico,
 }: RodadaLeituraProps) {
   const desafiosSorteados = useMemo(
     () => sortearDesafios(configuracao.nivel, configuracao.classificacao, configuracao.tamanho),
@@ -156,6 +158,7 @@ export function RodadaLeitura({
         proximoNivelSugerido={temSugestao ? nivelSugerido : undefined}
         onJogarDeNovo={onJogarDeNovo}
         onSubirDeNivel={() => onSubirDeNivel(configuracao.nivel + 1)}
+        onVerHistorico={onVerHistorico}
       />
     );
   }
