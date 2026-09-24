@@ -1,41 +1,110 @@
 # GameLeituraEscrita
 
-Jogo infantil offline de leitura e matemática para a fase de alfabetização.
-Sem bloqueio de tela, sem contas — o objetivo é a criança **ler de fato**.
+Jogo infantil **offline** de leitura e matemática para a fase de
+alfabetização. Sem bloqueio de tela, sem contas, sem anúncio — o objetivo é
+a criança **ler de verdade**, não passar de fase.
 
-## Onde está o quê
+> **Princípio supremo:** o aplicativo não entrega a resposta que a criança
+> deveria produzir. Toda decisão de mecânica, conteúdo ou interface é
+> medida contra essa frase antes de qualquer outro critério.
 
-- [`doc/definições001.MD`](doc/definições001.MD) — definição de produto original
-  (visão, personas, casos de uso CU-01 a CU-07, princípios de usabilidade,
-  decisões D-01 a D-16).
-- [`doc/definições002.MD`](doc/definições002.MD) — resolução das decisões em
-  aberto do 001 (três modalidades de leitura, classificação de conteúdo,
-  matemática contextualizada, perfis, modo dupla — D-17 a D-33).
-- [`spike-stt/`](spike-stt/) — spike de viabilidade de reconhecimento de fala
-  offline (Vosk vs. faster-whisper), usado para decidir o motor de STT de
-  Leitura · voz.
-- [`.specify/`](.specify/) + [`specs/001-mvp-desafios-leitura-matematica/`](specs/001-mvp-desafios-leitura-matematica/)
-  — artefatos de spec-driven development ([spec-kit](https://github.com/github/spec-kit)):
-  `constitution.md`, `spec.md`, `plan.md`, `tasks.md`, `data-model.md`,
-  `contracts/`.
-- [`conteudo/`](conteudo/) — rascunho v0 (não validado, A-06 aberta) do
-  banco de palavras e dos temas de matemática contextualizada.
-- [`design/prototipo.html`](design/prototipo.html) — protótipo clicável
-  das 8 telas do MVP, publicado como artifact:
-  https://claude.ai/code/artifact/8956db27-7461-4078-b1dc-dabf56ea2e3a —
-  referência visual para as tarefas de tela em `tasks.md` (T029-T032,
-  T040, T047-T048, T053, T062-T063).
+## Status
+
+🚧 **Fase de especificação, pré-implementação.** Este projeto segue
+[spec-driven development](https://github.com/github/spec-kit): produto,
+constituição e plano técnico já estão fechados; o código do app
+(`app/`) ainda não existe. Das 71 tarefas em
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 2 estão
+concluídas — a decisão de stack (T001) e o spike de reconhecimento de
+fala offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
+[detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)).
+
+## Sobre o projeto
+
+Três modalidades de desafio de leitura — **Ditado**, **Leitura · montar**
+e **Leitura · voz** — mais desafios de matemática contextualizada, com
+troca automática de modalidade quando uma falha, métricas de ajuda sempre
+visíveis (nunca escondidas) e configuração 100% opcional. Roda inteiramente
+offline: sem essa restrição, uma queda de conexão poderia impedir a
+criança de jogar.
+
+Todas as decisões de produto e as regras que guiam o desenvolvimento estão
+documentadas — não é código "adivinhando" requisito:
+
+- [`.specify/memory/constitution.md`](.specify/memory/constitution.md) —
+  os 7 princípios inegociáveis do produto (a criança nunca fica presa,
+  erro não pune, métrica sempre honesta, funciona sem internet, entre
+  outros).
+- [`doc/definições001.MD`](doc/definições001.MD) — definição de produto
+  original (visão, personas, casos de uso CU-01 a CU-07, decisões D-01 a
+  D-16).
+- [`doc/definições002.MD`](doc/definições002.MD) — resolução das decisões
+  em aberto do 001 (três modalidades de leitura, classificação de
+  conteúdo, matemática contextualizada, perfis, modo dupla — D-17 a D-37).
+
+## Estrutura do repositório
+
+| Caminho | Conteúdo |
+|---|---|
+| [`specs/001-mvp-desafios-leitura-matematica/`](specs/001-mvp-desafios-leitura-matematica/) | Artefatos de spec-driven development: `spec.md`, `plan.md`, `tasks.md`, `data-model.md`, `research.md`, `contracts/`. |
+| [`spike-stt/`](spike-stt/) | Spike de viabilidade de reconhecimento de fala offline (Vosk vs. faster-whisper vs. ASR fonético), usado para decidir o motor de STT de Leitura · voz. 19 rodadas de teste documentadas. |
+| [`conteudo/`](conteudo/) | Rascunho v0 (**não validado pedagogicamente**, issue A-06 aberta) do banco de palavras e dos temas de matemática contextualizada. |
+| [`design/prototipo.html`](design/prototipo.html) | Protótipo clicável das 8 telas do MVP — referência visual para as tarefas de tela em `tasks.md`. |
+| [`doc/`](doc/) | Documentos de definição de produto (histórico de decisões numeradas D-01 a D-37). |
+| [`.specify/`](.specify/) | Configuração do [spec-kit](https://github.com/github/spec-kit) (templates, scripts, constituição). |
+
+## Stack técnica
+
+Decidida e registrada em [`research.md`](specs/001-mvp-desafios-leitura-matematica/research.md)
+(ainda não implementada):
+
+- **App**: React Native + Expo + TypeScript.
+- **Voz (síntese)**: `expo-speech` (TTS nativo do aparelho).
+- **Voz (reconhecimento)**: Whisper offline (`faster-whisper`), com viés de
+  vocabulário via prompt e tolerância fonética — vencedor do spike de STT
+  frente a Vosk. Faixa de acurácia validada contra criança real:
+  **62–81%**, ainda abaixo do critério de aceite (≥80%); decisão de
+  produto sobre isso segue em aberto.
+- **Testes**: Jest + React Native Testing Library, Maestro para fluxos E2E.
+- **Plataforma alvo**: Android no mínimo, iOS desejável — modelo de STT
+  embutido no app, sem servidor.
+
+## Privacidade
+
+Este projeto lida com voz de crianças (gravações usadas para validar o
+reconhecimento de fala). Esses áudios **nunca são versionados** —
+`spike-stt/audio/` está no `.gitignore` e vive só localmente. O produto em
+si roda 100% offline por princípio de constituição (Princípio V): nenhum
+áudio, resposta ou histórico sai do aparelho da criança.
+
+## Como rodar o spike de STT
+
+O app ainda não existe, mas o spike de reconhecimento de fala é
+executável isoladamente:
+
+```bash
+cd spike-stt
+python -m venv .venv
+.venv/Scripts/activate   # Windows; source .venv/bin/activate no Linux/Mac
+pip install faster-whisper vosk thefuzz
+python testar.py
+```
+
+Conversão de áudio (`.mp3`/`.m4a` → `.wav` 16kHz mono) chama um binário
+`ffmpeg` local em `spike-stt/ffmpeg-bin/` (fora do repo — baixar à parte).
+Não há `requirements.txt` ainda — dependências instaladas ad-hoc durante o
+spike; ver imports no topo de cada função em `testar.py`.
+
+Veja [`spike-stt/`](spike-stt/) e o histórico completo de rodadas em
+`research.md` (§T002) para metodologia e resultados.
 
 ## Planejamento
 
-O planejamento (`tasks.md`) está registrado como issues no Plane:
-**workspace `esteira`, projeto `GameLeituraEscrita` (GLE)** —
-http://localhost/esteira/projects/bf8adc45-ed42-4618-83e7-0da06e31d5e7/issues/
-
-8 issues, uma por fase/user story (Setup, Fundação, US1–US5 na prioridade
+O plano de tarefas (`tasks.md`) é acompanhado em um board interno (Plane),
+uma issue por fase/user story (Setup, Fundação, US1–US5 na prioridade
 P1–P5 do `spec.md`, Polish), cada uma com a lista de tarefas `T0xx`
-correspondente de `tasks.md`.
+correspondente.
 
-> Nota: este projeto é independente do esteira/PipeCoder — reaproveita
-> apenas a mesma instância local do Plane, já que ambos rodam no mesmo
-> ambiente de desenvolvimento.
+## Licença
+
+Ainda não definida.

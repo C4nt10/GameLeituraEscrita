@@ -9,5 +9,6 @@ spike-stt/audio/*.mp3
 spike-stt/audio/*.ogg
 spike-stt/audio/*.16k.wav
 spike-stt/audio/aparado/
+spike-stt/sint*.wav
 __pycache__/
 *.pyc
