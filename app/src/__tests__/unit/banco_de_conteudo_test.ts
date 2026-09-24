@@ -2,6 +2,7 @@ import {
   MINIMO_PALAVRAS_POR_COMBINACAO,
   combinacaoTemConteudoSuficiente,
   combinacoesDisponiveis,
+  sortearDesafios,
   type ItemLeitura,
 } from '../../services/banco_de_conteudo';
 
@@ -57,5 +58,29 @@ describe('banco_de_conteudo — regra dos 12 (FR-011, D-35)', () => {
     // que a função de fato leu o asset real e achou pelo menos 1 combinação
     // válida, confirmando a integração com o arquivo de verdade.
     expect(disponiveis.length).toBeGreaterThan(0);
+  });
+});
+
+describe('sortearDesafios — base de uma rodada', () => {
+  it('sorteia a quantidade pedida, sem repetir, só da combinação certa', () => {
+    const itens = [...gerarItens(2, 'animais', 12), ...gerarItens(2, 'comida', 12)];
+
+    const sorteados = sortearDesafios(2, 'animais', 8, itens);
+
+    expect(sorteados).toHaveLength(8);
+    expect(new Set(sorteados.map((i) => i.palavra)).size).toBe(8);
+    expect(sorteados.every((i) => i.classificacoes?.includes('animais'))).toBe(true);
+  });
+
+  it('nível 1 (classificacao null) sorteia entre os itens de nível 1, ignorando classificação', () => {
+    const itens: ItemLeitura[] = Array.from({ length: 12 }, (_, i) => ({
+      palavra: String.fromCharCode(97 + i),
+      nivel: 1,
+    }));
+
+    const sorteados = sortearDesafios(1, null, 4, itens);
+
+    expect(sorteados).toHaveLength(4);
+    expect(sorteados.every((i) => i.nivel === 1)).toBe(true);
   });
 });

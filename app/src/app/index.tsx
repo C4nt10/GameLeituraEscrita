@@ -29,6 +29,16 @@ export default function Index() {
       <Link href="/_dev/resultado" style={styles.link}>
         Resultado
       </Link>
+      <Text style={styles.legenda}>rodada completa (orquestrador)</Text>
+      <Link href="/_dev/rodada?modalidade=ditado" style={styles.link}>
+        Rodada — Ditado
+      </Link>
+      <Link href="/_dev/rodada?modalidade=leitura_montar" style={styles.link}>
+        Rodada — Leitura · montar
+      </Link>
+      <Link href="/_dev/rodada?modalidade=leitura_voz" style={styles.link}>
+        Rodada — Leitura · voz
+      </Link>
       <StatusBar style="auto" />
     </View>
   );

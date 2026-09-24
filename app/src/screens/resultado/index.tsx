@@ -63,6 +63,13 @@ export interface TelaResultadoProps {
   modalidade: Modalidade;
   /** `null` só em rodada de matemática pura (D-19). */
   contadorAjuda: number | null;
+  /**
+   * D-40: presente só quando a rodada teve 2+ erros e o nível sugerido
+   * pra próxima é diferente do atual — quem chama decide se mostra
+   * (`ajuste_dificuldade.sugerirProximoNivel`), esta tela só exibe,
+   * nunca esconde a razão (Princípio IV).
+   */
+  proximoNivelSugerido?: number;
   onJogarDeNovo: () => void;
   onSubirDeNivel: () => void;
 }
@@ -73,6 +80,7 @@ export function TelaResultado({
   erros,
   modalidade,
   contadorAjuda,
+  proximoNivelSugerido,
   onJogarDeNovo,
   onSubirDeNivel,
 }: TelaResultadoProps) {
@@ -105,6 +113,12 @@ export function TelaResultado({
       )}
 
       <Text style={estilos.mensagem}>{mensagemResultado(resultado.precisao, erros)}</Text>
+
+      {proximoNivelSugerido !== undefined && (
+        <Text style={estilos.avisoProximoNivel}>
+          A próxima rodada começa no nível {proximoNivelSugerido}, pra treinar com mais calma.
+        </Text>
+      )}
 
       <View style={estilos.botoes}>
         <Botao onPress={onJogarDeNovo} acessibilidade="jogar de novo">
@@ -173,6 +187,12 @@ const estilos = StyleSheet.create({
     fontWeight: '700',
     color: cores.tinta,
     textAlign: 'center',
+  },
+  avisoProximoNivel: {
+    fontSize: 13,
+    color: cores.tintaFraca,
+    textAlign: 'center',
+    maxWidth: 260,
   },
   botoes: {
     gap: espacamento.sm,

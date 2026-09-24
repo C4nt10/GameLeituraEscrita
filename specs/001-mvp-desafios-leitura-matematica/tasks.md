@@ -371,28 +371,45 @@ modalidade, chegar à tela de estrelas.
       qualquer toque (nada trava); Leitura·voz volta pro estado "parado"
       depois de uma tentativa, mic tocável de novo. Nenhuma das 3 tem
       mecânica de "vida"/bloqueio.
+- [x] T033b [US1] **Nova (2026-09-25)** — orquestrador de rodada
+      (`RodadaLeitura`, `app/src/screens/rodada/index.tsx`): sorteia os
+      desafios (`sortearDesafios`, T014 estendido), escolhe a tela certa
+      pra modalidade configurada (uma só por rodada — rodadas mistas com
+      vários tipos de desafio ficaram pra depois, pedido do dono do
+      projeto), acumula acertos/erros/ajuda da **rodada inteira**, não
+      por desafio (D-19 — corrigido: as 3 telas de desafio guardavam o
+      contador localmente e reiniciavam a cada desafio; agora expõem
+      `onAjuda` pra quem orquestra acumular de verdade), e mostra
+      `TelaResultado` ao final com a sugestão de D-40 quando aplicável.
+      Teste de integração em `app/e2e/rodada_completa.yaml` (não
+      executado). **Pendência real, documentada**: não persiste nada em
+      `historico` (T015) — falta perfil/configuração de verdade vindos
+      de fora (T046, Fase 5) pra montar a `Rodada` completa antes de
+      gravar; por ora o resultado só aparece na tela.
 
 **Checkpoint**: US1 funcional e testável sozinha — MVP jogável em leitura,
 com o princípio supremo e o princípio "erro não pune" verificados por
 teste, não só por revisão visual. **Status real (2026-09-25)**: as 4
-telas de desafio (T029-T032) e a fundação (Fase 2) estão prontas e
-verificadas (`tsc`, `eslint`, `jest`, e `npx expo export -p web`
-bundlando com sucesso via rotas de desenvolvimento em `app/src/app/_dev/`
-— ainda não a tela inicial de verdade, essa é da Fase 5/US3). D-10
+telas de desafio (T029-T032), o orquestrador de rodada (T033b) e a
+fundação (Fase 2) estão prontos e verificados (`tsc`, `eslint`, `jest`
+61/61, e `npx expo export -p web` bundlando com sucesso via rotas de
+desenvolvimento em `app/src/app/_dev/` — ainda não a tela inicial de
+verdade, essa é da Fase 5/US3). "Iniciar sem configurar, jogar uma
+rodada em cada modalidade, chegar à tela de estrelas" (Independent Test
+da Fase 3) **agora é um fluxo real**, não só telas isoladas. D-10
 (troca automática de modalidade) foi revogado (2026-09-25) e substituído
 por D-39 (botão "sair da rodada" sempre visível) + D-40 (próxima rodada
 1 nível abaixo depois de 2+ erros) — ver `doc/definições002.MD` §14.
-**Lacunas reais, não escondidas**: (1) não existe orquestrador de
-rodada — nada ainda sequencia vários desafios, acumula acertos/erros de
-verdade, persiste a saída manual (D-39) como rodada não concluída, ou
-navega pra Resultado ao final; as telas existem e funcionam isoladas,
-mas "uma rodada completa, ponta a ponta" ainda não é um fluxo real no
-app. (2) a persistência de D-40 em `configuracao.ultimo_nivel` depende
-de T046 (Fase 5/US3, ainda não construído) — só a função pura
-(`sugerirProximoNivel`, T021b) existe por ora. (3) os testes de
-integração (T021-T026) foram escritos como specs Maestro mas **nenhum
-foi executado** — sem Android SDK/emulador nem Maestro CLI nesta
-máquina (mesma pendência de sempre, ver research.md §T002 "1b").
+**Lacunas reais que sobrevivem, não escondidas**: (1) o orquestrador não
+persiste nada em `historico` (T015) — falta perfil/configuração vindos
+de fora (T046, Fase 5) pra montar a `Rodada` completa antes de gravar;
+o resultado só aparece na tela, não fica no histórico ainda. (2) a
+persistência de D-40 em `configuracao.ultimo_nivel` depende do mesmo
+T046 — só a função pura (`sugerirProximoNivel`, T021b) existe por ora.
+(3) os testes de integração (T021-T026, T033b) foram escritos como
+specs Maestro mas **nenhum foi executado** — sem Android SDK/emulador
+nem Maestro CLI nesta máquina (mesma pendência de sempre, ver
+research.md §T002 "1b").
 
 ---
 

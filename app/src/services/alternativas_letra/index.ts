@@ -1,18 +1,11 @@
+import { embaralhar } from '../../lib/embaralhar';
+
 /**
  * alternativas_letra — gera as 4 alternativas de um desafio de Ditado
  * nível 1 (FR-006, D-03): sempre 4, nunca repetidas, incluindo a certa.
  */
 
 const QUANTIDADE_ALTERNATIVAS = 4;
-
-function embaralhar<T>(itens: T[], aleatorio: () => number): T[] {
-  const copia = [...itens];
-  for (let i = copia.length - 1; i > 0; i--) {
-    const j = Math.floor(aleatorio() * (i + 1));
-    [copia[i], copia[j]] = [copia[j], copia[i]];
-  }
-  return copia;
-}
 
 /**
  * @param correta A letra certa do desafio.

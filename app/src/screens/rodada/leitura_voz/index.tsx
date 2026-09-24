@@ -40,6 +40,8 @@ export interface TelaLeituraVozProps {
   onErro: () => void;
   /** D-39 — botão de sair sempre visível, nunca esconde. */
   onSair: () => void;
+  /** Notifica quem orquestra a rodada a cada tentativa — contador é por rodada, não por desafio (D-19). */
+  onAjuda?: () => void;
 }
 
 type Estado = 'parado' | 'gravando' | 'processando';
@@ -53,6 +55,7 @@ export function TelaLeituraVoz({
   onAcerto,
   onErro,
   onSair,
+  onAjuda,
 }: TelaLeituraVozProps) {
   const [estado, setEstado] = useState<Estado>('parado');
   const [tentativas, setTentativas] = useState(0);
@@ -88,6 +91,7 @@ export function TelaLeituraVoz({
     const transcricaoBruta = await transcrever(audioUri);
     setUltimaTranscricao(transcricaoBruta);
     setTentativas((t) => t + 1);
+    onAjuda?.();
 
     const aceito = avaliarLeitura(desafio.palavra, transcricaoBruta, vocabularioConhecido);
     setEstado('parado');

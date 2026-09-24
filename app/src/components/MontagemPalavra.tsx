@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { embaralhar } from '../lib/embaralhar';
 import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../theme';
 
 /**
@@ -12,15 +13,6 @@ import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../theme';
  * pro início, sem penalidade além disso — os ladrilhos continuam
  * disponíveis pra nova tentativa (Princípio II, T025/T033a).
  */
-
-function embaralhar<T>(itens: T[]): T[] {
-  const copia = [...itens];
-  for (let i = copia.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copia[i], copia[j]] = [copia[j], copia[i]];
-  }
-  return copia;
-}
 
 export interface MontagemPalavraProps {
   /** A palavra certa, minúscula, sem espaço (nível 1-4). */

@@ -12,23 +12,31 @@ a criança **ler de verdade**, não passar de fase.
 
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
-constituição e plano técnico já estão fechados. Das 71 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 34 estão
+constituição e plano técnico já estão fechados. Das 73 tarefas em
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 37 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
 configurados (T003-T005), a Fase 2 — Foundational (modelos, banco de
 conteúdo, histórico, capacidade do aparelho, TTS, precisão/estrelas,
-T006-T018) e boa parte da Fase 3 — User Story 1 (T019-T033a): motor de
+T006-T018) e a Fase 3 — User Story 1 completa (T019-T033b): motor de
 avaliação de leitura (tolerância fonética + D-09, porta fiel do spike),
-Expo Router, e as 4 telas de desafio (Ditado, Leitura·montar,
-Leitura·voz, Resultado). 54/54 testes, `tsc`/`eslint` limpos, build web
-exportado com sucesso. **Duas lacunas reais e documentadas**: ainda não
-existe orquestrador de rodada (sequenciar desafios, trocar modalidade
-automaticamente, navegar pro resultado — só as telas isoladas existem) e
-os 6 testes de integração da Fase 3 (Maestro) foram escritos mas nunca
-executados (sem Android SDK/emulador nesta máquina).
+Expo Router, as 4 telas de desafio (Ditado, Leitura·montar, Leitura·voz,
+Resultado) e o orquestrador de rodada — sorteia os desafios, sequencia,
+acumula resultado da rodada inteira e chega na tela de estrelas de
+verdade. Também nesta fase: D-10 (troca automática de modalidade) foi
+revogado a pedido do dono do projeto — trocava de modalidade sozinho
+depois de 2 falhas, o que escondia o ponto que a criança precisa
+treinar. Substituído por D-39 (botão "sair da rodada" sempre visível,
+nunca automático) e D-40 (a *próxima* rodada, não a atual, sugere 1
+nível abaixo depois de 2+ erros, sem mascarar o que já foi errado). Ver
+[`doc/definições002.MD`](doc/definições002.MD) §14. 61/61 testes,
+`tsc`/`eslint` limpos, build web exportado com sucesso. **Lacunas reais
+e documentadas**: o orquestrador ainda não persiste rodadas no
+histórico (depende da tela de configuração, Fase 5) e os testes de
+integração (Maestro) foram escritos mas nunca executados (sem Android
+SDK/emulador nesta máquina).
 
 ## Sobre o projeto
 

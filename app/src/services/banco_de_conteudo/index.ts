@@ -1,4 +1,5 @@
 import itensLeituraAsset from '../../../assets/conteudo/leitura.json';
+import { embaralhar } from '../../lib/embaralhar';
 import type { Classificacao } from '../../models/registro_historico';
 
 /**
@@ -86,4 +87,25 @@ export function combinacaoTemConteudoSuficiente(
     (c) => c.nivel === nivel && c.classificacao === classificacao,
   );
   return disponivel !== undefined;
+}
+
+/**
+ * Sorteia `quantidade` itens do nível×classificação pedidos, sem
+ * repetir — a base de uma rodada (FR-011/D-35 já garantem ≥12 itens
+ * pra qualquer combinação exposta, então sortear até 8 sem repetição é
+ * sempre seguro se a combinação passou por
+ * `combinacaoTemConteudoSuficiente`).
+ */
+export function sortearDesafios(
+  nivel: number,
+  classificacao: Classificacao | null,
+  quantidade: number,
+  itens: ItemLeitura[] = itensReais,
+): ItemLeitura[] {
+  const elegiveis = itens.filter((item) => {
+    if (item.nivel !== nivel) return false;
+    if (classificacao === null) return true;
+    return item.classificacoes?.includes(classificacao) ?? false;
+  });
+  return embaralhar(elegiveis).slice(0, quantidade);
 }

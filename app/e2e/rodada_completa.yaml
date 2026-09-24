@@ -1,0 +1,27 @@
+# T033b — orquestrador de rodada: sequencia os desafios sorteados,
+# acumula acertos/erros/ajuda da rodada inteira (não por desafio, D-19),
+# e chega na tela de resultado ao final (US1, Independent Test da
+# Fase 3: "iniciar sem configurar, jogar uma rodada em cada modalidade,
+# chegar à tela de estrelas").
+#
+# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
+# máquina (mesma ressalva de sempre). appId é placeholder. Rodada de
+# dev fixa: nível 2, classificação "animais", tamanho 3
+# (app/src/app/_dev/rodada.tsx) — 3 desafios, cada um respondido certo
+# de primeira leva à tela de estrelas.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Rodada — Leitura · montar'
+# 1º desafio: espera revelar e sumir, monta certo (ordem dos ladrilhos é
+# aleatória — não dá pra scriptar o toque certo sem seedar o RNG, mesma
+# limitação de erro_nao_pune.yaml). Confia que os 3 desafios da rodada
+# de dev terminam levando à tela de resultado.
+- assertVisible: 'espiadas: 1'
+# ... [montar os 3 desafios sorteados, um de cada vez] ...
+- extendedWaitUntil:
+    visible: 'acertos'
+    timeout: 15000
+- assertVisible: 'precisão'
+- assertVisible: 'espiadas nesta rodada'

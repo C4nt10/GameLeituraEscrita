@@ -24,6 +24,8 @@ export interface TelaLeituraMontarProps {
   onErro: () => void;
   /** D-39 — botão de sair sempre visível, nunca esconde. */
   onSair: () => void;
+  /** Notifica quem orquestra a rodada a cada espiada — contador é por rodada, não por desafio (D-19). */
+  onAjuda?: () => void;
 }
 
 export function TelaLeituraMontar({
@@ -32,6 +34,7 @@ export function TelaLeituraMontar({
   onAcerto,
   onErro,
   onSair,
+  onAjuda,
 }: TelaLeituraMontarProps) {
   const [espiadas, setEspiadas] = useState(0);
   const [revelando, setRevelando] = useState(false);
@@ -43,6 +46,7 @@ export function TelaLeituraMontar({
 
   function revelar() {
     setEspiadas((e) => e + 1);
+    onAjuda?.();
     setRevelando(true);
     setTimeout(() => setRevelando(false), duracaoRevelacaoMs);
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
@@ -27,6 +27,8 @@ export interface TelaDitadoProps {
   onErro: () => void;
   /** D-39 — botão de sair sempre visível, nunca esconde. */
   onSair: () => void;
+  /** Notifica quem orquestra a rodada a cada repetição — contador é por rodada, não por desafio (D-19). */
+  onAjuda?: () => void;
 }
 
 export function TelaDitado({
@@ -36,11 +38,18 @@ export function TelaDitado({
   onAcerto,
   onErro,
   onSair,
+  onAjuda,
 }: TelaDitadoProps) {
   const [repeticoes, setRepeticoes] = useState(0);
 
+  useEffect(() => {
+    void falar(); // toca sozinho ao entrar no desafio — não conta como repetição
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [desafio.palavra]);
+
   function repetirAudio() {
     setRepeticoes((r) => r + 1);
+    onAjuda?.();
     void falar();
   }
 
