@@ -425,3 +425,66 @@ entra na Fase 3+ (implementação de tela), não bloqueia a Fase 2
 | # | Questão | O que falta |
 |---|---|---|
 | **A-12** | Layout adaptativo retrato/paisagem para as 8 telas do MVP | Nenhuma tela foi desenhada ainda (Fase 3 em diante) — a disposição em paisagem de cada uma (grade de alternativas, botão de microfone, tela de resultado) ainda não foi decidida, só o princípio geral (D-38) |
+
+---
+
+## 14. Revoga D-10 — não trocar de modalidade sozinho, abre A-13
+
+Pedido do dono do projeto (2026-09-25), ao revisar a troca automática de
+Leitura·voz pra Leitura·montar depois de 2 falhas (D-10, FR-005 original):
+**trocar de modalidade automaticamente esconde justamente o ponto que a
+criança precisa treinar** — se ela está travando no reconhecimento de
+fala, tirá-la da Leitura·voz sem ela pedir apaga o sinal de que aquilo
+precisa de mais prática, o que contraria o Princípio IV (métrica honesta)
+tanto quanto esconder um número escondido do resultado. O Princípio I da
+constituição citava esse mecanismo como o exemplo do "toda caminho tem
+saída" — precisava de um substituto, não só a remoção (constitution.md
+v1.1.0, ver "Histórico de emendas").
+
+### D-39 — botão "sair da rodada" sempre visível, revoga D-10
+
+**Decisão:** em qualquer modalidade (Ditado, Leitura·montar,
+Leitura·voz), um botão de sair da rodada fica sempre visível e tocável.
+A criança (ou o adulto) decide quando sair — o app nunca troca a
+modalidade sozinho. Sair marca a rodada como **não concluída**
+(`concluida = false`), o mesmo tratamento que uma rodada abandonada por
+qualquer outro motivo já tem em `data-model.md` — não conta pro limite
+de 50 do histórico, não aparece no histórico como concluída, sem
+penalidade visível (Princípio II).
+
+**Consequência prática:** as 3 telas de desafio de leitura precisam do
+botão sempre visível, ligado a um callback que encerra a rodada em
+andamento — depende do orquestrador de rodada (ainda não construído,
+ver `tasks.md` T029-T032) pra de fato persistir a rodada como não
+concluída; o botão em si (UI + callback) não depende disso.
+
+### D-40 — depois de 2+ erros somados, a próxima rodada sugere 1 nível abaixo
+
+**Decisão:** ao final de uma rodada (concluída ou saída pelo botão do
+D-39) com 2 ou mais respostas erradas somadas — em qualquer desafio da
+rodada, não só numa palavra específica —, a **próxima** rodada sugerida
+nasce 1 nível abaixo do nível jogado (nunca abaixo do nível 1). Não muda
+a rodada em curso, não muda classificação nem tamanho, só o nível da
+seguinte. Motivo: reduzir frustração prospectivamente, sem mascarar
+retroativamente o que já foi errado — a rodada atual continua sendo o
+diagnóstico honesto de D-39/Princípio IV; só a próxima fica mais fácil de
+propósito.
+
+**Escopo assumido, não confirmado pelo dono do projeto**: aplicado a
+qualquer tipo de rodada (leitura ou matemática), não só Leitura·voz —
+generalização razoável do pedido original, mas vale revisar se fizer
+sentido restringir.
+
+**Consequência prática:** reusa `configuracao.ultimo_nivel`
+(`data-model.md`, já persistido por perfil, D-25) — decrementa 1 ao
+salvar o resultado da rodada, sem precisar de campo novo no schema. A
+persistência de verdade depende de `configuracao` (T046, Fase 5/US3,
+ainda não implementado) — por ora, a Fase 3 implementa só a função pura
+que calcula o nível sugerido (`sugerirProximoNivel`), testável sem a
+persistência existir.
+
+### O que isso abre
+
+| # | Questão | O que falta |
+|---|---|---|
+| **A-13** | D-40 vale só pra leitura ou também matemática? | Decisão assumida (vale pros dois) sem confirmação explícita — revisar quando T046/matemática entrarem em jogo |

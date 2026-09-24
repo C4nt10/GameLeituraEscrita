@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
@@ -24,9 +25,18 @@ export interface TelaDitadoProps {
   falar: () => void | Promise<void>;
   onAcerto: () => void;
   onErro: () => void;
+  /** D-39 — botão de sair sempre visível, nunca esconde. */
+  onSair: () => void;
 }
 
-export function TelaDitado({ desafio, candidatasLetra, falar, onAcerto, onErro }: TelaDitadoProps) {
+export function TelaDitado({
+  desafio,
+  candidatasLetra,
+  falar,
+  onAcerto,
+  onErro,
+  onSair,
+}: TelaDitadoProps) {
   const [repeticoes, setRepeticoes] = useState(0);
 
   function repetirAudio() {
@@ -41,6 +51,7 @@ export function TelaDitado({ desafio, candidatasLetra, falar, onAcerto, onErro }
 
   return (
     <View style={estilos.raiz}>
+      <BotaoSairRodada onSair={onSair} />
       <PillContador icone="🔁" rotulo="repetições" valor={repeticoes} />
 
       <TouchableOpacity

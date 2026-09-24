@@ -41,9 +41,14 @@ Repetir uma vez em cada modalidade.
    microfone, **Then** o app mostra o que entendeu sem ter falado a palavra
    antes, aceita variação de pronúncia razoável e rejeita uma palavra
    diferente (ex.: "pato" não é aceito como leitura de "gato").
-4. **Given** duas tentativas sem sucesso em Leitura · voz, **When** a
-   segunda tentativa falha, **Then** o app troca automaticamente para
-   Leitura · montar com mensagem acolhedora, sem travar a criança.
+4. **Given** qualquer modalidade de desafio, **When** a criança (ou o
+   adulto) toca no botão de sair da rodada, sempre visível, **Then** a
+   rodada é encerrada como não concluída, sem trocar de modalidade
+   sozinha e sem penalidade — e, **Given** duas ou mais respostas
+   erradas somadas na rodada, **When** a rodada termina (concluída ou
+   não), **Then** a próxima rodada sugerida nasce um nível abaixo do
+   atual, pra reduzir frustração sem esconder o que a criança errou
+   nesta (revoga D-10).
 5. **Given** uma resposta errada em qualquer modalidade, **When** a criança
    erra, **Then** a resposta é limpa, o erro é contado, e uma nova tentativa
    é oferecida sem penalidade visível (sem vidas, sem som de derrota).
@@ -237,9 +242,12 @@ combinado nos dois formatos (cooperativo e adversarial).
   fonética (o som/palavra certo) MUST continuar rígida, sem afrouxar D-09.
   A captura de áudio MUST NOT cortar a gravação por um timeout curto nem
   por VAD agressivo — a criança controla quando termina.
-- **FR-005**: O sistema MUST trocar automaticamente de Leitura · voz para
-  Leitura · montar após 2 tentativas sem sucesso, com mensagem acolhedora
-  (D-10).
+- **FR-005**: O sistema MUST manter um botão de sair da rodada sempre
+  visível, em qualquer modalidade — a troca ou interrupção é sempre
+  decisão de quem joga, nunca automática (D-39, revoga D-10). O sistema
+  MUST, ao final de uma rodada (concluída ou não) com 2 ou mais respostas
+  erradas somadas, sugerir a próxima rodada um nível abaixo do atual
+  (D-40) — sem afetar a rodada em curso nem trocar sua modalidade.
 - **FR-006**: O sistema MUST oferecer 4 alternativas em todo desafio de
   escolha (letra isolada, matemática), nunca repetidas, com as erradas
   próximas da correta (D-03, regras de matemática do doc001 §4).

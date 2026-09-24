@@ -88,7 +88,7 @@ multiusuário/concorrência — é um app local de uso individual/familiar.
 | Princípio da constituição | Verificação nesta spec |
 |---|---|
 | Princípio supremo (não entregar a resposta) | FR-001–FR-005 mantêm palavra escondida/silêncio conforme a modalidade; nenhuma modalidade expõe a resposta que a criança deve produzir. **Pass.** |
-| I. Nunca fica presa | FR-005, FR-013, edge cases cobrem microfone/voz ausentes e troca automática de modalidade. **Pass.** |
+| I. Nunca fica presa | FR-005 (botão de sair sempre visível, D-39, revisado 2026-09-25 — não mais troca automática), FR-013, edge cases cobrem microfone/voz ausentes. **Pass.** |
 | II. Erro não pune | US1 cenário 5, FR-007 — erro só conta para métrica, nunca bloqueia. **Pass.** |
 | III. Falha do aparelho não é culpa da criança | FR-013, US1 cenário 7. **Pass.** |
 | IV. Métrica sempre honesta (NON-NEGOTIABLE) | FR-003, FR-007, SC-004 — contador de ajuda por modalidade, estrelas nunca cruzadas. **Pass.** |

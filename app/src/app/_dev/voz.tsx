@@ -15,6 +15,7 @@ export default function DevVoz() {
       transcrever={() => Promise.resolve('gato')}
       onAcerto={() => router.back()}
       onErro={() => {}}
+      onSair={() => router.back()}
     />
   );
 }

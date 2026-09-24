@@ -1,0 +1,24 @@
+# T021 — D-39 (revoga D-10, doc/definições002.MD §14): botão "sair da
+# rodada" sempre visível, em qualquer modalidade — a criança/adulto
+# decide quando sair, o app nunca troca de modalidade sozinho.
+#
+# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta máquina
+# (mesma ressalva de sempre, research.md §T002 "1b"). appId é
+# placeholder (sem android.package/ios.bundleIdentifier fixado, sem
+# `expo prebuild` rodado ainda).
+#
+# Cobre só a presença/toque do botão nas 3 telas isoladas — a
+# persistência de verdade da rodada como "não concluída" ao sair depende
+# do orquestrador de rodada, ainda não construído (tasks.md T029-T032).
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Ditado (nível 2+)'
+- assertVisible: '✕ sair'
+- tapOn: '✕ sair'
+- tapOn: 'Leitura · montar'
+- assertVisible: '✕ sair'
+- tapOn: '✕ sair'
+- tapOn: 'Leitura · voz'
+- assertVisible: '✕ sair'

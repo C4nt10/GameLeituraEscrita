@@ -14,11 +14,14 @@ contabilizada e exibida (ver Princípio IV).
 
 ### I. A criança nunca fica presa
 
-Todo caminho tem saída. Se o microfone não funciona, oferece montar. Se ela
-erra duas vezes na leitura em voz, o app troca de modalidade sozinho. Se um
-recurso não existe no aparelho, a opção aparece desabilitada com o motivo
-visível — nunca some, nunca falha em silêncio. Nenhuma tela, nenhum estado
-de erro, pode deixar a criança sem uma próxima ação possível.
+Todo caminho tem saída. Se o microfone não funciona, oferece montar. Um
+botão pra sair da rodada fica sempre visível, em qualquer modalidade — a
+criança (ou o adulto) decide quando trocar de caminho, o app nunca decide
+sozinho trocando a modalidade por ela (isso esconderia justamente o ponto
+que precisa de treino, violando o Princípio IV). Se um recurso não existe
+no aparelho, a opção aparece desabilitada com o motivo visível — nunca
+some, nunca falha em silêncio. Nenhuma tela, nenhum estado de erro, pode
+deixar a criança sem uma próxima ação possível.
 
 ### II. Erro não pune
 
@@ -87,4 +90,15 @@ rejeitada. Alterações a esta constituição exigem registrar o motivo na
 mesma forma usada no registro de decisões dos documentos de produto
 (`doc/definições001.MD` §8, `doc/definições002.MD` §7).
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-10 | **Last Amended**: 2026-09-10
+**Version**: 1.1.0 | **Ratified**: 2026-09-10 | **Last Amended**: 2026-09-25
+
+### Histórico de emendas
+
+- **1.1.0 (2026-09-25)**: Princípio I — removida a troca automática de
+  modalidade após 2 falhas em Leitura·voz como exemplo de "saída".
+  Motivo (dono do projeto): trocar de modalidade automaticamente esconde
+  o ponto exato que a criança precisa treinar, o que entra em conflito
+  com o Princípio IV (métrica honesta) — a criança nunca teria a chance
+  de continuar tentando a habilidade real sendo avaliada. Substituído
+  por um botão de saída manual sempre visível (revoga D-10, ver
+  `doc/definições002.MD` §14).

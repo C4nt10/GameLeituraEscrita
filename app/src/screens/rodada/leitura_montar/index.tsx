@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
@@ -21,6 +22,8 @@ export interface TelaLeituraMontarProps {
   duracaoRevelacaoMs?: number;
   onAcerto: () => void;
   onErro: () => void;
+  /** D-39 — botão de sair sempre visível, nunca esconde. */
+  onSair: () => void;
 }
 
 export function TelaLeituraMontar({
@@ -28,6 +31,7 @@ export function TelaLeituraMontar({
   duracaoRevelacaoMs = DURACAO_REVELACAO_PADRAO_MS,
   onAcerto,
   onErro,
+  onSair,
 }: TelaLeituraMontarProps) {
   const [espiadas, setEspiadas] = useState(0);
   const [revelando, setRevelando] = useState(false);
@@ -45,6 +49,7 @@ export function TelaLeituraMontar({
 
   return (
     <View style={estilos.raiz}>
+      <BotaoSairRodada onSair={onSair} />
       <PillContador icone="👀" rotulo="espiadas" valor={espiadas} />
 
       {revelando ? (

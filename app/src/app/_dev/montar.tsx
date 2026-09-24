@@ -12,6 +12,7 @@ export default function DevMontar() {
       }}
       onAcerto={() => router.back()}
       onErro={() => {}}
+      onSair={() => router.back()}
     />
   );
 }

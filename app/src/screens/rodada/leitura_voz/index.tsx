@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { avaliarLeitura } from '../../../services/avaliacao_leitura';
@@ -24,10 +25,10 @@ import { cores, espacamento, raio } from '../../../theme';
  * microfone, nunca esconde a opção nem mostra erro genérico (Princípio
  * I/III).
  *
- * Troca automática pra Leitura·montar após 2 tentativas sem sucesso
- * (D-10) é responsabilidade de quem orquestra a rodada (fora deste
- * componente) — aqui só expõe `tentativas` via `onErro`/estado interno
- * pra quem estiver acima decidir a troca.
+ * Sem troca automática de modalidade (D-10 revogado, D-39 — isso
+ * esconderia o ponto que a criança precisa treinar, contra o Princípio
+ * IV). Em vez disso, o botão "sair da rodada" fica sempre visível
+ * (`onSair`) — a criança/adulto decide, o app não decide sozinho.
  */
 export interface TelaLeituraVozProps {
   desafio: DesafioLeitura;
@@ -37,6 +38,8 @@ export interface TelaLeituraVozProps {
   transcrever: (audioUri: string) => Promise<string>;
   onAcerto: () => void;
   onErro: () => void;
+  /** D-39 — botão de sair sempre visível, nunca esconde. */
+  onSair: () => void;
 }
 
 type Estado = 'parado' | 'gravando' | 'processando';
@@ -49,6 +52,7 @@ export function TelaLeituraVoz({
   transcrever,
   onAcerto,
   onErro,
+  onSair,
 }: TelaLeituraVozProps) {
   const [estado, setEstado] = useState<Estado>('parado');
   const [tentativas, setTentativas] = useState(0);
@@ -96,6 +100,7 @@ export function TelaLeituraVoz({
 
   return (
     <View style={estilos.raiz}>
+      <BotaoSairRodada onSair={onSair} />
       <PillContador icone="🔁" rotulo="tentativas" valor={tentativas} />
 
       <Text style={estilos.palavraAlvo}>{desafio.palavra}</Text>

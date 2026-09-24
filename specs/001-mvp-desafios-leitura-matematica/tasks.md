@@ -219,14 +219,22 @@ modalidade, chegar à tela de estrelas.
       conteúdo fonético (US1 cenário 8, D-37) em
       `app/src/__tests__/unit/tolerancia_pausa_test`. **Concluído
       (2026-09-24)**.
-- [ ] T021 [P] [US1] Teste de integração: troca automática para Leitura ·
-      montar após 2 falhas em Leitura · voz (D-10) em
-      `app/e2e/troca_modalidade.yaml`. **Escrito, não implementado**
-      (2026-09-24): o YAML documenta o comportamento esperado, mas a
-      troca automática em si não existe — não há orquestrador de rodada
-      ainda que escute 2 falhas consecutivas e navegue pra
-      Leitura·montar. `TelaLeituraVoz` só conta tentativas e chama
-      `onErro()`. Maior pendência real da Fase 3.
+- [x] T021 [P] [US1] **Revisado (2026-09-25) — D-10 revogado.** Não troca
+      mais de modalidade automaticamente (dono do projeto: isso esconde
+      o ponto que a criança precisa treinar, contra o Princípio IV — ver
+      `doc/definições002.MD` §14, D-39). Agora: teste de integração pro
+      botão "sair da rodada" sempre visível, em qualquer modalidade, sem
+      trocar de tela sozinho (D-39) em `app/e2e/sair_da_rodada.yaml`.
+      **Escrito, parcialmente implementado**: `BotaoSairRodada` (UI +
+      callback) ligado nas 3 telas de desafio; a persistência de verdade
+      como rodada não concluída depende do orquestrador de rodada, ainda
+      não construído. E2E não executado (sem device/Maestro CLI).
+- [x] T021b [P] [US1] Teste unitário: depois de 2+ erros somados numa
+      rodada, `sugerirProximoNivel` sugere 1 nível abaixo (nunca abaixo
+      de 1) — D-40 em `app/src/__tests__/unit/ajuste_dificuldade_test`.
+      **Concluído (2026-09-25)**. Persistência em `configuracao.
+      ultimo_nivel` depende de T046 (Fase 5/US3, ainda não construído) —
+      aqui só a função pura, testável sem isso.
 - [x] T022 [P] [US1] Teste de integração: contador de ajuda correto por
       modalidade (repetições/espiadas/tentativas) aparece no resultado
       (D-19) em `app/e2e/contador_ajuda.yaml`. **Escrito (2026-09-24)** —
@@ -366,19 +374,25 @@ modalidade, chegar à tela de estrelas.
 
 **Checkpoint**: US1 funcional e testável sozinha — MVP jogável em leitura,
 com o princípio supremo e o princípio "erro não pune" verificados por
-teste, não só por revisão visual. **Status real (2026-09-24)**: as 4
+teste, não só por revisão visual. **Status real (2026-09-25)**: as 4
 telas de desafio (T029-T032) e a fundação (Fase 2) estão prontas e
-verificadas (`tsc`, `eslint`, `jest` 54/54, e `npx expo export -p web`
+verificadas (`tsc`, `eslint`, `jest`, e `npx expo export -p web`
 bundlando com sucesso via rotas de desenvolvimento em `app/src/app/_dev/`
-— ainda não a tela inicial de verdade, essa é da Fase 5/US3). **Duas
-lacunas reais, não escondidas**: (1) não existe orquestrador de rodada
-— nada ainda sequencia vários desafios, acumula acertos/erros de
-verdade, decide a troca automática de modalidade (T021) ou navega pra
-Resultado ao final; as telas existem e funcionam isoladas, mas "uma
-rodada completa, ponta a ponta" ainda não é um fluxo real no app. (2)
-os 6 testes de integração (T021-T026) foram escritos como specs Maestro
-mas **nenhum foi executado** — sem Android SDK/emulador nem Maestro CLI
-nesta máquina (mesma pendência de sempre, ver research.md §T002 "1b").
+— ainda não a tela inicial de verdade, essa é da Fase 5/US3). D-10
+(troca automática de modalidade) foi revogado (2026-09-25) e substituído
+por D-39 (botão "sair da rodada" sempre visível) + D-40 (próxima rodada
+1 nível abaixo depois de 2+ erros) — ver `doc/definições002.MD` §14.
+**Lacunas reais, não escondidas**: (1) não existe orquestrador de
+rodada — nada ainda sequencia vários desafios, acumula acertos/erros de
+verdade, persiste a saída manual (D-39) como rodada não concluída, ou
+navega pra Resultado ao final; as telas existem e funcionam isoladas,
+mas "uma rodada completa, ponta a ponta" ainda não é um fluxo real no
+app. (2) a persistência de D-40 em `configuracao.ultimo_nivel` depende
+de T046 (Fase 5/US3, ainda não construído) — só a função pura
+(`sugerirProximoNivel`, T021b) existe por ora. (3) os testes de
+integração (T021-T026) foram escritos como specs Maestro mas **nenhum
+foi executado** — sem Android SDK/emulador nem Maestro CLI nesta
+máquina (mesma pendência de sempre, ver research.md §T002 "1b").
 
 ---
 

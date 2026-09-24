@@ -11,6 +11,7 @@ export default function DevDitadoNivel1() {
       falar={() => Promise.resolve()}
       onAcerto={() => router.back()}
       onErro={() => {}}
+      onSair={() => router.back()}
     />
   );
 }
