@@ -382,10 +382,10 @@ modalidade, chegar à tela de estrelas.
       `onAjuda` pra quem orquestra acumular de verdade), e mostra
       `TelaResultado` ao final com a sugestão de D-40 quando aplicável.
       Teste de integração em `app/e2e/rodada_completa.yaml` (não
-      executado). **Pendência real, documentada**: não persiste nada em
-      `historico` (T015) — falta perfil/configuração de verdade vindos
-      de fora (T046, Fase 5) pra montar a `Rodada` completa antes de
-      gravar; por ora o resultado só aparece na tela.
+      executado). ~~**Pendência real, documentada**: não persiste nada em
+      `historico` (T015)~~ **Fechada em 2026-09-25** (Fase 5, ver
+      checkpoint de US1+US2+US3) — `RodadaLeitura` agora chama
+      `historico.registrarRodada`.
 
 **Checkpoint**: US1 funcional e testável sozinha — MVP jogável em leitura,
 com o princípio supremo e o princípio "erro não pune" verificados por
@@ -472,8 +472,9 @@ cada forma.
       não define contador de ajuda pra rodada de matemática (D-19),
       mesmo a repetição sendo visível ao vivo na tela; decisão do
       produto, não omissão. Teste em `app/e2e/rodada_matematica_completa.yaml`
-      (não executado). Mesma pendência de `RodadaLeitura`: não persiste
-      em `historico` ainda (depende de T046).
+      (não executado). ~~Mesma pendência de `RodadaLeitura`: não persiste
+      em `historico` ainda~~ **Fechada em 2026-09-25**, igual a
+      `RodadaLeitura`.
 
 **Checkpoint**: US1 + US2 funcionam juntas e independentemente. ✅
 (2026-09-25) 77/77 testes, `tsc`/`eslint` limpos, build web exportado
@@ -491,42 +492,91 @@ seguinte respeita as escolhas.
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T041 [P] [US3] Teste de integração: combinação nível×classificação
+- [x] T041 [P] [US3] Teste de integração: combinação nível×classificação
       sem conteúdo suficiente não aparece selecionável (US3 cenário 2,
-      FR-011) em `app/e2e/configuracao_conteudo.yaml`
-- [ ] T042 [P] [US3] Teste de integração: iniciar sem alterar nada usa
+      FR-011) em `app/e2e/configuracao_conteudo.yaml`. **Escrito
+      (2026-09-25)**, garantido por `TelaConfiguracao` usar
+      `combinacoesDisponiveis()` (T014, já filtra ≥12 itens) pras opções
+      de nível/classificação. Não executado (sem device/Maestro CLI).
+- [x] T042 [P] [US3] Teste de integração: iniciar sem alterar nada usa
       valores padrão válidos (US3 cenário 1, FR-012) em
-      `app/e2e/configuracao_padrao.yaml`
-- [ ] T043 [P] [US3] Teste de integração: sem permissão de microfone, a
+      `app/e2e/configuracao_padrao.yaml`. **Escrito (2026-09-25)**. Não
+      executado.
+- [x] T043 [P] [US3] Teste de integração: sem permissão de microfone, a
       opção "Leitura · voz" aparece desabilitada com o motivo visível
       (US3 cenário 3, FR-013) em
-      `app/e2e/config_mic_desabilitado.yaml`
-- [ ] T044 [P] [US3] Teste de integração: sem nenhuma voz pt instalada, o
+      `app/e2e/config_mic_desabilitado.yaml`. **Escrito (2026-09-25)**.
+      Não executado.
+- [x] T044 [P] [US3] Teste de integração: sem nenhuma voz pt instalada, o
       app informa e orienta a instalação, sem falhar silenciosamente (US3
-      cenário 4, CU-07) em `app/e2e/config_sem_voz.yaml`
-- [ ] T045 [P] [US3] Teste de integração: a última voz escolhida aparece
+      cenário 4, CU-07) em `app/e2e/config_sem_voz.yaml`. **Escrito
+      (2026-09-25)**. Não executado.
+- [x] T045 [P] [US3] Teste de integração: a última voz escolhida aparece
       pré-selecionada ao reabrir a configuração (US3 cenário 5) em
-      `app/e2e/config_ultima_voz.yaml`
+      `app/e2e/config_ultima_voz.yaml`. **Escrito (2026-09-25)**. Não
+      executado.
 
 ### Implementation for User Story 3
 
-- [ ] T046 [P] [US3] Implementar `configuracao` (preferências persistidas:
+- [x] T046 [P] [US3] Implementar `configuracao` (preferências persistidas:
       última voz, nome/fonema, últimos nível/classificação/tamanho/
-      modalidade) — faz T045 passar — em `app/src/services/configuracao`
-- [ ] T047 [US3] Implementar tela de configuração da rodada (tipo,
+      modalidade) — faz T045 passar — em `app/src/services/configuracao`.
+      **Concluído (2026-09-25)** via `expo-sqlite` (`INSERT ... ON
+      CONFLICT DO UPDATE`). Sem teste unitário próprio — mesma situação
+      de `historico`: é encanamento de SQL direto, sem regra de negócio
+      pra isolar, e `expo-sqlite` não roda em Jest. Extraído
+      `app/src/lib/bancoLocal.ts` (conexão compartilhada com
+      `historico` — 2 tabelas, 1 arquivo `.db`).
+- [x] T047 [US3] Implementar tela de configuração da rodada (tipo,
       modalidade, nível, classificação, forma de matemática, tamanho,
       sozinho/dupla) — faz T041 e T042 passarem — em
-      `app/src/screens/configuracao`, ligada a T014/T046
-- [ ] T048 [US3] Implementar tela de escolha e teste de voz (lista de vozes
+      `app/src/screens/configuracao`, ligada a T014/T046. **Concluído
+      (2026-09-25)**. **Escopo assumido, não confirmado**: `tipo =
+      "misto"` e `formato = "dupla"` são selecionáveis (CU-01/CU-08
+      listam as opções), mas nenhum orquestrador pra eles existe ainda
+      — "Começar" fica desabilitado com o motivo visível nesses casos,
+      em vez de silenciosamente iniciar uma rodada errada (Princípio
+      III), até esses fluxos existirem (Fase 7 pra dupla; rodada mista
+      não tem fase própria ainda).
+- [x] T048 [US3] Implementar tela de escolha e teste de voz (lista de vozes
       pt do aparelho, destaque de melhor qualidade, teste com toque) —
       faz T043 e T044 passarem — em `app/src/screens/escolha_de_voz`,
-      ligada a T016/T017 (CU-07)
-- [ ] T049 [US3] Implementar seleção de "nome da letra" vs. "som da letra"
-      (padrão fonema) em `app/src/screens/configuracao` (D-26, FR-021)
+      ligada a T016/T017 (CU-07). **Concluído (2026-09-25)** — escolha
+      salva de verdade em `configuracao.vozId` a cada toque (T045).
+- [x] T049 [US3] Implementar seleção de "nome da letra" vs. "som da letra"
+      (padrão fonema) em `app/src/screens/configuracao` (D-26, FR-021).
+      **Concluído (2026-09-25)** — salva em `configuracao.nomeOuFonema`
+      assim que muda, igual ao padrão da escolha de voz.
+- [x] T049a [US3] **Nova (2026-09-25)** — `app/src/app/index.tsx` virou
+      a tela inicial de verdade (não mais placeholder/menu de dev):
+      carrega `configuracao` do perfil (T046) e `capacidade_aparelho`
+      (T017) de verdade, renderiza `TelaConfiguracao`, e "Começar"
+      navega pra rotas reais `/rodada` e `/rodada-matematica` (movidas
+      de `_dev/` pra rotas de verdade, recebendo a configuração escolhida
+      via query string). `/escolha-de-voz` também virou rota real (saiu
+      de `_dev/`). Achado no processo: `expo-sqlite` no alvo **web**
+      precisa de config extra do Metro pra resolver o `.wasm` do
+      `wa-sqlite` (`metro.config.js` criado, `docs.expo.dev` confirma
+      isso é esperado, não bug) — sem isso o `npx expo export -p web`
+      (usado como validação de build em toda a sessão) quebrava; o alvo
+      real do produto é Android/iOS nativo, onde isso não se aplica.
+      As rotas `_dev/*` continuam no código (debug direto por URL), só
+      não aparecem mais linkadas no menu principal.
 
 **Checkpoint**: US1+US2+US3 funcionam juntas — rodada totalmente
 configurável, com defaults ainda válidos, e todo caso de indisponibilidade
-de recurso (mic/voz) coberto por teste, não só implementado.
+de recurso (mic/voz) coberto por teste, não só implementado. ✅
+(2026-09-25) 77/77 testes, `tsc`/`eslint` limpos, build web exportado
+com sucesso. **Pendência de persistência fechada no mesmo dia**:
+`RodadaLeitura`/`RodadaMatematica` agora chamam
+`historico.registrarRodada` (T015) — `concluida: true` ao terminar
+todos os desafios, `concluida: false` ao sair pelo botão de D-39 (mesmo
+tratamento de qualquer rodada abandonada). `perfilId` ainda é sempre
+`PERFIL_PADRAO_ID` (`models/perfil.ts`) — não existe seleção de perfil
+de verdade (isso é US5/Fase 7, modo dupla), mas o modelo já é
+multi-perfil (D-25), então trocar isso depois não exige migração. A
+Fase 3-5 forma agora um fluxo real e completo: configurar → jogar →
+resultado → **histórico gravado**.
 
 ---
 

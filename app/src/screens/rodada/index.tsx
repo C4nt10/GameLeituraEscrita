@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import { criarDesafioLeitura } from '../../models/desafio_leitura';
-import type { Classificacao, Modalidade } from '../../models/registro_historico';
+import type { Classificacao, Modalidade, RegistroHistorico } from '../../models/registro_historico';
+import { gerarId } from '../../lib/gerarId';
 import { sortearDesafios } from '../../services/banco_de_conteudo';
 import { calcularResultado } from '../../services/avaliacao';
 import { sugerirProximoNivel } from '../../services/ajuste_dificuldade';
+import { registrarRodada } from '../../services/historico';
 import { TelaDitado } from './ditado';
 import { TelaLeituraMontar } from './leitura_montar';
 import { TelaLeituraVoz } from './leitura_voz';
@@ -20,12 +22,13 @@ import { TelaResultado } from '../resultado';
  * (`avaliacao.calcularResultado`, T018) com a sugestão de D-40 quando
  * aplicável.
  *
- * **Não persiste nada ainda** — `historico.registrarRodada` (T015) não
- * é chamado daqui. Falta decidir onde a `Rodada` (perfilId, tipo,
- * iniciada_em etc. — `data-model.md`) é montada antes de persistir;
- * isso depende de haver um perfil/configuração de verdade vindos de
- * fora (T046, Fase 5), então a persistência fica pra quando isso
- * existir. Por ora, o resultado só é mostrado na tela, não gravado.
+ * **Persiste em `historico`** (T015, ligado em 2026-09-25 — Fase 5
+ * trouxe `perfilId` de verdade via T046/configuração): ao concluir
+ * todos os desafios, grava `concluida: true`. Ao sair pelo botão de
+ * D-39, grava `concluida: false` (mesmo tratamento de qualquer
+ * abandono, `data-model.md`) — a rodada fica registrada mesmo
+ * incompleta, só não conta pro limite de 50 nem aparece no histórico
+ * exibido (regra já implementada em `historico/regras.ts`, T009).
  */
 
 export interface ConfiguracaoRodadaLeitura {
@@ -48,6 +51,7 @@ export interface DependenciasRodadaLeitura {
 }
 
 export interface RodadaLeituraProps {
+  perfilId: string;
   configuracao: ConfiguracaoRodadaLeitura;
   dependencias: DependenciasRodadaLeitura;
   /** D-39 — sai a qualquer momento, rodada não fica marcada como concluída. */
@@ -59,6 +63,7 @@ export interface RodadaLeituraProps {
 type FaseRodada = 'jogando' | 'resultado';
 
 export function RodadaLeitura({
+  perfilId,
   configuracao,
   dependencias,
   onSairDaRodada,
@@ -70,6 +75,7 @@ export function RodadaLeitura({
     [configuracao.nivel, configuracao.classificacao, configuracao.tamanho],
   );
 
+  const [iniciadaEm] = useState(() => new Date().toISOString());
   const [indice, setIndice] = useState(0);
   const [acertos, setAcertos] = useState(0);
   const [erros, setErros] = useState(0);
@@ -78,17 +84,46 @@ export function RodadaLeitura({
 
   const itemAtual = desafiosSorteados[indice];
 
-  function avancarOuFinalizar() {
+  function montarRegistro(
+    concluida: boolean,
+    acertosFinais: number,
+    errosFinais: number,
+    ajudaFinal: number,
+  ): RegistroHistorico {
+    const resultado = calcularResultado(acertosFinais, errosFinais);
+    return {
+      id: gerarId(),
+      perfilId,
+      tipo: 'leitura',
+      modalidade: configuracao.modalidade,
+      formaMatematica: null,
+      nivel: configuracao.nivel,
+      classificacoes: configuracao.classificacao ? [configuracao.classificacao] : null,
+      tamanho: configuracao.tamanho,
+      iniciadaEm,
+      concluidaEm: concluida ? new Date().toISOString() : null,
+      concluida,
+      acertos: acertosFinais,
+      erros: errosFinais,
+      precisao: resultado.precisao,
+      estrelas: resultado.estrelas,
+      contadorAjuda: ajudaFinal,
+    };
+  }
+
+  function avancarOuFinalizar(acertosAtualizados: number) {
     if (indice + 1 >= desafiosSorteados.length) {
       setFase('resultado');
+      void registrarRodada(montarRegistro(true, acertosAtualizados, erros, contadorAjuda));
     } else {
       setIndice((i) => i + 1);
     }
   }
 
   function handleAcerto() {
-    setAcertos((a) => a + 1);
-    avancarOuFinalizar();
+    const acertosAtualizados = acertos + 1;
+    setAcertos(acertosAtualizados);
+    avancarOuFinalizar(acertosAtualizados);
   }
 
   // D-06: toda tentativa errada conta, mesmo repetida no mesmo desafio —
@@ -99,6 +134,11 @@ export function RodadaLeitura({
 
   function handleAjuda() {
     setContadorAjuda((c) => c + 1);
+  }
+
+  function handleSairDaRodada() {
+    void registrarRodada(montarRegistro(false, acertos, erros, contadorAjuda));
+    onSairDaRodada();
   }
 
   if (fase === 'resultado' || !itemAtual) {
@@ -131,7 +171,7 @@ export function RodadaLeitura({
         onAcerto={handleAcerto}
         onErro={handleErro}
         onAjuda={handleAjuda}
-        onSair={onSairDaRodada}
+        onSair={handleSairDaRodada}
       />
     );
   }
@@ -143,7 +183,7 @@ export function RodadaLeitura({
         onAcerto={handleAcerto}
         onErro={handleErro}
         onAjuda={handleAjuda}
-        onSair={onSairDaRodada}
+        onSair={handleSairDaRodada}
       />
     );
   }
@@ -158,7 +198,7 @@ export function RodadaLeitura({
       onAcerto={handleAcerto}
       onErro={handleErro}
       onAjuda={handleAjuda}
-      onSair={onSairDaRodada}
+      onSair={handleSairDaRodada}
     />
   );
 }

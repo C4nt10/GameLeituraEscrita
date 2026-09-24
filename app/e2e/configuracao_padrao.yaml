@@ -1,0 +1,15 @@
+# T042 — iniciar sem alterar nada usa valores padrão válidos (US3
+# cenário 1, FR-012, Princípio VII). `configuracaoPadrao()` (T046) e a
+# grade de níveis de `TelaConfiguracao` garantem que o padrão (nível 1,
+# leitura·montar, tamanho 5) é sempre uma combinação selecionável.
+#
+# NÃO EXECUTADO — mesma ressalva de sempre.
+
+appId: com.anonymous.app
+---
+- launchApp
+- assertVisible: 'Vamos jogar!'
+- tapOn: '▶️ Começar'
+# deve navegar pra rodada sem nenhum aviso de seleção inválida
+- assertNotVisible: 'ajuste a seleção acima'
+- assertVisible: 'espiadas: 1' # padrão é leitura_montar

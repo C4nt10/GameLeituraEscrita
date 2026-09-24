@@ -1,0 +1,17 @@
+# T043 — sem permissão de microfone, a opção "Leitura · voz" aparece
+# desabilitada com o motivo visível (US3 cenário 3, FR-013). Implementado
+# em `TelaConfiguracao`: se `microfoneDisponivel` é falso e
+# "leitura_voz" está selecionada, mostra `motivoMicrofoneIndisponivel`
+# (vindo de `capacidade_aparelho`, T017) e desabilita "Começar" — nunca
+# esconde a opção, nunca erro genérico (Princípio I/III).
+#
+# NÃO EXECUTADO — além da ressalva de sempre (sem device/Maestro CLI),
+# este cenário precisa da permissão de microfone negada no sistema
+# ANTES do app abrir (mesma limitação de microfone_indisponivel.yaml).
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Leitura · voz'
+- assertVisible: 'Permissão de microfone'
+- assertNotVisible: '▶️ Começar$' # só o texto com "(ajuste a seleção acima)" deve aparecer

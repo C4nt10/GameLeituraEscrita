@@ -1,4 +1,5 @@
-import * as SQLite from 'expo-sqlite';
+import type * as SQLite from 'expo-sqlite';
+import { obterBancoLocal } from '../../lib/bancoLocal';
 import type {
   Classificacao,
   FormaMatematica,
@@ -18,19 +19,17 @@ import { aplicarRetencao } from './regras';
  * o encanamento de SQL em cima dela.
  */
 
-const NOME_BANCO = 'gameleituraescrita.db';
-
-let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+let dbComTabelaPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 function obterBanco(): Promise<SQLite.SQLiteDatabase> {
-  if (!dbPromise) {
-    dbPromise = abrirEIniciar();
+  if (!dbComTabelaPromise) {
+    dbComTabelaPromise = abrirEIniciar();
   }
-  return dbPromise;
+  return dbComTabelaPromise;
 }
 
 async function abrirEIniciar(): Promise<SQLite.SQLiteDatabase> {
-  const db = await SQLite.openDatabaseAsync(NOME_BANCO);
+  const db = await obterBancoLocal();
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS rodadas (
       id TEXT PRIMARY KEY NOT NULL,

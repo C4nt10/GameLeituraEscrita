@@ -1,0 +1,17 @@
+# T041 — combinação nível×classificação sem conteúdo suficiente não
+# aparece selecionável (US3 cenário 2, FR-011/D-35). Garantido por
+# `TelaConfiguracao` usar `banco_de_conteudo.combinacoesDisponiveis()`
+# (já filtra por ≥12 itens, T014) pra montar as opções de nível e
+# classificação — nunca lista uma combinação abaixo do mínimo.
+#
+# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
+# máquina (mesma ressalva de sempre). appId é placeholder.
+
+appId: com.anonymous.app
+---
+- launchApp
+- assertVisible: 'Vamos jogar!'
+- tapOn: 'Nível'
+# todo nível listado tem que ser um dos que combinacoesDisponiveis() traz
+- assertVisible:
+    text: '^[1-5]$'

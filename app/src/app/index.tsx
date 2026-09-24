@@ -1,76 +1,87 @@
-import { StatusBar } from 'expo-status-bar';
-import { Link } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { cores, espacamento } from '../theme';
+import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
+import { View } from 'react-native';
+import { TelaConfiguracao, type EscolhaRodada } from '../screens/configuracao';
+import {
+  buscarConfiguracao,
+  salvarConfiguracao,
+  type Configuracao,
+} from '../services/configuracao';
+import { verificarCapacidades } from '../services/capacidade_aparelho';
+import { PERFIL_PADRAO_ID } from '../models/perfil';
+import { cores } from '../theme';
 
 /**
- * Placeholder temporário. A tela inicial de verdade (abrir pronto pra
- * jogar, Princípio VII) é da Fase 5 (US3, configuração da rodada) —
- * ainda não construída. Por ora, só um menu pra alcançar as telas de
- * desafio já implementadas (T029-T032).
+ * Tela inicial de verdade (T047 + Princípio VII — abre pronto pra
+ * jogar, configurar é opcional): carrega a configuração persistida do
+ * perfil (T046) ou os padrões válidos se nunca foi salva, checa
+ * capacidade do microfone (T017/T033) e deixa "Começar" disponível sem
+ * exigir nenhuma alteração.
  */
 export default function Index() {
+  const [configuracao, setConfiguracao] = useState<Configuracao | null>(null);
+  const [microfoneDisponivel, setMicrofoneDisponivel] = useState(true);
+  const [motivoMicrofoneIndisponivel, setMotivoMicrofoneIndisponivel] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelado = false;
+    buscarConfiguracao(PERFIL_PADRAO_ID).then((c) => {
+      if (!cancelado) setConfiguracao(c);
+    });
+    verificarCapacidades().then((capacidades) => {
+      if (cancelado) return;
+      setMicrofoneDisponivel(capacidades.microfone.disponivel);
+      setMotivoMicrofoneIndisponivel(capacidades.microfone.motivo);
+    });
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  if (!configuracao) {
+    return <View style={{ flex: 1, backgroundColor: cores.papel }} />;
+  }
+
+  function persistirEscolha(escolha: EscolhaRodada) {
+    if (!configuracao) return;
+    void salvarConfiguracao({
+      ...configuracao,
+      ultimoNivel: escolha.nivel,
+      ultimasClassificacoes: escolha.classificacao ? [escolha.classificacao] : ['todas'],
+      ultimoTamanho: escolha.tamanho,
+      ultimaModalidade: escolha.modalidade,
+      ultimaFormaMatematica: escolha.formaMatematica,
+    });
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>GameLeituraEscrita</Text>
-      <Text style={styles.legenda}>menu temporário — Fase 3 em construção</Text>
-      <Link href="/_dev/ditado" style={styles.link}>
-        Ditado (nível 2+)
-      </Link>
-      <Link href="/_dev/ditado-nivel1" style={styles.link}>
-        Ditado (nível 1)
-      </Link>
-      <Link href="/_dev/montar" style={styles.link}>
-        Leitura · montar
-      </Link>
-      <Link href="/_dev/voz" style={styles.link}>
-        Leitura · voz
-      </Link>
-      <Link href="/_dev/resultado" style={styles.link}>
-        Resultado
-      </Link>
-      <Text style={styles.legenda}>rodada completa (orquestrador)</Text>
-      <Link href="/_dev/rodada?modalidade=ditado" style={styles.link}>
-        Rodada — Ditado
-      </Link>
-      <Link href="/_dev/rodada?modalidade=leitura_montar" style={styles.link}>
-        Rodada — Leitura · montar
-      </Link>
-      <Link href="/_dev/rodada?modalidade=leitura_voz" style={styles.link}>
-        Rodada — Leitura · voz
-      </Link>
-      <Link href="/_dev/rodada-matematica?forma=pura" style={styles.link}>
-        Rodada — Matemática (pura)
-      </Link>
-      <Link href="/_dev/rodada-matematica?forma=contextualizada" style={styles.link}>
-        Rodada — Matemática (contextualizada)
-      </Link>
-      <StatusBar style="auto" />
-    </View>
+    <TelaConfiguracao
+      configuracaoInicial={configuracao}
+      microfoneDisponivel={microfoneDisponivel}
+      motivoMicrofoneIndisponivel={motivoMicrofoneIndisponivel}
+      onIniciar={(escolha) => {
+        persistirEscolha(escolha);
+        const classificacaoParam = escolha.classificacao
+          ? `&classificacao=${escolha.classificacao}`
+          : '';
+        if (escolha.tipo === 'matematica') {
+          router.push(
+            `/rodada-matematica?forma=${escolha.formaMatematica}&nivel=${escolha.nivel}&tamanho=${escolha.tamanho}${classificacaoParam}`,
+          );
+        } else {
+          router.push(
+            `/rodada?modalidade=${escolha.modalidade}&nivel=${escolha.nivel}&tamanho=${escolha.tamanho}${classificacaoParam}`,
+          );
+        }
+      }}
+      onAbrirEscolhaDeVoz={() => router.push('/escolha-de-voz')}
+      onAlterarNomeOuFonema={(valor) => {
+        const atualizada = { ...configuracao, nomeOuFonema: valor };
+        setConfiguracao(atualizada);
+        void salvarConfiguracao(atualizada);
+      }}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: cores.papel,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: espacamento.md,
-  },
-  titulo: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: cores.tinta,
-  },
-  legenda: {
-    fontSize: 12,
-    color: cores.tintaFraca,
-  },
-  link: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: cores.blocoAzul,
-    marginTop: espacamento.sm,
-  },
-});

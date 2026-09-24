@@ -3,8 +3,10 @@ import { calcularResultado } from '../../services/avaliacao';
 import { sugerirProximoNivel } from '../../services/ajuste_dificuldade';
 import { gerarDesafioMatematica } from '../../services/gerador_matematica';
 import { gerarProblemaContextualizado } from '../../services/problema_contextualizado';
+import { registrarRodada } from '../../services/historico';
+import { gerarId } from '../../lib/gerarId';
 import type { DesafioMatematica, FormaMatematica } from '../../models/desafio_matematica';
-import type { Classificacao } from '../../models/registro_historico';
+import type { Classificacao, RegistroHistorico } from '../../models/registro_historico';
 import { TelaMatematica } from '../rodada/matematica';
 import { TelaResultado } from '../resultado';
 
@@ -24,9 +26,9 @@ import { TelaResultado } from '../resultado';
  * `TelaMatematica`, só não entra no resumo da rodada. Decisão do
  * produto, não uma omissão desta implementação.
  *
- * **Não persiste nada ainda** — mesma pendência documentada em
- * `RodadaLeitura`: falta perfil/configuração de verdade (T046) pra
- * montar a `Rodada` antes de gravar em `historico`.
+ * **Persiste em `historico`** (T015, ligado em 2026-09-25, igual a
+ * `RodadaLeitura`): `concluida: true` ao terminar todos os desafios,
+ * `concluida: false` ao sair pelo botão de D-39.
  */
 
 export interface ConfiguracaoRodadaMatematica {
@@ -38,6 +40,7 @@ export interface ConfiguracaoRodadaMatematica {
 }
 
 export interface RodadaMatematicaProps {
+  perfilId: string;
   configuracao: ConfiguracaoRodadaMatematica;
   falar: (texto: string) => void | Promise<void>;
   onSairDaRodada: () => void;
@@ -55,6 +58,7 @@ function gerarDesafio(configuracao: ConfiguracaoRodadaMatematica): DesafioMatema
 }
 
 export function RodadaMatematica({
+  perfilId,
   configuracao,
   falar,
   onSairDaRodada,
@@ -67,6 +71,7 @@ export function RodadaMatematica({
     [configuracao.forma, configuracao.nivel, configuracao.classificacao, configuracao.tamanho],
   );
 
+  const [iniciadaEm] = useState(() => new Date().toISOString());
   const [indice, setIndice] = useState(0);
   const [acertos, setAcertos] = useState(0);
   const [erros, setErros] = useState(0);
@@ -74,21 +79,54 @@ export function RodadaMatematica({
 
   const desafioAtual = desafios[indice];
 
-  function avancarOuFinalizar() {
+  function montarRegistro(
+    concluida: boolean,
+    acertosFinais: number,
+    errosFinais: number,
+  ): RegistroHistorico {
+    const resultado = calcularResultado(acertosFinais, errosFinais);
+    return {
+      id: gerarId(),
+      perfilId,
+      tipo: 'matematica',
+      modalidade: null,
+      formaMatematica: configuracao.forma,
+      nivel: configuracao.nivel,
+      classificacoes: configuracao.classificacao ? [configuracao.classificacao] : null,
+      tamanho: configuracao.tamanho,
+      iniciadaEm,
+      concluidaEm: concluida ? new Date().toISOString() : null,
+      concluida,
+      acertos: acertosFinais,
+      erros: errosFinais,
+      precisao: resultado.precisao,
+      estrelas: resultado.estrelas,
+      contadorAjuda: null, // D-19 — matemática não tem contador de ajuda no data-model.md
+    };
+  }
+
+  function avancarOuFinalizar(acertosAtualizados: number) {
     if (indice + 1 >= desafios.length) {
       setFase('resultado');
+      void registrarRodada(montarRegistro(true, acertosAtualizados, erros));
     } else {
       setIndice((i) => i + 1);
     }
   }
 
   function handleAcerto() {
-    setAcertos((a) => a + 1);
-    avancarOuFinalizar();
+    const acertosAtualizados = acertos + 1;
+    setAcertos(acertosAtualizados);
+    avancarOuFinalizar(acertosAtualizados);
   }
 
   function handleErro() {
     setErros((e) => e + 1);
+  }
+
+  function handleSairDaRodada() {
+    void registrarRodada(montarRegistro(false, acertos, erros));
+    onSairDaRodada();
   }
 
   if (fase === 'resultado' || !desafioAtual) {
@@ -116,7 +154,7 @@ export function RodadaMatematica({
       falar={falar}
       onAcerto={handleAcerto}
       onErro={handleErro}
-      onSair={onSairDaRodada}
+      onSair={handleSairDaRodada}
     />
   );
 }

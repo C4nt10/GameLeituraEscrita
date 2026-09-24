@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { RodadaLeitura } from '../../screens/rodada';
 import type { Modalidade } from '../../models/registro_historico';
+import { PERFIL_PADRAO_ID } from '../../models/perfil';
 import { itensDoBanco } from '../../services/banco_de_conteudo';
 
 const CANDIDATAS_LETRA_NIVEL1 = itensDoBanco()
@@ -12,6 +13,7 @@ export default function DevRodada() {
 
   return (
     <RodadaLeitura
+      perfilId={PERFIL_PADRAO_ID}
       configuracao={{
         modalidade: modalidade ?? 'leitura_montar',
         nivel: 2,

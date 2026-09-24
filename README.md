@@ -12,29 +12,41 @@ a criança **ler de verdade**, não passar de fase.
 
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
-constituição e plano técnico já estão fechados. Das 74 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 45 estão
+constituição e plano técnico já estão fechados. Das 75 tarefas em
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 55 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
-configurados (T003-T005), a Fase 2 — Foundational (modelos, banco de
-conteúdo, histórico, capacidade do aparelho, TTS, precisão/estrelas,
-T006-T018), a Fase 3 — User Story 1 completa (T019-T033b: leitura, 3
-modalidades, orquestrador de rodada) e a Fase 4 — User Story 2 completa
-(T034-T040a: matemática, conta pura e problema contextualizado, mesmo
-orquestrador de rodada). D-10 (troca automática de modalidade) foi
-revogado a pedido do dono do projeto — trocava de modalidade sozinho
-depois de 2 falhas, o que escondia o ponto que a criança precisa
-treinar. Substituído por D-39 (botão "sair da rodada" sempre visível,
-nunca automático) e D-40 (a *próxima* rodada, não a atual, sugere 1
-nível abaixo depois de 2+ erros, sem mascarar o que já foi errado). Ver
-[`doc/definições002.MD`](doc/definições002.MD) §14. 77/77 testes,
-`tsc`/`eslint` limpos, build web exportado com sucesso. **Lacunas reais
-e documentadas**: nenhum orquestrador persiste rodadas no histórico
-ainda (depende da tela de configuração, Fase 5) e os testes de
-integração (Maestro) foram escritos mas nunca executados (sem Android
-SDK/emulador nesta máquina).
+configurados (T003-T005), e as Fases 2 a 5 completas:
+
+- **Fase 2 — Foundational** (T006-T018): modelos, banco de conteúdo,
+  histórico, capacidade do aparelho, TTS, precisão/estrelas.
+- **Fase 3 — User Story 1** (T019-T033b): leitura nas 3 modalidades
+  (Ditado, Leitura·montar, Leitura·voz), motor de avaliação fonética,
+  orquestrador de rodada.
+- **Fase 4 — User Story 2** (T034-T040a): matemática, conta pura e
+  problema contextualizado, mesmo orquestrador.
+- **Fase 5 — User Story 3** (T041-T049a): tela de configuração (tipo,
+  modalidade, nível, classificação, tamanho), escolha e teste de voz,
+  preferências persistidas por perfil. `index.tsx` virou a tela inicial
+  de verdade (não mais placeholder) — o app agora tem um fluxo completo
+  **configurar → jogar → resultado → histórico gravado**.
+
+Também nesta janela: D-10 (troca automática de modalidade) foi revogado
+a pedido do dono do projeto — trocava de modalidade sozinho depois de 2
+falhas, o que escondia o ponto que a criança precisa treinar.
+Substituído por D-39 (botão "sair da rodada" sempre visível, nunca
+automático) e D-40 (a *próxima* rodada, não a atual, sugere 1 nível
+abaixo depois de 2+ erros, sem mascarar o que já foi errado). Ver
+[`doc/definições002.MD`](doc/definições002.MD) §14.
+
+77/77 testes, `tsc`/`eslint` limpos, build web exportado com sucesso.
+**Lacunas reais e documentadas**: `tipo: "misto"` e o modo "dupla" são
+selecionáveis na configuração mas ainda não têm orquestrador (desabilitados
+com o motivo visível, nunca escondidos); os testes de integração
+(Maestro) foram escritos mas nunca executados (sem Android SDK/emulador
+nesta máquina).
 
 ## Sobre o projeto
 

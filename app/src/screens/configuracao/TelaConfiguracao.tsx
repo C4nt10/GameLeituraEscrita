@@ -1,0 +1,329 @@
+import { useMemo, useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Botao } from '../../components/Botao';
+import type { Configuracao } from '../../services/configuracao';
+import { combinacoesDisponiveis } from '../../services/banco_de_conteudo';
+import type { Classificacao, FormaMatematica, Modalidade } from '../../models/registro_historico';
+import { cores, espacamento, raio } from '../../theme';
+
+export type Tipo = 'leitura' | 'matematica' | 'misto';
+export type Formato = 'sozinho' | 'dupla';
+
+export interface EscolhaRodada {
+  tipo: Tipo;
+  modalidade: Modalidade;
+  nivel: number;
+  /** `null` = "todas" (padrão) ou nível 1 (sem classificação, D-22). */
+  classificacao: Classificacao | null;
+  formaMatematica: FormaMatematica;
+  tamanho: 3 | 5 | 8;
+  formato: Formato;
+}
+
+const TAMANHOS: (3 | 5 | 8)[] = [3, 5, 8];
+const MODALIDADES: { valor: Modalidade; rotulo: string }[] = [
+  { valor: 'ditado', rotulo: 'Ditado' },
+  { valor: 'leitura_montar', rotulo: 'Leitura · montar' },
+  { valor: 'leitura_voz', rotulo: 'Leitura · voz' },
+];
+
+/**
+ * Tela de configuração da rodada (T047, CU-01): tipo, modalidade, nível,
+ * classificação, forma de matemática, tamanho, sozinho/dupla. Toda
+ * configuração tem padrão válido — "iniciar" funciona sem tocar em nada
+ * (FR-012, Princípio VII). Combinação nível×classificação sem conteúdo
+ * suficiente não aparece selecionável (FR-011, D-35).
+ *
+ * **Escopo assumido, não confirmado**: `tipo: "misto"` é selecionável
+ * (CU-01 lista as 3 opções), mas não existe orquestrador de rodada
+ * mista ainda — só `RodadaLeitura` e `RodadaMatematica`, separados
+ * (T033b/T040a). "Iniciar" fica desabilitado com o motivo visível
+ * quando `misto` está selecionado, em vez de silenciosamente iniciar
+ * uma rodada errada (Princípio III).
+ *
+ * **"Dupla" (formato)**: selecionável (CU-08/US5), mas o fluxo de dupla
+ * de verdade (duas rodadas ligadas, passar o aparelho) é da Fase 7,
+ * ainda não construído — mesmo tratamento: desabilitado com o motivo.
+ */
+export interface TelaConfiguracaoProps {
+  configuracaoInicial: Configuracao;
+  microfoneDisponivel: boolean;
+  motivoMicrofoneIndisponivel: string | null;
+  onIniciar: (escolha: EscolhaRodada) => void;
+  onAbrirEscolhaDeVoz: () => void;
+  /** D-26/FR-021 — salva assim que muda, igual à voz escolhida (CU-07). */
+  onAlterarNomeOuFonema: (valor: 'nome' | 'fonema') => void;
+}
+
+export function TelaConfiguracao({
+  configuracaoInicial,
+  microfoneDisponivel,
+  motivoMicrofoneIndisponivel,
+  onIniciar,
+  onAbrirEscolhaDeVoz,
+  onAlterarNomeOuFonema,
+}: TelaConfiguracaoProps) {
+  const [nomeOuFonema, setNomeOuFonema] = useState<'nome' | 'fonema'>(
+    configuracaoInicial.nomeOuFonema,
+  );
+  const [tipo, setTipo] = useState<Tipo>('leitura');
+  const [modalidade, setModalidade] = useState<Modalidade>(configuracaoInicial.ultimaModalidade);
+  const [nivel, setNivel] = useState(configuracaoInicial.ultimoNivel);
+  const [classificacao, setClassificacao] = useState<Classificacao | null>(null);
+  const [formaMatematica, setFormaMatematica] = useState<FormaMatematica>(
+    configuracaoInicial.ultimaFormaMatematica,
+  );
+  const [tamanho, setTamanho] = useState<3 | 5 | 8>(configuracaoInicial.ultimoTamanho);
+  const [formato, setFormato] = useState<Formato>('sozinho');
+
+  const combinacoes = useMemo(() => combinacoesDisponiveis(), []);
+  const niveisDisponiveis = useMemo(
+    () => [...new Set(combinacoes.map((c) => c.nivel))].sort((a, b) => a - b),
+    [combinacoes],
+  );
+  const classificacoesDoNivel = useMemo(
+    () =>
+      combinacoes
+        .filter((c) => c.nivel === nivel && c.classificacao !== null)
+        .map((c) => c.classificacao as Classificacao),
+    [combinacoes, nivel],
+  );
+
+  const modalidadeIndisponivel = modalidade === 'leitura_voz' && !microfoneDisponivel;
+  const tipoIndisponivel = tipo === 'misto';
+  const formatoIndisponivel = formato === 'dupla';
+  const podeIniciar = !modalidadeIndisponivel && !tipoIndisponivel && !formatoIndisponivel;
+
+  function iniciar() {
+    if (!podeIniciar) return;
+    onIniciar({
+      tipo,
+      modalidade,
+      nivel,
+      classificacao,
+      formaMatematica,
+      tamanho,
+      formato,
+    });
+  }
+
+  return (
+    <ScrollView contentContainerStyle={estilos.raiz}>
+      <Text style={estilos.titulo}>Vamos jogar!</Text>
+      <Text style={estilos.legenda}>
+        Tudo já vem com um valor padrão — dá pra tocar em &quot;começar&quot; sem mudar nada.
+      </Text>
+
+      <Secao rotulo="Tipo">
+        <Segmentado
+          opcoes={[
+            { valor: 'leitura', rotulo: 'Leitura' },
+            { valor: 'matematica', rotulo: 'Matemática' },
+            { valor: 'misto', rotulo: 'Misto' },
+          ]}
+          selecionado={tipo}
+          onSelecionar={setTipo}
+        />
+        {tipoIndisponivel && (
+          <Text style={estilos.aviso}>
+            Rodada mista ainda não está pronta neste app — escolha Leitura ou Matemática.
+          </Text>
+        )}
+      </Secao>
+
+      {tipo !== 'matematica' && (
+        <Secao rotulo="Modalidade">
+          <Segmentado
+            opcoes={MODALIDADES.map((m) => ({ valor: m.valor, rotulo: m.rotulo }))}
+            selecionado={modalidade}
+            onSelecionar={setModalidade}
+          />
+          {modalidadeIndisponivel && (
+            <Text style={estilos.aviso}>{motivoMicrofoneIndisponivel}</Text>
+          )}
+        </Secao>
+      )}
+
+      {tipo !== 'matematica' && (
+        <Secao rotulo="Nível">
+          <Segmentado
+            opcoes={niveisDisponiveis.map((n) => ({ valor: n, rotulo: String(n) }))}
+            selecionado={nivel}
+            onSelecionar={(n) => {
+              setNivel(n);
+              setClassificacao(null);
+            }}
+          />
+        </Secao>
+      )}
+
+      {tipo !== 'matematica' && classificacoesDoNivel.length > 0 && (
+        <Secao rotulo="Classificação">
+          <Segmentado
+            opcoes={[
+              { valor: null, rotulo: 'Todas' },
+              ...classificacoesDoNivel.map((c) => ({ valor: c, rotulo: c })),
+            ]}
+            selecionado={classificacao}
+            onSelecionar={setClassificacao}
+          />
+        </Secao>
+      )}
+
+      {tipo !== 'leitura' && (
+        <Secao rotulo="Forma da matemática">
+          <Segmentado
+            opcoes={[
+              { valor: 'pura', rotulo: 'Conta pura' },
+              { valor: 'contextualizada', rotulo: 'Problema' },
+            ]}
+            selecionado={formaMatematica}
+            onSelecionar={setFormaMatematica}
+          />
+        </Secao>
+      )}
+
+      <Secao rotulo="Tamanho da rodada">
+        <Segmentado
+          opcoes={TAMANHOS.map((t) => ({ valor: t, rotulo: String(t) }))}
+          selecionado={tamanho}
+          onSelecionar={setTamanho}
+        />
+      </Secao>
+
+      <Secao rotulo="Sozinho ou dupla">
+        <Segmentado
+          opcoes={[
+            { valor: 'sozinho', rotulo: 'Sozinho' },
+            { valor: 'dupla', rotulo: 'Dupla' },
+          ]}
+          selecionado={formato}
+          onSelecionar={setFormato}
+        />
+        {formatoIndisponivel && (
+          <Text style={estilos.aviso}>Modo dupla ainda não está pronto neste app.</Text>
+        )}
+      </Secao>
+
+      <Secao rotulo="Letra: nome ou som">
+        <Segmentado
+          opcoes={[
+            { valor: 'fonema' as const, rotulo: 'Som (ex.: "mmm")' },
+            { valor: 'nome' as const, rotulo: 'Nome (ex.: "eme")' },
+          ]}
+          selecionado={nomeOuFonema}
+          onSelecionar={(valor) => {
+            setNomeOuFonema(valor);
+            onAlterarNomeOuFonema(valor);
+          }}
+        />
+      </Secao>
+
+      <TouchableOpacity onPress={onAbrirEscolhaDeVoz} accessibilityRole="button">
+        <Text style={estilos.linkVoz}>🔊 escolher e testar a voz</Text>
+      </TouchableOpacity>
+
+      <Botao onPress={iniciar} acessibilidade="começar">
+        {podeIniciar ? '▶️ Começar' : '▶️ Começar (ajuste a seleção acima)'}
+      </Botao>
+    </ScrollView>
+  );
+}
+
+function Secao({ rotulo, children }: { rotulo: string; children: ReactNode }) {
+  return (
+    <View style={estilos.secao}>
+      <Text style={estilos.secaoRotulo}>{rotulo}</Text>
+      {children}
+    </View>
+  );
+}
+
+function Segmentado<T>({
+  opcoes,
+  selecionado,
+  onSelecionar,
+}: {
+  opcoes: { valor: T; rotulo: string }[];
+  selecionado: T;
+  onSelecionar: (valor: T) => void;
+}) {
+  return (
+    <View style={estilos.segmentado}>
+      {opcoes.map((opcao) => {
+        const ativo = opcao.valor === selecionado;
+        return (
+          <TouchableOpacity
+            key={String(opcao.valor)}
+            style={[estilos.chip, ativo && estilos.chipAtivo]}
+            onPress={() => onSelecionar(opcao.valor)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: ativo }}
+            accessibilityLabel={opcao.rotulo}
+          >
+            <Text style={[estilos.chipTexto, ativo && estilos.chipTextoAtivo]}>{opcao.rotulo}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const estilos = StyleSheet.create({
+  raiz: {
+    padding: espacamento.lg,
+    gap: espacamento.md,
+    backgroundColor: cores.papel,
+  },
+  titulo: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: cores.tinta,
+  },
+  legenda: {
+    fontSize: 13,
+    color: cores.tintaFraca,
+  },
+  secao: {
+    gap: espacamento.xs,
+  },
+  secaoRotulo: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: cores.tintaFraca,
+  },
+  segmentado: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: espacamento.xs,
+  },
+  chip: {
+    paddingVertical: espacamento.xs,
+    paddingHorizontal: espacamento.sm,
+    borderRadius: raio.pill,
+    backgroundColor: cores.papelAlt,
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  chipAtivo: {
+    backgroundColor: cores.blocoAzul,
+  },
+  chipTexto: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: cores.tinta,
+  },
+  chipTextoAtivo: {
+    color: cores.papel,
+  },
+  aviso: {
+    fontSize: 12,
+    color: cores.blocoVermelho,
+  },
+  linkVoz: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: cores.blocoAzul,
+    textAlign: 'center',
+  },
+});
