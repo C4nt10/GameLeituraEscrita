@@ -13,13 +13,16 @@ a criança **ler de verdade**, não passar de fase.
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
 constituição e plano técnico já estão fechados. Das 71 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 5 estão
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 18 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
-[detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), e o
+[detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
-configurados (T003-T005). Ainda não há tela nem lógica de jogo
-implementada — próximo passo é a Fase 2 (Foundational).
+configurados (T003-T005), e a Fase 2 — Foundational: modelos, banco de
+conteúdo, histórico (retenção de 50 rodadas), detecção de capacidade do
+aparelho, TTS e cálculo de precisão/estrelas, todos com teste próprio
+(T006-T018, 24/24 testes passando). Ainda não há tela — próximo passo é a
+Fase 3 (User Story 1, o MVP de leitura).
 
 ## Sobre o projeto
 

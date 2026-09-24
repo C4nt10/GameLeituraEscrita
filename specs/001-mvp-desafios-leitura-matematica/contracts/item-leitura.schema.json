@@ -37,11 +37,11 @@
     },
     "allOf": [
       {
-        "if": { "properties": { "nivel": { "const": 1 } } },
+        "if": { "properties": { "nivel": { "type": "integer", "const": 1 } } },
         "then": { "not": { "required": ["classificacoes"] } }
       },
       {
-        "if": { "properties": { "nivel": { "minimum": 2 } } },
+        "if": { "properties": { "nivel": { "type": "integer", "minimum": 2 } } },
         "then": { "required": ["classificacoes"] }
       }
     ]

@@ -109,56 +109,86 @@ tinha essa disciplina.
 > serviços de base) estava sem teste próprio, cobrindo `T008`
 > (validação de conteúdo) só de forma indireta, três fases depois.
 
-- [ ] T006 [P] Teste de contrato: `app/assets/conteudo/leitura.json`
+- [x] T006 [P] Teste de contrato: `app/assets/conteudo/leitura.json`
       valida contra `contracts/item-leitura.schema.json` em
-      `app/src/__tests__/contract/item_leitura_schema_test`
-- [ ] T007 [P] Teste de contrato: `app/assets/conteudo/matematica_temas.json`
+      `app/src/__tests__/contract/item_leitura_schema_test`. **Concluído
+      (2026-09-24)** via `ajv`; achado no processo: o schema tinha um
+      aviso de strict-mode (if-condition sem `type` explícito) — corrigido
+      no próprio `item-leitura.schema.json`, sem mudar semântica.
+- [x] T007 [P] Teste de contrato: `app/assets/conteudo/matematica_temas.json`
       valida contra `contracts/tema-matematica.schema.json` em
-      `app/src/__tests__/contract/tema_matematica_schema_test`
-- [ ] T008 [P] Teste unitário: `banco_de_conteudo` rejeita/oculta uma
+      `app/src/__tests__/contract/tema_matematica_schema_test`. **Concluído
+      (2026-09-24)**.
+- [x] T008 [P] Teste unitário: `banco_de_conteudo` rejeita/oculta uma
       combinação nível×classificação com **menos de 12** itens (FR-011,
-      D-35) em `app/src/__tests__/unit/banco_de_conteudo_test`
-- [ ] T009 [P] Teste unitário: `historico` aplica a retenção de 50
+      D-35) em `app/src/__tests__/unit/banco_de_conteudo_test`.
+      **Concluído (2026-09-24)** — testado com fixture isolada (não o
+      banco real, pra não depender da revisão pedagógica em aberto, A-06)
+      mais 1 caso de integração confirmando que o banco real carrega.
+- [x] T009 [P] Teste unitário: `historico` aplica a retenção de 50
       rodadas por perfil — ao inserir a 51ª rodada **concluída**, a mais
       antiga é removida (FR-015) em
-      `app/src/__tests__/unit/historico_retencao_test`
-- [ ] T010 [P] Teste unitário: detecção de capacidade do aparelho retorna
+      `app/src/__tests__/unit/historico_retencao_test`. **Concluído
+      (2026-09-24)** — testa a regra pura (`historico/regras.ts`), não o
+      `expo-sqlite` (módulo nativo, não roda em Jest).
+- [x] T010 [P] Teste unitário: detecção de capacidade do aparelho retorna
       "desabilitado com motivo" quando microfone/voz pt está indisponível
       (mock de plataforma) (Princípio I/III da constituição, FR-013) em
-      `app/src/__tests__/unit/capacidade_aparelho_test`
-- [ ] T011 [P] Teste unitário: cálculo de precisão/estrelas
+      `app/src/__tests__/unit/capacidade_aparelho_test`. **Concluído
+      (2026-09-24)** — `jest.mock('expo-speech')`/`jest.mock('expo-audio')`
+      controlando os retornos por caso.
+- [x] T011 [P] Teste unitário: cálculo de precisão/estrelas
       (`acertos ÷ tentativas totais`, meia estrela de granularidade,
       nunca cruzando modalidades) (D-06, D-20, FR-007) em
-      `app/src/__tests__/unit/avaliacao_test`
+      `app/src/__tests__/unit/avaliacao_test`. **Concluído (2026-09-24)**.
 
 ### Implementation for Foundational
 
-- [ ] T012 Modelar `Perfil` (id, nome, cor/avatar) em
+- [x] T012 Modelar `Perfil` (id, nome, cor/avatar) em
       `app/src/models/perfil` — sempre multi-perfil no modelo, mesmo com
-      valor único `"padrao"` usado no MVP (D-25, FR-014)
-- [ ] T013 Modelar `RegistroHistorico` (data/hora, tipo, nível,
+      valor único `"padrao"` usado no MVP (D-25, FR-014). **Concluído
+      (2026-09-24)**.
+- [x] T013 Modelar `RegistroHistorico` (data/hora, tipo, nível,
       classificação, modalidade, acertos, erros, precisão, estrelas,
       contador de ajuda, perfil(is), concluída?) em
-      `app/src/models/registro_historico`
-- [ ] T014 [P] Implementar `banco_de_conteudo`: carregar a grade
+      `app/src/models/registro_historico`. **Concluído (2026-09-24)**.
+- [x] T014 [P] Implementar `banco_de_conteudo`: carregar a grade
       nível×classificação de `app/assets/conteudo/`, com validação de que toda
       combinação exposta tem ≥ 12 palavras (FR-010, FR-011) — faz T006,
-      T007 e T008 passarem — em `app/src/services/banco_de_conteudo`
-- [ ] T015 [P] Implementar `historico` (serviço de persistência local: até
+      T007 e T008 passarem — em `app/src/services/banco_de_conteudo`.
+      **Concluído (2026-09-24)**.
+- [x] T015 [P] Implementar `historico` (serviço de persistência local: até
       50 rodadas por perfil, retenção, exclusão com confirmação) — faz
-      T009 passar — em `app/src/services/historico` (FR-015)
-- [ ] T016 [P] Implementar `tts` (serviço de fala: síntese do aparelho para
+      T009 passar — em `app/src/services/historico` (FR-015). **Concluído
+      (2026-09-24)** via `expo-sqlite` (API async moderna,
+      `openDatabaseAsync`/`runAsync`/`getAllAsync`). Exclusão implementada
+      sem o passo de confirmação em si — isso é UI (Fase 3+), o serviço só
+      executa a exclusão já confirmada.
+- [x] T016 [P] Implementar `tts` (serviço de fala: síntese do aparelho para
       palavra/frase/enunciado; reprodução dos ~52 clipes gravados para
-      letra/fonema) em `app/src/services/tts` (D-27, FR-020)
-- [ ] T017 Implementar detecção de capacidade do aparelho (microfone
+      letra/fonema) em `app/src/services/tts` (D-27, FR-020). **Concluído
+      parcialmente (2026-09-24)**: `falar()`/`pararFala()` via
+      `expo-speech` completos; `tocarClipe()` via `expo-audio`
+      (`createAudioPlayer`) implementado mas recebe o **mapa de clipes por
+      fora** — os ~52 arquivos gravados ainda não existem em
+      `app/assets/audio/` (só o `.gitkeep`), e Metro exige `require()`
+      estático por arquivo, não dá pra montar o caminho em tempo de
+      execução. Montar o mapa de verdade é tarefa de conteúdo, não deste
+      serviço.
+- [x] T017 Implementar detecção de capacidade do aparelho (microfone
       disponível/permitido, vozes pt instaladas) com motivo legível,
       reutilizada por qualquer tela que precise desabilitar uma opção —
-      faz T010 passar — (Princípio I/III da constituição, FR-013)
-- [ ] T018 Implementar cálculo de precisão/estrelas — faz T011 passar —
-      em `app/src/services/avaliacao` (D-06, D-20, FR-007)
+      faz T010 passar — (Princípio I/III da constituição, FR-013).
+      **Concluído (2026-09-24)** — checa (`getRecordingPermissionsAsync`),
+      nunca pede (`requestRecordingPermissionsAsync` fica pra tela de
+      Leitura·voz, no momento real de uso).
+- [x] T018 Implementar cálculo de precisão/estrelas — faz T011 passar —
+      em `app/src/services/avaliacao` (D-06, D-20, FR-007). **Concluído
+      (2026-09-24)**.
 
 **Checkpoint**: fundação pronta, com teste próprio passando — user
-stories podem começar.
+stories podem começar. ✅ (2026-09-24) `npx jest` 24/24, `npx tsc --noEmit`
+limpo, `npx eslint .` limpo.
 
 ---
 
