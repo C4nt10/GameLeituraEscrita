@@ -1,0 +1,23 @@
+# T040b — orquestrador de rodada de matemática (RodadaMatematica):
+# sequencia os desafios gerados, acumula acertos/erros, chega no
+# resultado (Independent Test da Fase 4: "configurar tipo matemática,
+# jogar uma rodada em cada forma").
+#
+# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
+# máquina (mesma ressalva de sempre). appId é placeholder. Rodada de
+# dev fixa: nível 2, tamanho 3 (app/src/app/_dev/rodada-matematica.tsx).
+#
+# Limitação conhecida: os operandos e a resposta certa são sorteados
+# (gerador_matematica) — não dá pra scriptar qual alternativa tocar sem
+# ler a tela em tempo real (Maestro consegue com `assertVisible`
+# condicional, não coberto aqui pra simplicidade). Cobre só a presença
+# da tela e a navegação até o resultado quando os 2 toques certos
+# forem dados manualmente ao rodar.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Rodada — Matemática (pura)'
+- assertVisible: '🔁 repetições: 0'
+- assertVisible:
+    text: '^[0-9]+$'

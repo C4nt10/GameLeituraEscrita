@@ -39,6 +39,12 @@ export default function Index() {
       <Link href="/_dev/rodada?modalidade=leitura_voz" style={styles.link}>
         Rodada — Leitura · voz
       </Link>
+      <Link href="/_dev/rodada-matematica?forma=pura" style={styles.link}>
+        Rodada — Matemática (pura)
+      </Link>
+      <Link href="/_dev/rodada-matematica?forma=contextualizada" style={styles.link}>
+        Rodada — Matemática (contextualizada)
+      </Link>
       <StatusBar style="auto" />
     </View>
   );

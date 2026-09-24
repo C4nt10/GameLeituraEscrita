@@ -60,8 +60,9 @@ export interface TelaResultadoProps {
   resultado: ResultadoAvaliacao;
   acertos: number;
   erros: number;
-  modalidade: Modalidade;
-  /** `null` só em rodada de matemática pura (D-19). */
+  /** `null` em rodada de matemática — data-model.md não define contador de ajuda pra esse tipo (D-19). */
+  modalidade: Modalidade | null;
+  /** `null` sempre que `modalidade` é `null` (matemática, D-19). */
   contadorAjuda: number | null;
   /**
    * D-40: presente só quando a rodada teve 2+ erros e o nível sugerido
@@ -103,7 +104,7 @@ export function TelaResultado({
         </View>
       </View>
 
-      {contadorAjuda !== null && (
+      {contadorAjuda !== null && modalidade !== null && (
         <View style={estilos.chipAjuda}>
           <Text style={estilos.chipAjudaTexto}>
             {ICONE_CONTADOR_AJUDA[modalidade]} {ROTULO_CONTADOR_AJUDA[modalidade]} nesta rodada:{' '}

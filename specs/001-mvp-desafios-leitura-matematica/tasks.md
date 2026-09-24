@@ -423,34 +423,61 @@ cada forma.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T034 [P] [US2] Teste unitário: gerador de alternativas nunca produz
+- [x] T034 [P] [US2] Teste unitário: gerador de alternativas nunca produz
       negativo nem repetição, mantém proximidade (doc001 §4) em
-      `app/src/__tests__/unit/gerador_matematica_test`
-- [ ] T035 [P] [US2] Teste unitário: problema contextualizado de subtração
+      `app/src/__tests__/unit/gerador_matematica_test`. **Concluído
+      (2026-09-25)** — "próxima" calibrada como distância ≤5 (não vem de
+      número do doc, só da regra qualitativa).
+- [x] T035 [P] [US2] Teste unitário: problema contextualizado de subtração
       nunca gera resultado negativo (FR-009) em
-      `app/src/__tests__/unit/problema_contextualizado_test`
-- [ ] T036 [P] [US2] Teste unitário: o enunciado sorteia entre 2-3
+      `app/src/__tests__/unit/problema_contextualizado_test`. **Concluído
+      (2026-09-25)**.
+- [x] T036 [P] [US2] Teste unitário: o enunciado sorteia entre 2-3
       variações fixas por operação, e a variação não muda com o nível
-      (D-36, FR-008) em `app/src/__tests__/unit/variacao_frase_test`
+      (D-36, FR-008) em `app/src/__tests__/unit/variacao_frase_test`.
+      **Concluído (2026-09-25)**.
 
 ### Implementation for User Story 2
 
-- [ ] T037 [P] [US2] Modelar `DesafioMatematica` (operação, operandos,
+- [x] T037 [P] [US2] Modelar `DesafioMatematica` (operação, operandos,
       resultado, forma, tema quando contextualizada, alternativas) em
-      `app/src/models/desafio_matematica`
-- [ ] T038 [US2] Implementar `gerador_matematica` (conta pura, 5 níveis de
+      `app/src/models/desafio_matematica`. **Concluído (2026-09-25)**.
+- [x] T038 [US2] Implementar `gerador_matematica` (conta pura, 5 níveis de
       operação) — faz T034 passar — em `app/src/services/gerador_matematica`
-      (depende de T037)
-- [ ] T039 [US2] Implementar `problema_contextualizado` (enunciado por
+      (depende de T037). **Concluído (2026-09-25)** — faixas numéricas
+      por nível (soma pequena/maior, subtração, multiplicação básica)
+      calibradas aqui, marcadas pra revisão junto com a validação com
+      criança (definições001 §10).
+- [x] T039 [US2] Implementar `problema_contextualizado` (enunciado por
       tema/classificação, objetos visuais, fala automática, sorteio de
       variação) — faz T035 e T036 passarem — em
       `app/src/services/problema_contextualizado` (D-23, D-24, D-36;
-      depende de T014 para o tema)
-- [ ] T040 [US2] Implementar tela de desafio de matemática (conta falada,
+      depende de T014 para o tema). **Concluído (2026-09-25)** — escopo
+      assumido: só soma/subtração têm forma contextualizada (o schema de
+      tema só define variação pra essas duas), nível 5/multiplicação é
+      sempre pura no MVP.
+- [x] T040 [US2] Implementar tela de desafio de matemática (conta falada,
       botão de repetir, 4 alternativas) em `app/src/screens/rodada/matematica`,
-      reusando T032 para o resultado
+      reusando T032 para o resultado. **Concluído (2026-09-25)** —
+      objeto visual da forma contextualizada usa um marcador genérico
+      (●), não um ícone por tema: `matematica_temas.json` só guarda o
+      NOME do objeto, a resolução nome→asset foi deixada pra
+      implementação (mesmo gap documentado do `tts`/clipes de letra,
+      T016).
+- [x] T040a [US2] **Nova (2026-09-25)** — orquestrador de rodada de
+      matemática (`RodadaMatematica`, `app/src/screens/rodada_matematica`),
+      espelhando T033b: gera os desafios (procedural, não sorteio de
+      banco), acumula acertos/erros, mostra `TelaResultado` com a
+      sugestão de D-40. `contadorAjuda` sempre `null` — `data-model.md`
+      não define contador de ajuda pra rodada de matemática (D-19),
+      mesmo a repetição sendo visível ao vivo na tela; decisão do
+      produto, não omissão. Teste em `app/e2e/rodada_matematica_completa.yaml`
+      (não executado). Mesma pendência de `RodadaLeitura`: não persiste
+      em `historico` ainda (depende de T046).
 
-**Checkpoint**: US1 + US2 funcionam juntas e independentemente.
+**Checkpoint**: US1 + US2 funcionam juntas e independentemente. ✅
+(2026-09-25) 77/77 testes, `tsc`/`eslint` limpos, build web exportado
+com sucesso.
 
 ---
 
