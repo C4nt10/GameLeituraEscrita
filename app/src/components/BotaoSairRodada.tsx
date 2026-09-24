@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { cores, espacamento } from '../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento } from '../theme';
 
 /**
  * Botão "sair da rodada" — D-39 (revoga D-10, doc/definições002.MD §14):
@@ -31,7 +31,10 @@ const estilos = StyleSheet.create({
     position: 'absolute',
     top: espacamento.md,
     left: espacamento.md,
-    paddingVertical: espacamento.xs,
+    minWidth: ALVO_TOQUE_MINIMO,
+    minHeight: ALVO_TOQUE_MINIMO,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: espacamento.sm,
   },
   texto: {

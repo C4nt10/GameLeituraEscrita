@@ -13,13 +13,13 @@ a criança **ler de verdade**, não passar de fase.
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
 constituição e plano técnico já estão fechados. Das 75 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 70 estão
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 72 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
-configurados (T003-T005), e as Fases 2 a 7 completas — **as 5 user
-stories do MVP, todas funcionando**:
+configurados (T003-T005), e as Fases 2 a 8 completas (o que dava pra
+completar por código) — **as 5 user stories do MVP, todas funcionando**:
 
 - **Fase 2 — Foundational** (T006-T018): modelos, banco de conteúdo,
   histórico, capacidade do aparelho, TTS, precisão/estrelas.
@@ -39,6 +39,11 @@ stories do MVP, todas funcionando**:
   de perfil, formato cooperativo/adversarial (escolha explícita, nunca
   padrão implícito), rodada 1 → "passa o aparelho" → rodada 2,
   resultado combinado, persistência com flag de completude.
+- **Fase 8 — Polish** (T065, T067): auditoria de todas as telas contra
+  o Princípio VI (alvo grande, sem gesto composto, ícone basta) — achou
+  e corrigiu 2 controles com alvo de toque pequeno demais; validação
+  mecânica do banco de conteúdo contra a regra dos 12 (D-35), confirmada
+  igual à tabela já documentada.
 
 Também nesta janela: D-10 (troca automática de modalidade) foi revogado
 a pedido do dono do projeto — trocava de modalidade sozinho depois de 2
@@ -49,13 +54,23 @@ abaixo depois de 2+ erros, sem mascarar o que já foi errado). Ver
 [`doc/definições002.MD`](doc/definições002.MD) §14.
 
 81/81 testes, `tsc`/`eslint` limpos, build web exportado com sucesso.
-**Lacunas reais e documentadas**: `tipo: "misto"` (leitura+matemática na
-mesma rodada) ainda não tem orquestrador, fica desabilitado com o
-motivo visível; os testes de integração (Maestro) foram escritos mas
-nunca executados (sem Android SDK/emulador nesta máquina); o que resta
-em `tasks.md` (Fase 8 — Polish) inclui coisas que só o dono do projeto
-pode fazer: gravar os ~52 clipes de áudio de letra/fonema e rodar uma
-sessão de observação com uma criança real.
+**As 3 tarefas que restam em `tasks.md` não são mais tarefas de
+código** — nenhuma pode ser feita por quem só mexe no repositório:
+
+- **T066**: gravar os ~52 clipes de áudio de letra/fonema (D-27) —
+  precisa de uma voz humana de verdade; `tts.tocarClipe()` já está
+  pronto pra tocar os arquivos assim que existirem.
+- **T068**: sessão de observação com uma criança real — o app já está
+  pronto pro fluxo completo acontecer (configurar → jogar → resultado →
+  histórico), incluindo um achado do T065 que só essa sessão confirma
+  (se "✕ sair" sozinho é entendido por uma criança em alfabetização).
+- **T069**: bloqueada pela T068 (registra o resultado da sessão).
+
+Lacuna técnica que sobrevive: `tipo: "misto"` (leitura+matemática na
+mesma rodada) é selecionável na configuração mas ainda não tem
+orquestrador — fica desabilitado com o motivo visível, nunca escondido.
+Os testes de integração (Maestro) foram escritos mas nunca executados
+(sem Android SDK/emulador nesta máquina).
 
 ## Sobre o projeto
 

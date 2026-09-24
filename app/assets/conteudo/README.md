@@ -26,9 +26,10 @@ Quando o projeto for criado, movem para `app/assets/conteudo/` (`plan.md`
   conteúdo de verdade, achado ao investigar o spike de STT
   (`specs/001-mvp-desafios-leitura-matematica/research.md` §T002, rodada
   10). Valida contra
-  [`../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json`](../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json)
-  (ainda não rodei o teste de contrato T006 contra este arquivo — projeto
-  `app/` não criado ainda; conferi a estrutura manualmente com Python).
+  [`../../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json`](../../specs/001-mvp-desafios-leitura-matematica/contracts/item-leitura.schema.json)
+  — T006 roda contra este arquivo de verdade a cada `npx jest`
+  (`app/src/__tests__/contract/item_leitura_schema_test.ts`), não é mais
+  conferência manual.
 - `matematica_temas.json` — 5 temas com objeto visual e 3 variações de
   frase por operação (D-36), seguindo
   [`tema-matematica.schema.json`](../specs/001-mvp-desafios-leitura-matematica/contracts/tema-matematica.schema.json).
@@ -69,12 +70,22 @@ pra bater 12:**
    nem toda classificação de leitura precisa ter equivalente em
    matemática.
 
-## Antes de rodar T067 (validar contra o conteúdo real)
+## T067 (2026-09-25) — validação mecânica feita, pedagógica ainda não
 
-1. Alguém revisar as 265 palavras/frases quanto a adequação pedagógica
+A parte que dava pra automatizar está feita: `banco_de_conteudo`
+(T014/`combinacoesDisponiveis`) já esconde toda combinação abaixo de 12
+de verdade — confirmado rodando contra os 272 itens reais (tabela acima,
+recalculada e idêntica à documentada), e T006/T008 rodam contra este
+arquivo real a cada `npx jest`, não fixture nem conferência manual.
+
+**O que continua fora do alcance de quem só mexe em código** (pede
+julgamento pedagógico ou decisão de produto, não engenharia):
+
+1. Alguém revisar as 272 palavras/frases quanto a adequação pedagógica
    (A-06) — nível atribuído, regionalismo, palavra que uma criança da
    idade-alvo realmente reconhece.
 2. Decidir se `bumbum`/`sovaco` (informais, mas comuns na fala infantil
    brasileira) ficam ou saem de `corpo`.
-3. Completar `corpo` nível 2 e os níveis 5 de todas as classificações
-   antes de expor essas combinações na configuração (US3).
+3. Completar `corpo` nível 2 e os níveis 5 de todas as classificações —
+   até lá, essas combinações continuam ocultas na configuração (US3),
+   corretamente.

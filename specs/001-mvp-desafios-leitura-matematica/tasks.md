@@ -714,32 +714,66 @@ dos dois lado a lado, destaque pra quem teve mais").
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T065 [P] Revisar todas as telas contra o Princípio VI da
+- [x] T065 [P] Revisar todas as telas contra o Princípio VI da
       constituição, com checklist explícito por tela: (a) toda ação
       principal é um único toque, (b) nenhum gesto composto/ensinado,
       (c) o ícone sozinho basta pra criança entender a ação, sem depender
-      do texto — antes do primeiro teste com criança real
+      do texto — antes do primeiro teste com criança real. **Concluído
+      (2026-09-25)** — auditoria de todo `TouchableOpacity` do app (13
+      arquivos). (a)/(b): **sem violação** — nenhum `onLongPress`, drag,
+      swipe ou duplo-toque em lugar nenhum do código, confirmado por
+      busca em todo `src/`. (c): ícones das telas de desafio já seguem o
+      vocabulário canônico do Princípio I (🔊 repete, 👁️ mostra, 🎤 ouve);
+      alternativas de letra/número usam o próprio conteúdo como "ícone",
+      não decoração. **2 achados reais de alvo pequeno, corrigidos**:
+      `BotaoSairRodada` (✕ sair) e "👁️ ver de novo"
+      (Leitura·montar) não tinham tamanho mínimo de toque — os únicos
+      controles de tela de desafio sem `ALVO_TOQUE_MINIMO`; ambos
+      corrigidos. **1 achado sem correção de código possível, registrado
+      pra validar com T068**: "✕" sozinho (sem o texto "sair") é uma
+      convenção adulta de UI — não está confirmado que uma criança em
+      alfabetização reconhece isso como "sair"; só teste real decide.
+      Telas do adulto (Configuração, Histórico, Escolha de voz, Seleção
+      de perfil — todas CU-01/06/07/08 "Ator: adulto") não seguem o
+      critério (c) à risca (usam link de texto) — constitution.md já
+      prevê isso: "o texto acompanha apenas para o adulto".
 - [ ] T066 [P] Gravar e integrar os ~52 clipes de letras/fonemas (nome +
-      som) em `app/assets/audio/` (D-27)
-- [ ] T067 Carregar e validar o banco de palavras inicial em
+      som) em `app/assets/audio/` (D-27). **Não é tarefa de código —
+      não posso gravar áudio.** Precisa de alguém gravando a própria voz
+      (ou contratando locução) falando nome/som de cada letra/dígrafo.
+      `tts.tocarClipe()` (T016) já está pronto pra tocar os arquivos
+      assim que existirem — só falta o conteúdo em si.
+- [x] T067 Carregar e validar o banco de palavras inicial em
       `app/assets/conteudo/` contra as 6 classificações confirmadas (D-34 —
       animais, comida, casa, corpo, natureza, ações), com **mínimo de 12
       palavras** por combinação nível×classificação exposta — roda T006 e
       T008 contra o conteúdo real, não mais só contra fixture de teste
-      (D-35, FR-011)
+      (D-35, FR-011). **Parte mecânica concluída (2026-09-25)**:
+      recalculado contra os 272 itens reais — bate exatamente com a
+      tabela já documentada em `app/assets/conteudo/README.md` (corpo
+      nível 2 com 9, abaixo de 12; todo nível 5 abaixo de 12 nas 6
+      classificações) — `combinacoesDisponiveis()` já esconde essas
+      combinações corretamente, confirmado, não é bug. **Parte
+      pedagógica (A-06) continua em aberto, não é tarefa de código** —
+      registrado em `app/assets/conteudo/README.md`.
 - [ ] T068 Sessão de observação com criança real seguindo `doc/
       definições001.MD` §10 + `doc/definições002.MD` §10 (perguntas 1-10),
-      medindo SC-001 a SC-006 de `spec.md`. **Nota sobre A-11**: as 15
+      medindo SC-001 a SC-006 de `spec.md`. **Nota sobre A-11**: as 19
       rodadas do spike de STT (`research.md` §T002) já foram gravadas com
       uma criança real em fase de alfabetização (não adulto simulando —
-      correção de registro em 2026-09-21), então 62-76% já é o número
+      correção de registro em 2026-09-21), então 62-81% já é o número
       real contra o usuário-alvo, não estimativa por proxy. Se der pra
       testar com **outra(s) criança(s)** nesta sessão, roda de novo contra
       `spike-stt/testar.py`/`fonetica.py` pra ganhar robustez estatística
-      (n=1 hoje) — não é pré-requisito, é reforço
+      (n=1 hoje) — não é pré-requisito, é reforço. **Não é tarefa de
+      código — exige uma criança real e alguém observando.** O app já
+      está pronto pra essa sessão acontecer (fluxo completo configurar →
+      jogar → resultado → histórico, Fases 3-7), incluindo o achado do
+      T065 sobre "✕ sair" que essa sessão pode confirmar ou refutar.
 - [ ] T069 Registrar resultado da sessão de observação e decidir A-06/A-09/
       A-10 remanescentes em `doc/definições003.MD` (consolidação prevista
-      em `doc/definições002.MD`)
+      em `doc/definições002.MD`). **Bloqueado por T068** — não dá pra
+      registrar resultado de uma sessão que ainda não aconteceu.
 
 ---
 

@@ -4,7 +4,7 @@ import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
-import { cores, espacamento, raio } from '../../../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../../../theme';
 
 const DURACAO_REVELACAO_PADRAO_MS = 3000;
 
@@ -62,6 +62,7 @@ export function TelaLeituraMontar({
         </View>
       ) : (
         <TouchableOpacity
+          style={estilos.botaoVerDeNovo}
           onPress={revelar}
           accessibilityRole="button"
           accessibilityLabel="ver de novo"
@@ -100,6 +101,13 @@ const estilos = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 2,
     color: cores.tinta,
+  },
+  botaoVerDeNovo: {
+    minWidth: ALVO_TOQUE_MINIMO,
+    minHeight: ALVO_TOQUE_MINIMO,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: espacamento.md,
   },
   verDeNovo: {
     fontWeight: '700',
