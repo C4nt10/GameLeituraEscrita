@@ -117,6 +117,8 @@ specs/001-mvp-desafios-leitura-matematica/
 ```text
 app/                          # projeto React Native + Expo (package.json, app.json na raiz)
 ├── src/
+│   ├── app/                  # rotas do Expo Router (T003a, 2026-09-24) — arquivo fino por rota,
+│   │                        # importa o componente de tela de src/screens/; _layout.tsx é o Stack raiz
 │   ├── models/              # Perfil, Rodada, DesafioLeitura, DesafioMatematica, RegistroHistorico (TS types)
 │   ├── services/            # avaliacaoLeitura (whisper.rn + tolerância fonética), geradorMatematica,
 │   │                        # problemaContextualizado, bancoDeConteudo (grade nível×classificação),
@@ -132,6 +134,16 @@ app/                          # projeto React Native + Expo (package.json, app.j
 │   └── conteudo/              # banco de palavras por nível×classificação — asset JSON, dado não código
 └── e2e/                        # fluxos Maestro (YAML): rodada completa por modalidade, fluxo de dupla
 ```
+
+**Navegação (decidido em 2026-09-24, durante a Fase 3):** Expo Router,
+recomendação atual do próprio Expo (`AGENTS.md` gerado no T003) — sem
+isso, teria de se hand-rolar stack/estado de navegação. `src/app/`
+detectado automaticamente pelo Metro (confirmado com `npx expo export -p
+web`: "Using src/app as the root directory for Expo Router"), tem
+precedência sobre um `app/` na raiz do projeto Expo. Não contradiz a
+divisão de `src/screens/` já decidida aqui — a rota só importa e
+renderiza o componente de tela; a lógica de tela continua em
+`src/screens/`, testável isoladamente do roteamento.
 
 **Structure Decision**: projeto único React Native + Expo (mobile-app),
 sem separação frontend/backend — não há backend no MVP (T001, research.md,

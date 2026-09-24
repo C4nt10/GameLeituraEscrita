@@ -1,11 +1,15 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "GameLeituraEscrita",
+    "slug": "gameleituraescrita",
+    "scheme": "gameleituraescrita",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "experiments": {
+      "typedRoutes": true
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -21,6 +25,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-audio", "expo-sqlite"]
+    "plugins": ["expo-audio", "expo-sqlite", "expo-router", "expo-status-bar"]
   }
 }
