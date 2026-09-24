@@ -50,6 +50,15 @@ async function abrirEIniciar(): Promise<SQLite.SQLiteDatabase> {
       contador_ajuda INTEGER
     );
   `);
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS rodadas_duplas (
+      id TEXT PRIMARY KEY NOT NULL,
+      formato TEXT NOT NULL,
+      rodada_1_id TEXT NOT NULL,
+      rodada_2_id TEXT,
+      completa INTEGER NOT NULL
+    );
+  `);
   return db;
 }
 
@@ -186,4 +195,38 @@ export async function excluirRodada(id: string): Promise<void> {
 export async function limparHistoricoDoPerfil(perfilId: string): Promise<void> {
   const db = await obterBanco();
   await db.runAsync('DELETE FROM rodadas WHERE perfil_id = ?', perfilId);
+}
+
+/**
+ * rodadas_duplas (T064, data-model.md): liga duas linhas de `rodadas`.
+ * `completa` só é `true` quando as duas rodadas ligadas têm
+ * `concluida = true` (FR-018) — se uma criança saiu no meio, a dupla
+ * fica incompleta e não entra no histórico comparativo (CU-08).
+ */
+export interface RodadaDupla {
+  id: string;
+  formato: 'cooperativo' | 'adversarial';
+  rodada1Id: string;
+  /** `null` até a criança 2 começar. */
+  rodada2Id: string | null;
+  completa: boolean;
+}
+
+export async function registrarRodadaDupla(dupla: RodadaDupla): Promise<void> {
+  const db = await obterBanco();
+  await db.runAsync(
+    'INSERT INTO rodadas_duplas (id, formato, rodada_1_id, rodada_2_id, completa) VALUES (?, ?, ?, ?, ?)',
+    dupla.id,
+    dupla.formato,
+    dupla.rodada1Id,
+    dupla.rodada2Id,
+    dupla.completa ? 1 : 0,
+  );
+}
+
+/** Busca uma rodada individual por id — usado pra montar o resultado combinado (T063). */
+export async function buscarRodadaPorId(id: string): Promise<RegistroHistorico | null> {
+  const db = await obterBanco();
+  const linha = await db.getFirstAsync<LinhaRodada>('SELECT * FROM rodadas WHERE id = ?', id);
+  return linha ? daLinha(linha) : null;
 }

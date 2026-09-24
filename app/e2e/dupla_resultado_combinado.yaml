@@ -1,0 +1,21 @@
+# T059 — resultado combinado mostra total somado + individual lado a
+# lado no cooperativo, e os dois resultados lado a lado com destaque no
+# adversarial (US5 cenário 3). Implementado em `TelaResultadoCombinado`.
+#
+# NÃO EXECUTADO — mesma ressalva de sempre. Pressupõe as duas rodadas
+# completas (não dá pra scriptar sem saber as respostas certas
+# sorteadas, mesma limitação de rodada_completa.yaml).
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Dupla'
+- tapOn: 'Cooperativo'
+- tapOn: '▶️ Começar'
+- tapOn: '▶️ Continuar'
+- tapOn: '▶️ Toque pra continuar'
+# ... [completar rodada 1] ...
+- tapOn: '▶️ Toque pra continuar'
+# ... [completar rodada 2] ...
+- assertVisible: '★ no total'
+- assertVisible: 'acertos somados'

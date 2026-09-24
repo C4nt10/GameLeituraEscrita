@@ -1,0 +1,18 @@
+# T057 — o adulto precisa escolher explicitamente cooperativo ou
+# adversarial — nenhum formato é padrão implícito (US5 cenário 1, D-31).
+# Implementado em `TelaConfiguracao`: `formatoDupla` começa `null`,
+# "Começar" fica desabilitado (`formatoIndisponivel`) até um dos dois
+# ser tocado.
+#
+# NÃO EXECUTADO — mesma ressalva de sempre.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Dupla'
+# sem escolher cooperativo/adversarial, "Começar" avisa que precisa escolher
+- assertVisible: 'Escolha cooperativo ou adversarial pra continuar'
+- assertVisible: '▶️ Começar (ajuste a seleção acima)'
+- tapOn: 'Adversarial'
+- assertNotVisible: 'Escolha cooperativo ou adversarial pra continuar'
+- assertVisible: '▶️ Começar'

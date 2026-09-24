@@ -8,6 +8,7 @@ import { cores, espacamento, raio } from '../../theme';
 
 export type Tipo = 'leitura' | 'matematica' | 'misto';
 export type Formato = 'sozinho' | 'dupla';
+export type FormatoDupla = 'cooperativo' | 'adversarial';
 
 export interface EscolhaRodada {
   tipo: Tipo;
@@ -18,6 +19,8 @@ export interface EscolhaRodada {
   formaMatematica: FormaMatematica;
   tamanho: 3 | 5 | 8;
   formato: Formato;
+  /** Obrigatório quando `formato = 'dupla'` — nenhum formato é padrão implícito (D-31/T057). */
+  formatoDupla: FormatoDupla | null;
 }
 
 const TAMANHOS: (3 | 5 | 8)[] = [3, 5, 8];
@@ -41,9 +44,11 @@ const MODALIDADES: { valor: Modalidade; rotulo: string }[] = [
  * quando `misto` está selecionado, em vez de silenciosamente iniciar
  * uma rodada errada (Princípio III).
  *
- * **"Dupla" (formato)**: selecionável (CU-08/US5), mas o fluxo de dupla
- * de verdade (duas rodadas ligadas, passar o aparelho) é da Fase 7,
- * ainda não construído — mesmo tratamento: desabilitado com o motivo.
+ * **"Dupla" (formato, T062)**: exige escolher cooperativo/adversarial
+ * explicitamente (D-31/T057 — nenhum formato é padrão implícito);
+ * "Começar" leva pra seleção de 2 perfis (T061) e depois pro fluxo de
+ * dupla completo (`RodadaDupla`), com a mesma configuração pros dois
+ * perfis (D-33).
  */
 export interface TelaConfiguracaoProps {
   configuracaoInicial: Configuracao;
@@ -78,6 +83,7 @@ export function TelaConfiguracao({
   );
   const [tamanho, setTamanho] = useState<3 | 5 | 8>(configuracaoInicial.ultimoTamanho);
   const [formato, setFormato] = useState<Formato>('sozinho');
+  const [formatoDupla, setFormatoDupla] = useState<FormatoDupla | null>(null);
 
   const combinacoes = useMemo(() => combinacoesDisponiveis(), []);
   const niveisDisponiveis = useMemo(
@@ -94,7 +100,7 @@ export function TelaConfiguracao({
 
   const modalidadeIndisponivel = modalidade === 'leitura_voz' && !microfoneDisponivel;
   const tipoIndisponivel = tipo === 'misto';
-  const formatoIndisponivel = formato === 'dupla';
+  const formatoIndisponivel = formato === 'dupla' && formatoDupla === null;
   const podeIniciar = !modalidadeIndisponivel && !tipoIndisponivel && !formatoIndisponivel;
 
   function iniciar() {
@@ -107,6 +113,7 @@ export function TelaConfiguracao({
       formaMatematica,
       tamanho,
       formato,
+      formatoDupla,
     });
   }
 
@@ -197,16 +204,32 @@ export function TelaConfiguracao({
       <Secao rotulo="Sozinho ou dupla">
         <Segmentado
           opcoes={[
-            { valor: 'sozinho', rotulo: 'Sozinho' },
-            { valor: 'dupla', rotulo: 'Dupla' },
+            { valor: 'sozinho' as const, rotulo: 'Sozinho' },
+            { valor: 'dupla' as const, rotulo: 'Dupla' },
           ]}
           selecionado={formato}
-          onSelecionar={setFormato}
+          onSelecionar={(valor) => {
+            setFormato(valor);
+            if (valor === 'sozinho') setFormatoDupla(null);
+          }}
         />
-        {formatoIndisponivel && (
-          <Text style={estilos.aviso}>Modo dupla ainda não está pronto neste app.</Text>
-        )}
       </Secao>
+
+      {formato === 'dupla' && (
+        <Secao rotulo="Cooperativo ou adversarial">
+          <Segmentado
+            opcoes={[
+              { valor: 'cooperativo' as const, rotulo: 'Cooperativo' },
+              { valor: 'adversarial' as const, rotulo: 'Adversarial' },
+            ]}
+            selecionado={formatoDupla}
+            onSelecionar={setFormatoDupla}
+          />
+          {formatoIndisponivel && (
+            <Text style={estilos.aviso}>Escolha cooperativo ou adversarial pra continuar.</Text>
+          )}
+        </Secao>
+      )}
 
       <Secao rotulo="Letra: nome ou som">
         <Segmentado

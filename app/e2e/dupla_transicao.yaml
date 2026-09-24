@@ -1,0 +1,20 @@
+# T058 — a tela "passa o aparelho" impede a criança 1 de continuar
+# jogando no lugar da criança 2 (US5 cenário 2). Implementado: entre a
+# rodada 1 e a rodada 2, `RodadaDupla` sempre passa pela fase
+# 'transicao' (`TelaTransicao`, alvo grande, toque explícito) — nunca
+# segue direto da tela de resultado individual da rodada 1 pro próximo
+# desafio.
+#
+# NÃO EXECUTADO — mesma ressalva de sempre.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Dupla'
+- tapOn: 'Cooperativo'
+- tapOn: '▶️ Começar'
+- tapOn: '▶️ Continuar'
+- tapOn: '▶️ Toque pra continuar' # vez de [Nome 1]
+# ... [completar a rodada 1 dentro da modalidade escolhida] ...
+- assertVisible: 'Passa o aparelho pra'
+- assertVisible: '▶️ Toque pra continuar'

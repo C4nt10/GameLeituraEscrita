@@ -13,12 +13,13 @@ a criança **ler de verdade**, não passar de fase.
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
 constituição e plano técnico já estão fechados. Das 75 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 55 estão
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 70 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
-configurados (T003-T005), e as Fases 2 a 5 completas:
+configurados (T003-T005), e as Fases 2 a 7 completas — **as 5 user
+stories do MVP, todas funcionando**:
 
 - **Fase 2 — Foundational** (T006-T018): modelos, banco de conteúdo,
   histórico, capacidade do aparelho, TTS, precisão/estrelas.
@@ -30,8 +31,14 @@ configurados (T003-T005), e as Fases 2 a 5 completas:
 - **Fase 5 — User Story 3** (T041-T049a): tela de configuração (tipo,
   modalidade, nível, classificação, tamanho), escolha e teste de voz,
   preferências persistidas por perfil. `index.tsx` virou a tela inicial
-  de verdade (não mais placeholder) — o app agora tem um fluxo completo
+  de verdade (não mais placeholder) — o app tem um fluxo completo
   **configurar → jogar → resultado → histórico gravado**.
+- **Fase 6 — User Story 4** (T050-T054): tela de histórico, resumo por
+  modalidade (sem cruzar — D-20), exclusão com confirmação.
+- **Fase 7 — User Story 5** (T055-T064): modo dupla — seleção/criação
+  de perfil, formato cooperativo/adversarial (escolha explícita, nunca
+  padrão implícito), rodada 1 → "passa o aparelho" → rodada 2,
+  resultado combinado, persistência com flag de completude.
 
 Também nesta janela: D-10 (troca automática de modalidade) foi revogado
 a pedido do dono do projeto — trocava de modalidade sozinho depois de 2
@@ -41,12 +48,14 @@ automático) e D-40 (a *próxima* rodada, não a atual, sugere 1 nível
 abaixo depois de 2+ erros, sem mascarar o que já foi errado). Ver
 [`doc/definições002.MD`](doc/definições002.MD) §14.
 
-77/77 testes, `tsc`/`eslint` limpos, build web exportado com sucesso.
-**Lacunas reais e documentadas**: `tipo: "misto"` e o modo "dupla" são
-selecionáveis na configuração mas ainda não têm orquestrador (desabilitados
-com o motivo visível, nunca escondidos); os testes de integração
-(Maestro) foram escritos mas nunca executados (sem Android SDK/emulador
-nesta máquina).
+81/81 testes, `tsc`/`eslint` limpos, build web exportado com sucesso.
+**Lacunas reais e documentadas**: `tipo: "misto"` (leitura+matemática na
+mesma rodada) ainda não tem orquestrador, fica desabilitado com o
+motivo visível; os testes de integração (Maestro) foram escritos mas
+nunca executados (sem Android SDK/emulador nesta máquina); o que resta
+em `tasks.md` (Fase 8 — Polish) inclui coisas que só o dono do projeto
+pode fazer: gravar os ~52 clipes de áudio de letra/fonema e rodar uma
+sessão de observação com uma criança real.
 
 ## Sobre o projeto
 

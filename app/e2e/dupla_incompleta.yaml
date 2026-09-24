@@ -1,0 +1,23 @@
+# T055 — rodada dupla incompleta (uma criança sai no meio) não entra no
+# histórico comparativo (US5 cenário 5, FR-018). Implementado em
+# `RodadaDupla`: se `registro.concluida === false` (D-39, saiu pelo
+# botão), persiste `rodadas_duplas.completa = false` e pula direto pro
+# fim, sem mostrar resultado combinado (comparar incompleta com completa
+# não seria honesto).
+#
+# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
+# máquina (mesma ressalva de sempre). appId é placeholder.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Dupla'
+- tapOn: 'Cooperativo'
+- tapOn: '▶️ Começar'
+# seleciona 2 perfis existentes (ou cria — pressupõe pelo menos 2 já cadastrados)
+- tapOn: '▶️ Continuar'
+- tapOn: '▶️ Toque pra continuar' # "vez de [Nome 1]"
+- tapOn: '✕ sair' # criança 1 sai no meio
+# não deve mostrar tela de resultado combinado
+- assertNotVisible: 'tirou mais hoje'
+- assertNotVisible: 'Juntos vocês fizeram muito bem'

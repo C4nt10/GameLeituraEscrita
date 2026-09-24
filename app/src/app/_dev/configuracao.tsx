@@ -9,7 +9,11 @@ export default function DevConfiguracao() {
       microfoneDisponivel={true}
       motivoMicrofoneIndisponivel={null}
       onIniciar={(escolha: EscolhaRodada) => {
-        if (escolha.tipo === 'matematica') {
+        if (escolha.formato === 'dupla') {
+          router.push(
+            `/dupla?tipo=${escolha.tipo}&modalidade=${escolha.modalidade}&formaMatematica=${escolha.formaMatematica}&nivel=${escolha.nivel}&tamanho=${escolha.tamanho}&formatoDupla=${escolha.formatoDupla}`,
+          );
+        } else if (escolha.tipo === 'matematica') {
           router.push(`/_dev/rodada-matematica?forma=${escolha.formaMatematica}`);
         } else {
           router.push(`/_dev/rodada?modalidade=${escolha.modalidade}`);

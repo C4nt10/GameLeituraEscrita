@@ -8,6 +8,7 @@ import {
   type Configuracao,
 } from '../services/configuracao';
 import { verificarCapacidades } from '../services/capacidade_aparelho';
+import { garantirPerfilPadrao } from '../services/perfis';
 import { PERFIL_PADRAO_ID } from '../models/perfil';
 import { cores } from '../theme';
 
@@ -27,6 +28,7 @@ export default function Index() {
 
   useEffect(() => {
     let cancelado = false;
+    void garantirPerfilPadrao();
     buscarConfiguracao(PERFIL_PADRAO_ID).then((c) => {
       if (!cancelado) setConfiguracao(c);
     });
@@ -66,7 +68,12 @@ export default function Index() {
         const classificacaoParam = escolha.classificacao
           ? `&classificacao=${escolha.classificacao}`
           : '';
-        if (escolha.tipo === 'matematica') {
+
+        if (escolha.formato === 'dupla') {
+          router.push(
+            `/dupla?tipo=${escolha.tipo}&modalidade=${escolha.modalidade}&formaMatematica=${escolha.formaMatematica}&nivel=${escolha.nivel}&tamanho=${escolha.tamanho}&formatoDupla=${escolha.formatoDupla}${classificacaoParam}`,
+          );
+        } else if (escolha.tipo === 'matematica') {
           router.push(
             `/rodada-matematica?forma=${escolha.formaMatematica}&nivel=${escolha.nivel}&tamanho=${escolha.tamanho}${classificacaoParam}`,
           );

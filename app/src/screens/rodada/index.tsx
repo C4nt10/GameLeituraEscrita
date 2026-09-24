@@ -59,6 +59,8 @@ export interface RodadaLeituraProps {
   onJogarDeNovo: () => void;
   onSubirDeNivel: (novoNivel: number) => void;
   onVerHistorico?: () => void;
+  /** Chamado assim que a rodada é gravada (concluída ou não) — usado pelo fluxo de dupla (T062) pra saber o id gravado. */
+  onRegistrada?: (registro: RegistroHistorico) => void;
 }
 
 type FaseRodada = 'jogando' | 'resultado';
@@ -71,6 +73,7 @@ export function RodadaLeitura({
   onJogarDeNovo,
   onSubirDeNivel,
   onVerHistorico,
+  onRegistrada,
 }: RodadaLeituraProps) {
   const desafiosSorteados = useMemo(
     () => sortearDesafios(configuracao.nivel, configuracao.classificacao, configuracao.tamanho),
@@ -116,7 +119,9 @@ export function RodadaLeitura({
   function avancarOuFinalizar(acertosAtualizados: number) {
     if (indice + 1 >= desafiosSorteados.length) {
       setFase('resultado');
-      void registrarRodada(montarRegistro(true, acertosAtualizados, erros, contadorAjuda));
+      const registro = montarRegistro(true, acertosAtualizados, erros, contadorAjuda);
+      void registrarRodada(registro);
+      onRegistrada?.(registro);
     } else {
       setIndice((i) => i + 1);
     }
@@ -139,7 +144,9 @@ export function RodadaLeitura({
   }
 
   function handleSairDaRodada() {
-    void registrarRodada(montarRegistro(false, acertos, erros, contadorAjuda));
+    const registro = montarRegistro(false, acertos, erros, contadorAjuda);
+    void registrarRodada(registro);
+    onRegistrada?.(registro);
     onSairDaRodada();
   }
 

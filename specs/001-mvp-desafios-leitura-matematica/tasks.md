@@ -640,48 +640,75 @@ ver os dois formatos de resultado combinado.
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T055 [P] [US5] Teste de integração: rodada dupla incompleta (uma
+- [x] T055 [P] [US5] Teste de integração: rodada dupla incompleta (uma
       criança sai no meio) não entra no histórico comparativo (US5
-      cenário 5, FR-018) em `app/e2e/dupla_incompleta.yaml`
-- [ ] T056 [P] [US5] Teste de integração: config idêntica é aplicada às
+      cenário 5, FR-018) em `app/e2e/dupla_incompleta.yaml`. **Escrito
+      (2026-09-25)**. Não executado (sem device/Maestro CLI).
+- [x] T056 [P] [US5] Teste de integração: config idêntica é aplicada às
       duas rodadas da dupla (US5 cenário 6, D-33) em
-      `app/e2e/dupla_config_identica.yaml`
-- [ ] T057 [P] [US5] Teste de integração: o adulto precisa escolher
+      `app/e2e/dupla_config_identica.yaml`. **Escrito (2026-09-25)**,
+      garantido estruturalmente (`RodadaDupla` lê a config uma vez só,
+      passa a mesma referência pras duas rodadas). Não executado.
+- [x] T057 [P] [US5] Teste de integração: o adulto precisa escolher
       explicitamente cooperativo ou adversarial — nenhum formato é padrão
       implícito (US5 cenário 1, D-31) em
-      `app/e2e/dupla_formato_explicito.yaml`
-- [ ] T058 [P] [US5] Teste de integração: a tela "passa o aparelho"
+      `app/e2e/dupla_formato_explicito.yaml`. **Escrito (2026-09-25)**.
+      Não executado.
+- [x] T058 [P] [US5] Teste de integração: a tela "passa o aparelho"
       impede a criança 1 de continuar jogando no lugar da criança 2 (US5
-      cenário 2) em `app/e2e/dupla_transicao.yaml`
-- [ ] T059 [P] [US5] Teste de integração: resultado combinado mostra
+      cenário 2) em `app/e2e/dupla_transicao.yaml`. **Escrito
+      (2026-09-25)**. Não executado.
+- [x] T059 [P] [US5] Teste de integração: resultado combinado mostra
       total somado + individual lado a lado no cooperativo, e os dois
       resultados lado a lado com destaque no adversarial (US5 cenário 3)
-      em `app/e2e/dupla_resultado_combinado.yaml`
-- [ ] T060 [P] [US5] Teste de integração: no adversarial, a mensagem para
+      em `app/e2e/dupla_resultado_combinado.yaml`. **Escrito
+      (2026-09-25)**. Não executado.
+- [x] T060 [P] [US5] Teste de integração: no adversarial, a mensagem para
       quem teve menos segue a regra "nunca depreciativa" (US5 cenário 4,
       mesma regra de T025) em
-      `app/e2e/dupla_mensagem_nao_depreciativa.yaml`
+      `app/e2e/dupla_mensagem_nao_depreciativa.yaml`. **Escrito
+      (2026-09-25)**. Não executado.
 
 ### Implementation for User Story 5
 
-- [ ] T061 [P] [US5] Implementar seleção/criação de perfil (nome + cor,
+- [x] T061 [P] [US5] Implementar seleção/criação de perfil (nome + cor,
       cadastro mínimo) em `app/src/screens/selecao_perfil`, ligada a T012
-      (D-32 — seletor aparece com >1 perfil ou ao entrar em "dupla")
-- [ ] T062 [US5] Implementar fluxo de dupla: escolha de formato
+      (D-32 — seletor aparece com >1 perfil ou ao entrar em "dupla").
+      **Concluído (2026-09-25)** — junto veio a peça que faltava desde
+      T012: persistência real de `perfis` (`app/src/services/perfis`,
+      só o TS type existia até aqui). `garantirPerfilPadrao()` roda no
+      boot do app (`index.tsx`) pra semear a linha `"padrao"`.
+- [x] T062 [US5] Implementar fluxo de dupla: escolha de formato
       (cooperativo/adversarial), 2 perfis, rodada 1 → tela "passa o
       aparelho" → rodada 2, reusando as telas de US1/US2 sem alteração —
-      faz T057 e T058 passarem — em `app/src/screens/dupla` (D-30)
-- [ ] T063 [US5] Implementar tela de resultado combinado — cooperativo
+      faz T057 e T058 passarem — em `app/src/screens/dupla` (D-30).
+      **Concluído (2026-09-25)** — `RodadaLeitura`/`RodadaMatematica`
+      ganharam `onRegistrada` (novo callback, opcional, não muda
+      comportamento existente) pra o orquestrador de dupla saber o id
+      gravado de cada rodada. Se uma criança sai no meio (D-39), a
+      dupla é persistida incompleta e o fluxo termina sem resultado
+      combinado — comparar incompleta com completa não seria honesto.
+- [x] T063 [US5] Implementar tela de resultado combinado — cooperativo
       (soma + individual lado a lado) e adversarial (lado a lado com
       destaque, mensagem nunca depreciativa) — faz T059 e T060 passarem —
-      em `app/src/screens/resultado_dupla`, reusando T032
-- [ ] T064 [US5] Persistir rodada dupla no histórico com os dois perfis
+      em `app/src/screens/resultado_dupla`, reusando T032. **Concluído
+      (2026-09-25)** — mensagem adversarial segue literalmente o exemplo
+      do doc002 §9 ("Você acertou X de Y — [nome] tirou mais hoje, bora
+      tentar de novo?").
+- [x] T064 [US5] Persistir rodada dupla no histórico com os dois perfis
       vinculados e a flag de completude por perfil — faz T055 e T056
-      passarem — (FR-018), ligada a T015
+      passarem — (FR-018), ligada a T015. **Concluído (2026-09-25)** —
+      nova tabela `rodadas_duplas` em `historico` (mesmo arquivo/conexão
+      de `rodadas`, T015). `completa` calculada na hora (ambos
+      `concluida`), nunca guardada como suposição.
 
 **Checkpoint**: todas as 5 user stories funcionam, cada uma isoladamente
 testável, e **todo** *Acceptance Scenario* do `spec.md` tem uma tarefa de
-teste correspondente.
+teste correspondente. ✅ (2026-09-25) 81/81 testes, `tsc`/`eslint`
+limpos, build web exportado com sucesso. **Escopo assumido, não
+confirmado**: comparação de "quem teve mais" no resultado adversarial
+usa estrelas como critério (não havia número exato no doc — só "estrelas
+dos dois lado a lado, destaque pra quem teve mais").
 
 ---
 

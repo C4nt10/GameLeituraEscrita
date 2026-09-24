@@ -1,0 +1,20 @@
+# T056 — config idêntica é aplicada às duas rodadas da dupla (US5
+# cenário 6, D-33). Garantido estruturalmente por `RodadaDupla`: as
+# duas chamadas a `renderRodada` (perfil 1 e perfil 2) recebem o MESMO
+# `configuracaoRodada` — não há como cada uma pegar valores diferentes,
+# a config é lida uma vez, na rota, a partir da query string.
+#
+# NÃO EXECUTADO — mesma ressalva de sempre.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Leitura'
+- tapOn: 'Leitura · montar'
+- tapOn: 'Dupla'
+- tapOn: 'Cooperativo'
+- tapOn: '▶️ Começar'
+- tapOn: '▶️ Continuar'
+- tapOn: '▶️ Toque pra continuar'
+# rodada 1: modalidade tem que ser leitura_montar (espiadas, não tentativas/repetições)
+- assertVisible: 'espiadas: 1'

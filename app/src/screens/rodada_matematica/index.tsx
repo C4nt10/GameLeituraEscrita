@@ -47,6 +47,8 @@ export interface RodadaMatematicaProps {
   onJogarDeNovo: () => void;
   onSubirDeNivel: (novoNivel: number) => void;
   onVerHistorico?: () => void;
+  /** Chamado assim que a rodada é gravada (concluída ou não) — usado pelo fluxo de dupla (T062). */
+  onRegistrada?: (registro: RegistroHistorico) => void;
 }
 
 type FaseRodada = 'jogando' | 'resultado';
@@ -66,6 +68,7 @@ export function RodadaMatematica({
   onJogarDeNovo,
   onSubirDeNivel,
   onVerHistorico,
+  onRegistrada,
 }: RodadaMatematicaProps) {
   const desafios = useMemo(
     () => Array.from({ length: configuracao.tamanho }, () => gerarDesafio(configuracao)),
@@ -110,7 +113,9 @@ export function RodadaMatematica({
   function avancarOuFinalizar(acertosAtualizados: number) {
     if (indice + 1 >= desafios.length) {
       setFase('resultado');
-      void registrarRodada(montarRegistro(true, acertosAtualizados, erros));
+      const registro = montarRegistro(true, acertosAtualizados, erros);
+      void registrarRodada(registro);
+      onRegistrada?.(registro);
     } else {
       setIndice((i) => i + 1);
     }
@@ -127,7 +132,9 @@ export function RodadaMatematica({
   }
 
   function handleSairDaRodada() {
-    void registrarRodada(montarRegistro(false, acertos, erros));
+    const registro = montarRegistro(false, acertos, erros);
+    void registrarRodada(registro);
+    onRegistrada?.(registro);
     onSairDaRodada();
   }
 
