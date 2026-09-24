@@ -10,14 +10,16 @@ a criança **ler de verdade**, não passar de fase.
 
 ## Status
 
-🚧 **Fase de especificação, pré-implementação.** Este projeto segue
+🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
-constituição e plano técnico já estão fechados; o código do app
-(`app/`) ainda não existe. Das 71 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 2 estão
-concluídas — a decisão de stack (T001) e o spike de reconhecimento de
-fala offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
-[detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)).
+constituição e plano técnico já estão fechados. Das 71 tarefas em
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 5 estão
+concluídas — decisão de stack (T001), spike de reconhecimento de fala
+offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
+[detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), e o
+scaffold do projeto React Native + Expo com lint/format/testes
+configurados (T003-T005). Ainda não há tela nem lógica de jogo
+implementada — próximo passo é a Fase 2 (Foundational).
 
 ## Sobre o projeto
 
@@ -48,21 +50,24 @@ documentadas — não é código "adivinhando" requisito:
 |---|---|
 | [`specs/001-mvp-desafios-leitura-matematica/`](specs/001-mvp-desafios-leitura-matematica/) | Artefatos de spec-driven development: `spec.md`, `plan.md`, `tasks.md`, `data-model.md`, `research.md`, `contracts/`. |
 | [`spike-stt/`](spike-stt/) | Spike de viabilidade de reconhecimento de fala offline (Vosk vs. faster-whisper vs. ASR fonético), usado para decidir o motor de STT de Leitura · voz. 19 rodadas de teste documentadas. |
-| [`conteudo/`](conteudo/) | Rascunho v0 (**não validado pedagogicamente**, issue A-06 aberta) do banco de palavras e dos temas de matemática contextualizada. |
+| [`app/`](app/) | Projeto React Native + Expo (criado no T003) — código do app, ainda sem telas/lógica de jogo. |
+| [`app/assets/conteudo/`](app/assets/conteudo/) | Rascunho v0 (**não validado pedagogicamente**, issue A-06 aberta) do banco de palavras e dos temas de matemática contextualizada. |
 | [`design/prototipo.html`](design/prototipo.html) | Protótipo clicável das 8 telas do MVP — referência visual para as tarefas de tela em `tasks.md`. |
 | [`doc/`](doc/) | Documentos de definição de produto (histórico de decisões numeradas D-01 a D-37). |
 | [`.specify/`](.specify/) | Configuração do [spec-kit](https://github.com/github/spec-kit) (templates, scripts, constituição). |
 
 ## Stack técnica
 
-Decidida e registrada em [`research.md`](specs/001-mvp-desafios-leitura-matematica/research.md)
-(ainda não implementada):
+Decidida e registrada em [`research.md`](specs/001-mvp-desafios-leitura-matematica/research.md).
+Scaffold criado (T003-T005); lógica de jogo ainda não implementada:
 
 - **App**: React Native + Expo + TypeScript.
 - **Voz (síntese)**: `expo-speech` (TTS nativo do aparelho).
-- **Voz (reconhecimento)**: Whisper offline (`faster-whisper`), com viés de
-  vocabulário via prompt e tolerância fonética — vencedor do spike de STT
-  frente a Vosk. Faixa de acurácia validada contra criança real:
+- **Voz (reconhecimento)**: Whisper offline, com viés de vocabulário via
+  prompt e tolerância fonética — vencedor do spike de STT frente a Vosk
+  (validado em Python com `faster-whisper`; no app, entra via
+  [`whisper.rn`](https://www.npmjs.com/package/whisper.rn), binding React
+  Native de whisper.cpp). Faixa de acurácia validada contra criança real:
   **62–81%**, ainda abaixo do critério de aceite (≥80%); decisão de
   produto sobre isso segue em aberto.
 - **Testes**: Jest + React Native Testing Library, Maestro para fluxos E2E.
@@ -77,10 +82,25 @@ reconhecimento de fala). Esses áudios **nunca são versionados** —
 si roda 100% offline por princípio de constituição (Princípio V): nenhum
 áudio, resposta ou histórico sai do aparelho da criança.
 
+## Como rodar o app
+
+```bash
+cd app
+npm install
+npm start        # abre o Expo dev server, escaneia o QR code no Expo Go
+npm run lint
+npm run format:check
+npm test
+```
+
+Sem tela nem lógica de jogo ainda (Fase 2 em diante) — por ora só valida
+que o scaffold roda. Detalhes e pré-requisitos completos em
+[`specs/001-mvp-desafios-leitura-matematica/quickstart.md`](specs/001-mvp-desafios-leitura-matematica/quickstart.md).
+
 ## Como rodar o spike de STT
 
-O app ainda não existe, mas o spike de reconhecimento de fala é
-executável isoladamente:
+O spike de reconhecimento de fala é independente do app, executável
+isoladamente:
 
 ```bash
 cd spike-stt

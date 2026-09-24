@@ -13,8 +13,8 @@ Sem código de implementação, só esquema e regras.
 | Configuração | `expo-sqlite` (tabela `configuracao`) | Preferência por perfil, muda em tempo de uso |
 | Rodada (= Registro de histórico) | `expo-sqlite` (tabela `rodadas`) | Dado transacional, cresce a cada partida |
 | Rodada dupla | `expo-sqlite` (tabela `rodadas_duplas`) | Liga duas linhas de `rodadas` |
-| Item de leitura (banco de palavras) | asset JSON (`conteudo/leitura.json`) | Estático, versionado com o app, revisado sem formação técnica (A-06) — ver `contracts/item-leitura.schema.json` |
-| Tema de matemática contextualizada | asset JSON (`conteudo/matematica_temas.json`) | Estático, mesmo motivo — ver `contracts/tema-matematica.schema.json` |
+| Item de leitura (banco de palavras) | asset JSON (`app/assets/conteudo/leitura.json`) | Estático, versionado com o app, revisado sem formação técnica (A-06) — ver `contracts/item-leitura.schema.json` |
+| Tema de matemática contextualizada | asset JSON (`app/assets/conteudo/matematica_temas.json`) | Estático, mesmo motivo — ver `contracts/tema-matematica.schema.json` |
 | Desafio de matemática (conta pura ou contextualizada) | **não persistido** | Gerado em memória a cada desafio (T027/T028); só o resultado agregado da rodada é guardado |
 
 Nenhum "Desafio de leitura respondido" individual é persistido — CU-06 só
@@ -108,7 +108,7 @@ Ver `contracts/item-leitura.schema.json` e
 ## Regra de validação cruzada (FR-011, D-35)
 
 Antes de expor uma combinação nível×classificação na tela de configuração
-(US3), o app conta quantos itens de `conteudo/leitura.json` batem com
+(US3), o app conta quantos itens de `app/assets/conteudo/leitura.json` batem com
 `nivel` E contém a classificação — só oferece a combinação se **≥ 12**.
 Essa contagem é feita em memória a partir do asset carregado (T008), não
 precisa de índice em banco.

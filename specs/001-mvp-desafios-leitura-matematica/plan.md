@@ -24,13 +24,17 @@ T003).
 **Primary Dependencies** (decidido — ver research.md):
 - Síntese de voz: `expo-speech` (TTS nativo da plataforma — D-27 exige
   apenas "voz do aparelho", já valida esta escolha).
-- Reconhecimento de fala (Leitura · voz): `react-native-vosk` — **motor
-  final ainda pendente de confirmação pelo spike em `spike-stt/`** (T002)
-  comparando Vosk vs. faster-whisper em precisão. Vosk é o favorito também
-  por integração: tem binding React Native mantido, faster-whisper não
-  (exigiria whisper.cpp + módulo nativo próprio — ver research.md).
-- Reprodução dos clipes gravados de letra/fonema: `expo-av` (confirmar se
-  `expo-audio`, sucessor mais recente, já está estável no T003).
+- Reconhecimento de fala (Leitura · voz): `whisper.rn` (binding React
+  Native de whisper.cpp) — **motor confirmado pelo spike em `spike-stt/`**
+  (T002, fechado em 2026-09-22): Whisper com vocabulário no prompt +
+  tolerância fonética, 62-81% contra criança real; Vosk descartado
+  (10-19%, vocabulário insuficiente). `react-native-vosk` não é mais a
+  escolha; checagem no T003 (2026-09-23) achou `whisper.rn` mantido e
+  ativo, então a integração não exige módulo nativo próprio do zero como
+  se presumia em 2026-09-15 — ver research.md §"Consequência
+  arquitetural".
+- Reprodução dos clipes gravados de letra/fonema: `expo-audio` (confirmado
+  no T003 — `expo-av` não existe mais no SDK 57 do Expo).
 - Persistência dinâmica local: `expo-sqlite` (histórico, perfis, configuração).
 - Banco de palavras/classificações: assets JSON estáticos em
   `app/assets/conteudo/`, carregados em memória (não precisa de SQL).
@@ -110,7 +114,7 @@ specs/001-mvp-desafios-leitura-matematica/
 app/                          # projeto React Native + Expo (package.json, app.json na raiz)
 ├── src/
 │   ├── models/              # Perfil, Rodada, DesafioLeitura, DesafioMatematica, RegistroHistorico (TS types)
-│   ├── services/            # avaliacaoLeitura (react-native-vosk + tolerância fonética), geradorMatematica,
+│   ├── services/            # avaliacaoLeitura (whisper.rn + tolerância fonética), geradorMatematica,
 │   │                        # problemaContextualizado, bancoDeConteudo (grade nível×classificação),
 │   │                        # tts (expo-speech), historico (expo-sqlite), configuracao
 │   ├── screens/              # Configuracao, Rodada (Ditado/LeituraMontar/LeituraVoz/Matematica),

@@ -29,15 +29,27 @@ mais que qualquer diferença marginal de performance ou maturidade de
 pacote — ramp-up numa linguagem nova é custo real e recorrente, as
 diferenças técnicas da tabela não são.
 
-### Consequência arquitetural (afeta o T002 do mesmo jeito que antes)
+### Consequência arquitetural (T002 fechado — atualizado em 2026-09-23)
 
-A mesma lógica que valia para Flutter vale para React Native: bindings
-prontos para **Vosk** existem (`react-native-vosk`), para **faster-whisper**
-não (biblioteca Python; exigiria embarcar whisper.cpp via módulo nativo
-próprio, não um pacote existente). Isso não decide o T002 sozinho — a
-acurácia medida no spike continua sendo o critério — mas mantém a mesma
-assimetria de custo: Vosk mais barato de integrar, whisper.cpp só se o
-spike mostrar Vosk claramente insuficiente.
+Nota histórica (2026-09-15, na época da comparação Flutter/RN): bindings
+prontos pra **Vosk** existiam (`react-native-vosk`), pra **faster-whisper**
+não — biblioteca Python, presumia-se exigir embarcar whisper.cpp via
+módulo nativo próprio. Essa assimetria de custo era o motivo de só migrar
+pra Whisper "se o spike mostrar Vosk claramente insuficiente".
+
+**O spike mostrou exatamente isso** (T002, rodada 13: Vosk 10-19%, base de
+vocabulário insuficiente pro idioma do banco; Whisper 67-81% — ver
+`research.md` §T002 completo). Ao checar o ecossistema RN de novo no T003
+(2026-09-23, mesmo cuidado do research.md original — "não confiar só na
+memória"), a suposição de "exigiria módulo nativo próprio" também estava
+**desatualizada**: existe um binding RN mantido pra whisper.cpp,
+[`whisper.rn`](https://www.npmjs.com/package/whisper.rn) (v0.7.4,
+publicado 2026-08-27 — ativo). **Decisão**: usar `whisper.rn` pra
+`avaliacao_leitura` (T028), não `react-native-vosk`. Ainda não instalado
+nem testado em RN — o spike validou a acurácia em Python puro
+(faster-whisper), a integração real via `whisper.rn` (mesmo motor
+whisper.cpp por baixo, mas binding diferente) precisa de smoke test
+próprio antes de confiar 100% que reproduz os mesmos números.
 
 ### Workflow escolhido: Expo com dev client (não Expo Go puro)
 
@@ -53,8 +65,8 @@ OTA para o JS) sem abrir mão de código nativo quando necessário.
 | Necessidade | Pacote/abordagem | Cobre |
 |---|---|---|
 | TTS (palavras/frases/enunciados) | `expo-speech` (embrulha TextToSpeech/AVSpeechSynthesizer nativos) | D-27, CU-07 (listar/testar vozes pt do aparelho) |
-| STT (Leitura · voz) | `react-native-vosk` (pendente confirmação de acurácia no T002) | CU-03, FR-004 |
-| Reprodução dos clipes gravados (letras/fonemas) | `expo-av` (ou `expo-audio`, sucessor mais recente no SDK do Expo — confirmar versão estável no T003) | D-27 |
+| STT (Leitura · voz) | `whisper.rn` (binding RN de whisper.cpp) — Whisper venceu o T002 (62-81%, ver §T002); `react-native-vosk` descartado junto com Vosk (10-19%) | CU-03, FR-004 |
+| Reprodução dos clipes gravados (letras/fonemas) | `expo-audio` (confirmado no T003 — `expo-av` não existe mais no SDK 57, substituído) | D-27 |
 | Persistência dinâmica (histórico, perfis, configuração) | `expo-sqlite` (SQLite embarcado) | FR-014, FR-015, T012 (Perfil), T013 (RegistroHistorico), T015 (historico) |
 | Banco de palavras/classificações (conteúdo estático) | assets JSON versionados em `app/assets/conteudo/`, carregados em memória | FR-010, FR-011, T014 — não precisa de SQL, é dado só de leitura, pequeno, e revisado por alguém sem formação técnica (mais simples de editar como JSON do que via SQL) |
 

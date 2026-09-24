@@ -1,0 +1,5 @@
+# Banco de conteudo eh dado curado a mao, formatado 1 item por linha de
+# proposito (A-06: revisado por alguem sem formacao tecnica) - nao deixar
+# o prettier explodir em multiplas linhas.
+assets/conteudo/*.json
+assets/conteudo/README.md

@@ -1,41 +1,42 @@
 # Quickstart
 
-> **Status atual (2026-09-13, revisado):** o framework mudou de Flutter
-> para **React Native + Expo + TypeScript** (T001, ver `research.md`). O
-> projeto `app/` ainda não foi criado (T003 do `tasks.md`) — mas,
-> diferente da situação com Flutter, **o pré-requisito básico (Node.js)
-> já está instalado nesta máquina** (`node v22.14.0`, `npm 10.9.2`), então
-> T003 não está mais bloqueado por ferramenta ausente. Falta só rodar o
-> scaffold.
+> **Status atual (2026-09-23):** T001 (stack) e T002 (spike de STT)
+> fechados — React Native + Expo + TypeScript, motor de STT `whisper.rn`
+> (Whisper via whisper.cpp). **T003 concluído**: `app/` criado
+> (`create-expo-app@latest`, template `blank-typescript`, SDK Expo 57),
+> `expo-speech`, `expo-audio` e `expo-sqlite` instalados. Ainda falta
+> `whisper.rn` — entra junto com a implementação de `avaliacao_leitura`
+> (T028), que exige `expo prebuild` por ser módulo nativo (não roda no
+> Expo Go genérico).
 
 ## Pré-requisitos
 
 1. Node.js — ✅ já instalado (`node --version`, `npm --version`)
-2. Expo CLI — não precisa instalar global; `npx create-expo-app` baixa na
-   hora
+2. Expo CLI — não precisa instalar global; `npx expo` baixa na hora
 3. **Para rodar de verdade** (não só preview via Expo Go): Android
    Studio/emulador **ou** um Android físico com o app **Expo Go**
    instalado, pra escanear o QR code de `npx expo start` — não há Android
    SDK nesta máquina ainda, mas isso só bloqueia build nativo (dev
-   client), não o scaffold nem o preview inicial em JS puro
-4. Como `react-native-vosk` e `expo-speech` são módulos nativos, o app
-   real (com STT/TTS) exige um **development build** (`expo prebuild` +
-   `eas build` ou build local), não roda no Expo Go genérico — ver
-   `research.md` §"Workflow escolhido"
+   client), não o preview em JS puro
+4. Como `whisper.rn` e `expo-speech` são módulos nativos, o app real (com
+   STT/TTS) exige um **development build** (`expo prebuild` + `eas build`
+   ou build local), não roda no Expo Go genérico — ver `research.md`
+   §"Workflow escolhido"
 5. Um dispositivo físico com microfone é necessário pra testar
    Leitura · voz de verdade — emulador sem áudio de entrada real não
    valida CU-03
 
-## Criar o projeto (T003 — agora executável)
+## Projeto já criado (T003)
 
 ```bash
 npx create-expo-app@latest app --template blank-typescript
 cd app
-npx expo install expo-speech expo-av expo-sqlite
+npx expo install expo-speech expo-audio expo-sqlite
 ```
 
-(`react-native-vosk` entra depois, quando o T002 confirmar o motor de STT
-— exige `expo prebuild` porque não é compatível com Expo Go.)
+(`whisper.rn` entra na implementação de `avaliacao_leitura`, T028 — exige
+`expo prebuild` porque não é compatível com Expo Go. `expo-audio`, não
+`expo-av`: o SDK 57 do Expo não tem mais `expo-av`.)
 
 ## Rodar o app localmente (preview em JS, sem STT/TTS nativo ainda)
 
@@ -65,13 +66,13 @@ de rede — se falhar, é regressão do Princípio V da constituição.
 ## Rodar o spike de STT (independente do app)
 
 O spike em `spike-stt/` é Python puro, não depende do projeto React
-Native/Expo estar criado — pode rodar isoladamente a qualquer momento:
+Native/Expo — pode rodar isoladamente a qualquer momento:
 
 ```bash
 cd spike-stt
 .venv/Scripts/python testar.py
 ```
 
-Resultado grava-se em `specs/001-mvp-desafios-leitura-matematica/research.md`,
-seção "T002". **Status atual: rodado, inconclusivo — áudios precisam ser
-regravados como enunciado único por arquivo** (ver `research.md`).
+**T002 fechado (2026-09-22)**: 19 rodadas, faixa honesta 62-81% contra
+áudio de criança real (Whisper, vocabulário no prompt + tolerância
+fonética). Detalhe completo em `research.md` §T002.

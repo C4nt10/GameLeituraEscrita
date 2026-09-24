@@ -63,14 +63,38 @@ tinha essa disciplina.
       montar o ambiente Android; (2) decisão do dono do produto sobre
       aceitar 62-81% pro MVP ou revisar D-08/D-09/obrigatoriedade de
       Leitura · voz — não técnica, pode acontecer a qualquer momento
-- [ ] T003 Criar a estrutura de projeto conforme `plan.md` §Project
+- [x] T003 Criar a estrutura de projeto conforme `plan.md` §Project
       Structure (`app/src/`, `app/assets/conteudo/`, `app/src/__tests__/`,
-      `app/e2e/`)
-- [ ] T004 [P] Configurar lint/format do framework escolhido
-- [ ] T005 [P] Configurar runner de testes (unit/integration/contract) do
-      framework escolhido
+      `app/e2e/`). **Concluído (2026-09-23)**: `npx create-expo-app@latest
+      app --template blank-typescript` (SDK Expo 57, TypeScript, React
+      Native 0.86.3); `expo-speech`, `expo-audio`, `expo-sqlite`
+      instalados via `expo install`. Banco de conteúdo movido de
+      `conteudo/` pra `app/assets/conteudo/` (destino final planejado em
+      `conteudo/README.md`, agora `app/assets/conteudo/README.md`).
+      Removido `LICENSE` gerado pelo template (copyright da Expo/650
+      Industries, incompatível com "licença ainda não definida" do
+      `README.md` raiz). Achado importante: `react-native-vosk` não é
+      mais a escolha de motor de STT — T002 fechou com Whisper vencendo;
+      o binding RN a usar é `whisper.rn` (checado no ecossistema agora,
+      ativo — research.md §"Consequência arquitetural" atualizado).
+- [x] T004 [P] Configurar lint/format do framework escolhido.
+      **Concluído (2026-09-23)**: `npx expo lint` gerou `eslint.config.js`
+      (`eslint-config-expo`, flat config); Prettier instalado à parte
+      (`.prettierrc.json`, `npm run format`/`format:check`).
+      `.prettierignore` protege `assets/conteudo/*.json` e seu README —
+      são dado curado à mão (1 item por linha, A-06), não deixar o
+      Prettier explodir em multi-linha.
+- [x] T005 [P] Configurar runner de testes (unit/integration/contract) do
+      framework escolhido. **Concluído (2026-09-23)**: Jest via
+      `jest-expo` (preset em `package.json`), `@testing-library/react-native`
+      instalado, `tsconfig.json` com `"types": ["jest"]`. `npx jest
+      --passWithNoTests` roda limpo (0 testes ainda — T006+ escrevem os
+      primeiros). Maestro (E2E) ainda não instalado — só entra quando
+      houver tela pra testar (Phase 3+).
 
-**Checkpoint**: projeto roda vazio, lint e testes configurados.
+**Checkpoint**: projeto roda vazio, lint e testes configurados. ✅
+(`npx tsc --noEmit` limpo, `npx eslint .` limpo, `npx jest
+--passWithNoTests` limpo — 2026-09-23)
 
 ---
 
@@ -85,11 +109,11 @@ tinha essa disciplina.
 > serviços de base) estava sem teste próprio, cobrindo `T008`
 > (validação de conteúdo) só de forma indireta, três fases depois.
 
-- [ ] T006 [P] Teste de contrato: `conteudo/leitura.json` valida contra
-      `contracts/item-leitura.schema.json` em
+- [ ] T006 [P] Teste de contrato: `app/assets/conteudo/leitura.json`
+      valida contra `contracts/item-leitura.schema.json` em
       `app/src/__tests__/contract/item_leitura_schema_test`
-- [ ] T007 [P] Teste de contrato: `conteudo/matematica_temas.json` valida
-      contra `contracts/tema-matematica.schema.json` em
+- [ ] T007 [P] Teste de contrato: `app/assets/conteudo/matematica_temas.json`
+      valida contra `contracts/tema-matematica.schema.json` em
       `app/src/__tests__/contract/tema_matematica_schema_test`
 - [ ] T008 [P] Teste unitário: `banco_de_conteudo` rejeita/oculta uma
       combinação nível×classificação com **menos de 12** itens (FR-011,
