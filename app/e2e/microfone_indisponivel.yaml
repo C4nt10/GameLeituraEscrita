@@ -1,0 +1,22 @@
+# T026 — microfone sem permissão em Leitura · voz mostra o motivo real,
+# nunca um erro genérico (US1 cenário 7, FR-013). Implementado (T033):
+# `TelaLeituraVoz` chama `capacidade_aparelho.verificarCapacidades()` no
+# carregamento e, se `microfone.disponivel === false`, mostra o `motivo`
+# no lugar do botão do microfone.
+#
+# NÃO EXECUTADO — sem device/Maestro CLI (mesma ressalva de sempre) e,
+# além disso, este cenário específico exige a permissão de microfone já
+# **negada no sistema operacional** antes do app abrir — não é um estado
+# que o fluxo consiga forçar sozinho (precisa negar antes, por fora,
+# ex.: configuração do emulador/dispositivo ou comando de ADB). Rodar
+# depois de negar a permissão de microfone do app manualmente.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Leitura · voz'
+# motivo real e específico, não "erro" genérico
+- assertVisible: 'Permissão de microfone'
+- assertNotVisible: 'toque e leia em voz alta'
+- assertNotVisible: 'erro'
+- assertNotVisible: 'Error'

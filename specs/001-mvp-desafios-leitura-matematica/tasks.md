@@ -221,24 +221,39 @@ modalidade, chegar à tela de estrelas.
       (2026-09-24)**.
 - [ ] T021 [P] [US1] Teste de integração: troca automática para Leitura ·
       montar após 2 falhas em Leitura · voz (D-10) em
-      `app/e2e/troca_modalidade.yaml`
-- [ ] T022 [P] [US1] Teste de integração: contador de ajuda correto por
+      `app/e2e/troca_modalidade.yaml`. **Escrito, não implementado**
+      (2026-09-24): o YAML documenta o comportamento esperado, mas a
+      troca automática em si não existe — não há orquestrador de rodada
+      ainda que escute 2 falhas consecutivas e navegue pra
+      Leitura·montar. `TelaLeituraVoz` só conta tentativas e chama
+      `onErro()`. Maior pendência real da Fase 3.
+- [x] T022 [P] [US1] Teste de integração: contador de ajuda correto por
       modalidade (repetições/espiadas/tentativas) aparece no resultado
-      (D-19) em `app/e2e/contador_ajuda.yaml`
-- [ ] T023 [P] [US1] Teste de integração: Ditado **nunca** exibe a
+      (D-19) em `app/e2e/contador_ajuda.yaml`. **Escrito (2026-09-24)** —
+      implementado em `TelaResultado` (T032). Não executado (sem
+      device/Maestro CLI).
+- [x] T023 [P] [US1] Teste de integração: Ditado **nunca** exibe a
       letra/palavra escrita na tela, em nenhum nível — só fala (US1
       cenário 1, princípio supremo da constituição) em
-      `app/e2e/ditado_nunca_mostra.yaml`
-- [ ] T024 [P] [US1] Teste de integração: em Leitura · montar a palavra
+      `app/e2e/ditado_nunca_mostra.yaml`. **Escrito (2026-09-24)** —
+      garantido estruturalmente por `MontagemPalavra` nunca renderizar a
+      palavra como texto corrido. Não executado.
+- [x] T024 [P] [US1] Teste de integração: em Leitura · montar a palavra
       aparece e **some sozinha**, sem áudio algum, e a espiada é contada a
       cada revelação (US1 cenário 2, D-18) em
-      `app/e2e/leitura_montar_some.yaml`
-- [ ] T025 [P] [US1] Teste de integração: uma resposta errada, em
+      `app/e2e/leitura_montar_some.yaml`. **Escrito (2026-09-24)**. Não
+      executado.
+- [x] T025 [P] [US1] Teste de integração: uma resposta errada, em
       qualquer modalidade, limpa a resposta, conta como erro e libera
       nova tentativa sem vidas/penalidade visível (US1 cenário 5, D-06,
       Princípio II da constituição) em
-      `app/e2e/erro_nao_pune.yaml`
-- [ ] T026 [P] [US1] Teste de integração: microfone sem permissão em
+      `app/e2e/erro_nao_pune.yaml`. **Escrito (2026-09-24)** — limitação
+      documentada no próprio arquivo: `gerarAlternativasLetra` embaralha
+      com RNG real (não seedado), então o script não consegue mirar
+      deterministicamente "toque na errada"; cobre só a invariante
+      verificável (nenhuma alternativa trava/some depois de um toque).
+      Não executado.
+- [x] T026 [P] [US1] Teste de integração: microfone sem permissão em
       Leitura · voz mostra o motivo real, nunca um erro genérico (US1
       cenário 7, FR-013) em
       `app/e2e/microfone_indisponivel.yaml`
@@ -251,7 +266,7 @@ modalidade, chegar à tela de estrelas.
       diferença de `ItemLeitura` (registro estático do banco): carrega
       `modalidade` (spec.md Key Entities — a instância jogada numa
       rodada, não o registro do banco em si).
-- [ ] T028 [US1] Implementar `avaliacao_leitura`: tolerância fonética sobre
+- [x] T028 [US1] Implementar `avaliacao_leitura`: tolerância fonética sobre
       a saída do STT (depende de T002 — motor de STT escolhido); remove
       qualquer pontuação que o motor insira pra marcar pausa/hesitação
       (vírgula, ponto, interrogação — não só nas bordas, em qualquer
@@ -302,31 +317,68 @@ modalidade, chegar à tela de estrelas.
       STT (`whisper.rn`, ainda não instalado — precisa de `expo prebuild`
       porque não roda no Expo Go) fica pra T031 (tela de Leitura·voz),
       que é quem de fato tem o áudio do microfone pra mandar pro motor.
-- [ ] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
+- [x] T029 [US1] Implementar tela de desafio — Ditado (áudio automático +
       repetição, escolha entre 4 letras nível 1 / montagem sem palavra
       visível níveis 2+) — faz T023 passar — em
-      `app/src/screens/rodada/ditado`
-- [ ] T030 [US1] Implementar tela de desafio — Leitura · montar (palavra
+      `app/src/screens/rodada/ditado`. **Concluído (2026-09-24)** — áudio
+      injetado via prop `falar` (nível 1 usa clipe gravado, nível 2+ usa
+      síntese; T016 documentou que os clipes ainda não existem como
+      asset, então quem resolve isso é quem monta a tela, não o
+      componente).
+- [x] T030 [US1] Implementar tela de desafio — Leitura · montar (palavra
       aparece e some sozinha — D-18, sem som, montagem com letras
       embaralhadas) — faz T024 passar — em
-      `app/src/screens/rodada/leitura_montar`
-- [ ] T031 [US1] Implementar tela de desafio — Leitura · voz (palavra
+      `app/src/screens/rodada/leitura_montar`. **Concluído (2026-09-24)**
+      — a montagem (`MontagemPalavra`, componente compartilhado com o
+      Ditado nível 2+) fica sempre montada por trás da revelação, só
+      escondida, pra não perder o progresso já feito se a criança pedir
+      "ver de novo" no meio da montagem.
+- [x] T031 [US1] Implementar tela de desafio — Leitura · voz (palavra
       visível, app calado, captura de microfone, mostra o que entendeu;
       gravação para por toque explícito ou timeout longo — nunca por VAD
-      agressivo/pausa curta, D-37) em `app/src/screens/rodada/leitura_voz`
-- [ ] T032 [US1] Implementar tela de resultado da rodada (estrelas,
+      agressivo/pausa curta, D-37) em `app/src/screens/rodada/leitura_voz`.
+      **Concluído (2026-09-24)** — grava por toque explícito de
+      início/fim (nunca segurar, Princípio VI). `iniciarGravacao`/
+      `pararGravacao`/`transcrever` são injetados: `whisper.rn` não está
+      instalado (T028), então a chamada real ao motor de STT ainda não
+      existe — o componente só define a interface e usa
+      `avaliacao_leitura.avaliarLeitura()` (já testado) pra decidir
+      acerto/erro sobre o que a função injetada devolver.
+- [x] T032 [US1] Implementar tela de resultado da rodada (estrelas,
       acertos/erros/precisão, contador de ajuda da modalidade) — faz
-      T022 passar — em `app/src/screens/resultado`, reusando T018
-- [ ] T033 [US1] Ligar detecção de microfone indisponível (T017) à tela de
+      T022 passar — em `app/src/screens/resultado`, reusando T018.
+      **Concluído (2026-09-24)**.
+- [x] T033 [US1] Ligar detecção de microfone indisponível (T017) à tela de
       Leitura · voz com mensagem de motivo real — faz T026 passar —
-      (FR-013)
-- [ ] T033a [US1] Ligar tratamento de erro (limpa resposta, conta erro,
+      (FR-013). **Concluído (2026-09-24)** — `TelaLeituraVoz` chama
+      `capacidade_aparelho.verificarCapacidades()` ao carregar; se
+      indisponível, mostra o motivo no lugar do botão do microfone
+      (nunca esconde a opção, nunca erro genérico).
+- [x] T033a [US1] Ligar tratamento de erro (limpa resposta, conta erro,
       nova tentativa) nas três telas de desafio — faz T025 passar —
-      (Princípio II)
+      (Princípio II). **Concluído (2026-09-24)** — satisfeito
+      estruturalmente pelas 3 telas: `MontagemPalavra` limpa a montagem
+      e devolve os ladrilhos num toque errado (Ditado 2+/Leitura·montar);
+      as 4 alternativas do Ditado nível 1 continuam tocáveis depois de
+      qualquer toque (nada trava); Leitura·voz volta pro estado "parado"
+      depois de uma tentativa, mic tocável de novo. Nenhuma das 3 tem
+      mecânica de "vida"/bloqueio.
 
 **Checkpoint**: US1 funcional e testável sozinha — MVP jogável em leitura,
 com o princípio supremo e o princípio "erro não pune" verificados por
-teste, não só por revisão visual.
+teste, não só por revisão visual. **Status real (2026-09-24)**: as 4
+telas de desafio (T029-T032) e a fundação (Fase 2) estão prontas e
+verificadas (`tsc`, `eslint`, `jest` 54/54, e `npx expo export -p web`
+bundlando com sucesso via rotas de desenvolvimento em `app/src/app/_dev/`
+— ainda não a tela inicial de verdade, essa é da Fase 5/US3). **Duas
+lacunas reais, não escondidas**: (1) não existe orquestrador de rodada
+— nada ainda sequencia vários desafios, acumula acertos/erros de
+verdade, decide a troca automática de modalidade (T021) ou navega pra
+Resultado ao final; as telas existem e funcionam isoladas, mas "uma
+rodada completa, ponta a ponta" ainda não é um fluxo real no app. (2)
+os 6 testes de integração (T021-T026) foram escritos como specs Maestro
+mas **nenhum foi executado** — sem Android SDK/emulador nem Maestro CLI
+nesta máquina (mesma pendência de sempre, ver research.md §T002 "1b").
 
 ---
 

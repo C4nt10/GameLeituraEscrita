@@ -13,16 +13,22 @@ a criança **ler de verdade**, não passar de fase.
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
 constituição e plano técnico já estão fechados. Das 71 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 18 estão
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 34 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
-configurados (T003-T005), e a Fase 2 — Foundational: modelos, banco de
-conteúdo, histórico (retenção de 50 rodadas), detecção de capacidade do
-aparelho, TTS e cálculo de precisão/estrelas, todos com teste próprio
-(T006-T018, 24/24 testes passando). Ainda não há tela — próximo passo é a
-Fase 3 (User Story 1, o MVP de leitura).
+configurados (T003-T005), a Fase 2 — Foundational (modelos, banco de
+conteúdo, histórico, capacidade do aparelho, TTS, precisão/estrelas,
+T006-T018) e boa parte da Fase 3 — User Story 1 (T019-T033a): motor de
+avaliação de leitura (tolerância fonética + D-09, porta fiel do spike),
+Expo Router, e as 4 telas de desafio (Ditado, Leitura·montar,
+Leitura·voz, Resultado). 54/54 testes, `tsc`/`eslint` limpos, build web
+exportado com sucesso. **Duas lacunas reais e documentadas**: ainda não
+existe orquestrador de rodada (sequenciar desafios, trocar modalidade
+automaticamente, navegar pro resultado — só as telas isoladas existem) e
+os 6 testes de integração da Fase 3 (Maestro) foram escritos mas nunca
+executados (sem Android SDK/emulador nesta máquina).
 
 ## Sobre o projeto
 

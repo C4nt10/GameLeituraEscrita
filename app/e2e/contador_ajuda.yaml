@@ -1,0 +1,16 @@
+# T022 — contador de ajuda correto por modalidade (repetições/
+# espiadas/tentativas) aparece no resultado (D-19).
+#
+# NÃO EXECUTADO ainda (mesma ressalva das demais deste diretório).
+# Cobre só a tela de resultado isolada (/_dev/resultado, dados fixos:
+# modalidade leitura_montar, contadorAjuda=2) — não a rodada completa
+# (não existe orquestrador de rodada ainda, ver tasks.md T029-T032).
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Resultado'
+# leitura_montar usa o rótulo "espiadas", não "repetições"/"tentativas"
+- assertVisible: 'espiadas nesta rodada: 2'
+- assertNotVisible: 'repetições nesta rodada'
+- assertNotVisible: 'tentativas nesta rodada'

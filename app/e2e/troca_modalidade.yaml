@@ -1,0 +1,26 @@
+# T021 — troca automática para Leitura · montar após 2 tentativas sem
+# sucesso em Leitura · voz (D-10).
+#
+# NÃO EXECUTADO — e, diferente dos outros arquivos deste diretório, esta
+# troca automática **não está implementada ainda**. `TelaLeituraVoz`
+# conta tentativas e chama `onErro()` a cada falha, mas nada escuta esse
+# evento pra decidir "depois de 2, troca de tela" — isso é
+# responsabilidade de um orquestrador de rodada (sequencia desafios,
+# decide modalidade, navega) que ainda não existe (nenhum T0xx de
+# Phase 3 cobre isso explicitamente; ver nota em tasks.md T029-T032).
+#
+# Fluxo abaixo é a ESPECIFICAÇÃO do comportamento esperado, não uma
+# prova de que funciona — escrito pra existir o arquivo pedido pela
+# tarefa (T021) e documentar precisamente o que falta construir.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Leitura · voz'
+# 1ª tentativa errada (assumindo que o STT injetado devolve algo != a
+# palavra alvo, ou que a criança lê errado)
+# ... [gravar e falar algo diferente da palavra alvo] ...
+# 2ª tentativa errada
+# ... [gravar e falar algo diferente de novo] ...
+- assertVisible: 'ver de novo' # tela de Leitura·montar, não de voz
+- assertNotVisible: 'toque e leia em voz alta'

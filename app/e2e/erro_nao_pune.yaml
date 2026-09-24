@@ -1,0 +1,39 @@
+# T025 — uma resposta errada, em qualquer modalidade, limpa a resposta,
+# conta como erro e libera nova tentativa sem vidas/penalidade visível
+# (US1 cenário 5, D-06, Princípio II).
+#
+# NÃO EXECUTADO ainda (mesma ressalva das demais deste diretório).
+#
+# Limitação conhecida, não resolvida: `gerarAlternativasLetra` embaralha
+# a posição das 4 letras a cada carga (RNG real, não seedado pra teste) —
+# não dá pra scriptar "toque na letra errada" de forma determinística
+# sabendo qual posição é a certa. Cobre só o que dá pra verificar sem
+# saber isso: nenhuma alternativa é removida/desabilitada depois de um
+# toque, ou seja, não existe mecânica de "vida"/trava que impeça nova
+# tentativa. Rodar contra /_dev/ditado-nivel1 (nível 1, "a" é a certa,
+# não revelado na tela).
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Ditado (nível 1)'
+- assertVisible:
+    text: '^[A-Z]$'
+    index: 0
+- tapOn:
+    text: '^[A-Z]$'
+    index: 0
+# depois de qualquer toque (certo ou errado), as 4 alternativas
+# continuam lá — nenhuma trava, nenhum "fim de jogo"
+- assertVisible:
+    text: '^[A-Z]$'
+    index: 0
+- assertVisible:
+    text: '^[A-Z]$'
+    index: 1
+- assertVisible:
+    text: '^[A-Z]$'
+    index: 2
+- assertVisible:
+    text: '^[A-Z]$'
+    index: 3

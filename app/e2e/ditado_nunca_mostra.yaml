@@ -1,0 +1,23 @@
+# T023 — Ditado nunca exibe a letra/palavra escrita na tela, em nenhum
+# nível — só fala (US1 cenário 1, princípio supremo da constituição).
+#
+# NÃO EXECUTADO ainda — sem Android SDK/emulador nesta máquina e sem
+# Maestro CLI instalado (research.md §T002, "1b"). Roda contra a rota de
+# desenvolvimento /_dev/ditado (desafio fixo: "gato", nível 2 — usa a
+# montagem por ladrilhos, não a lista de 4 alternativas do nível 1).
+#
+# appId é placeholder — nenhum `android.package`/`ios.bundleIdentifier`
+# foi fixado em app.json ainda (não existe android/ios nativo, T003 não
+# rodou `expo prebuild`). Corrigir quando isso acontecer.
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Ditado (nível 2+)'
+# a palavra nunca aparece como texto corrido em lugar nenhum da tela
+- assertNotVisible: 'gato'
+- assertNotVisible: 'GATO'
+# só vagas vazias ("?") e ladrilhos soltos com 1 letra cada
+- assertVisible: '?'
+- assertVisible:
+    text: '^[GATOgato]$'

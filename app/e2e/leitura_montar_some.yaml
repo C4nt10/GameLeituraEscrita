@@ -1,0 +1,24 @@
+# T024 — em Leitura · montar a palavra aparece e some sozinha, sem áudio
+# algum, e a espiada é contada a cada revelação (US1 cenário 2, D-18).
+#
+# NÃO EXECUTADO ainda (mesma ressalva de ditado_nunca_mostra.yaml — sem
+# device/Maestro CLI nesta máquina). Roda contra /_dev/montar (desafio
+# fixo: "gato", revelação de 3s por padrão — ver
+# TelaLeituraMontarProps.duracaoRevelacaoMs).
+
+appId: com.anonymous.app
+---
+- launchApp
+- tapOn: 'Leitura · montar'
+# revelação inicial conta como 1ª espiada, e mostra a palavra em texto
+- assertVisible: 'espiadas: 1'
+- assertVisible: 'GATO'
+# espera a revelação sumir sozinha (sem tocar em nada) — 3s + folga
+- extendedWaitUntil:
+    notVisible: 'GATO'
+    timeout: 5000
+- assertVisible: 'ver de novo'
+# pede pra ver de novo — conta mais 1 espiada
+- tapOn: 'ver de novo'
+- assertVisible: 'espiadas: 2'
+- assertVisible: 'GATO'
