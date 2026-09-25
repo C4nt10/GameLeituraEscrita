@@ -1,7 +1,7 @@
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { Modalidade, RegistroHistorico } from '../../models/registro_historico';
 import { calcularResumoHistorico } from '../../services/resumo_historico';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio } from '../../theme';
 
 const ROTULO_MODALIDADE: Record<Modalidade, string> = {
   ditado: 'Ditado',
@@ -150,16 +150,17 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   titulo: {
+    fontFamily: fontes.titulo,
     fontSize: 22,
-    fontWeight: '800',
     color: cores.tinta,
   },
   tituloVazio: {
+    fontFamily: fontes.titulo,
     fontSize: 20,
-    fontWeight: '800',
     color: cores.tinta,
   },
   textoVazio: {
+    fontFamily: fontes.corpo,
     fontSize: 14,
     color: cores.tintaFraca,
     textAlign: 'center',
@@ -177,11 +178,12 @@ const estilos = StyleSheet.create({
     minWidth: 130,
   },
   cardResumoTitulo: {
+    fontFamily: fontes.corpoBold,
     fontSize: 13,
-    fontWeight: '800',
     color: cores.tinta,
   },
   cardResumoTexto: {
+    fontFamily: fontes.corpo,
     fontSize: 12,
     color: cores.tintaFraca,
   },
@@ -195,26 +197,29 @@ const estilos = StyleSheet.create({
     justifyContent: 'space-between',
   },
   linhaTipo: {
+    fontFamily: fontes.corpoBold,
     fontSize: 14,
-    fontWeight: '700',
     color: cores.tinta,
   },
   linhaData: {
+    fontFamily: fontes.corpo,
     fontSize: 12,
     color: cores.tintaFraca,
   },
   linhaDetalhe: {
+    fontFamily: fontes.corpo,
     fontSize: 13,
     color: cores.tintaFraca,
   },
   linhaAjuda: {
+    fontFamily: fontes.corpo,
     fontSize: 12,
     color: cores.blocoVermelho,
   },
   apagar: {
+    fontFamily: fontes.corpoBold,
     textAlign: 'center',
     fontSize: 14,
-    fontWeight: '700',
     color: cores.blocoVermelho,
     paddingVertical: espacamento.sm,
   },

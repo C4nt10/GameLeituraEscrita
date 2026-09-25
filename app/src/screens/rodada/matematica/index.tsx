@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioMatematica } from '../../../models/desafio_matematica';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../../../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../../theme';
 
 const SIMBOLO_OPERACAO: Record<DesafioMatematica['operacao'], string> = {
   soma: '+',
@@ -133,8 +133,8 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoAzulT,
   },
   enunciadoTexto: {
+    fontFamily: fontes.corpoBold,
     fontSize: 16,
-    fontWeight: '700',
     color: cores.blocoAzul,
     textAlign: 'center',
   },
@@ -149,13 +149,13 @@ const estilos = StyleSheet.create({
     maxWidth: 160,
   },
   numeroConta: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 36,
-    fontWeight: '800',
     color: cores.tinta,
   },
   operador: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 28,
-    fontWeight: '800',
     color: cores.tintaFraca,
   },
   alternativas: {
@@ -174,8 +174,8 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   alternativaTexto: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 24,
-    fontWeight: '800',
     color: cores.blocoVerde,
   },
 });

@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Botao } from '../../components/Botao';
 import type { Perfil } from '../../models/perfil';
 import type { RegistroHistorico } from '../../models/registro_historico';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio } from '../../theme';
 
 /**
  * Tela de resultado combinado (T063, CU-05 variante "resultado
@@ -143,17 +143,18 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   titulo: {
+    fontFamily: fontes.titulo,
     fontSize: 19,
-    fontWeight: '800',
     color: cores.tinta,
     textAlign: 'center',
   },
   totalEstrelas: {
+    fontFamily: fontes.titulo,
     fontSize: 30,
-    fontWeight: '800',
     color: cores.blocoAmarelo,
   },
   totalTexto: {
+    fontFamily: fontes.corpo,
     fontSize: 14,
     color: cores.tintaFraca,
   },
@@ -173,20 +174,22 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoAmareloT,
   },
   cartaoNome: {
+    fontFamily: fontes.titulo,
     fontSize: 14,
-    fontWeight: '800',
     color: cores.tinta,
   },
   cartaoEstrelas: {
+    fontFamily: fontes.titulo,
     fontSize: 18,
-    fontWeight: '800',
     color: cores.blocoAmarelo,
   },
   cartaoTexto: {
+    fontFamily: fontes.corpo,
     fontSize: 12,
     color: cores.tintaFraca,
   },
   mensagemNaoDepreciativa: {
+    fontFamily: fontes.corpo,
     fontSize: 13,
     color: cores.tintaFraca,
     textAlign: 'center',

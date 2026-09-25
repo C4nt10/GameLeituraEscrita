@@ -47,7 +47,31 @@ export const raio = {
   sm: 8,
   md: 14,
   lg: 22,
+  botao: 16,
   pill: 999,
+} as const;
+
+/**
+ * Famílias de fonte — mesma origem do resto do tema: portadas de
+ * `design/prototipo.html` (Baloo 2 pros títulos/números/blocos grandes,
+ * Figtree pro corpo/rótulos/chips), carregadas em `app/_layout.tsx`.
+ */
+export const fontes = {
+  tituloExtra: 'Baloo2_800ExtraBold',
+  titulo: 'Baloo2_700Bold',
+  corpo: 'Figtree_400Regular',
+  corpoMedio: 'Figtree_500Medium',
+  corpoSemiBold: 'Figtree_600SemiBold',
+  corpoBold: 'Figtree_700Bold',
+} as const;
+
+/** Sombra "de bloco" (flat, sem blur) usada em botões e blocos — `--sombra-blk` do protótipo. */
+export const sombraBlk = {
+  elevation: 4,
+  shadowColor: '#000000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.18,
+  shadowRadius: 0,
 } as const;
 
 /** Alvo de toque mínimo (Princípio VI — alvo grande, um toque). */

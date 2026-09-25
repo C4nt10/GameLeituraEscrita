@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio } from '../../theme';
 
 export interface VozDisponivel {
   identifier: string;
@@ -97,21 +97,23 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   titulo: {
+    fontFamily: fontes.titulo,
     fontSize: 20,
-    fontWeight: '800',
     color: cores.tinta,
   },
   legenda: {
+    fontFamily: fontes.corpo,
     fontSize: 13,
     color: cores.tintaFraca,
   },
   avisoTitulo: {
+    fontFamily: fontes.titulo,
     fontSize: 17,
-    fontWeight: '700',
     color: cores.tinta,
     textAlign: 'center',
   },
   avisoTexto: {
+    fontFamily: fontes.corpo,
     fontSize: 14,
     color: cores.tintaFraca,
     textAlign: 'center',
@@ -134,13 +136,13 @@ const estilos = StyleSheet.create({
     flex: 1,
   },
   nomeVoz: {
+    fontFamily: fontes.corpoBold,
     fontSize: 15,
-    fontWeight: '700',
     color: cores.tinta,
   },
   selo: {
+    fontFamily: fontes.corpoBold,
     fontSize: 11,
-    fontWeight: '700',
     color: cores.blocoVerde,
   },
   botaoTestar: {
@@ -150,8 +152,8 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoAzulT,
   },
   botaoTestarTexto: {
+    fontFamily: fontes.corpoBold,
     fontSize: 13,
-    fontWeight: '700',
     color: cores.blocoAzul,
   },
 });

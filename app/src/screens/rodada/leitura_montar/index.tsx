@@ -4,7 +4,7 @@ import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../../../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../../theme';
 
 const DURACAO_REVELACAO_PADRAO_MS = 3000;
 
@@ -97,8 +97,8 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoAmareloT,
   },
   palavraOcultaTexto: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 36,
-    fontWeight: '800',
     letterSpacing: 2,
     color: cores.tinta,
   },
@@ -110,7 +110,7 @@ const estilos = StyleSheet.create({
     paddingHorizontal: espacamento.md,
   },
   verDeNovo: {
-    fontWeight: '700',
+    fontFamily: fontes.titulo,
     color: cores.blocoAzul,
     fontSize: 15,
   },

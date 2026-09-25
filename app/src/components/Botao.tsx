@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio, sombraBlk } from '../theme';
 
 export interface BotaoProps {
   onPress: () => void;
@@ -30,21 +30,22 @@ const estilos = StyleSheet.create({
   base: {
     minHeight: ALVO_TOQUE_MINIMO,
     paddingHorizontal: espacamento.lg,
-    borderRadius: raio.pill,
+    borderRadius: raio.botao,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primario: {
     backgroundColor: cores.blocoAzul,
+    ...sombraBlk,
   },
   fantasma: {
-    backgroundColor: 'transparent',
+    backgroundColor: cores.papelAlt,
     borderWidth: 2,
     borderColor: cores.linha,
   },
   texto: {
+    fontFamily: fontes.titulo,
     fontSize: 17,
-    fontWeight: '700',
   },
   textoPrimario: {
     color: cores.papel,

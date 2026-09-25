@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Botao } from '../../components/Botao';
 import type { Modalidade } from '../../models/registro_historico';
 import type { ResultadoAvaliacao } from '../../services/avaliacao';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio } from '../../theme';
 
 const MAXIMO_ESTRELAS = 5;
 
@@ -172,11 +172,12 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
   },
   statNumero: {
+    fontFamily: fontes.titulo,
     fontSize: 24,
-    fontWeight: '800',
     color: cores.tinta,
   },
   statRotulo: {
+    fontFamily: fontes.corpo,
     fontSize: 12,
     color: cores.tintaFraca,
   },
@@ -187,17 +188,18 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papelAlt,
   },
   chipAjudaTexto: {
+    fontFamily: fontes.corpoBold,
     fontSize: 13,
-    fontWeight: '700',
     color: cores.tintaFraca,
   },
   mensagem: {
+    fontFamily: fontes.corpoSemiBold,
     fontSize: 17,
-    fontWeight: '700',
     color: cores.tinta,
     textAlign: 'center',
   },
   avisoProximoNivel: {
+    fontFamily: fontes.corpo,
     fontSize: 13,
     color: cores.tintaFraca,
     textAlign: 'center',

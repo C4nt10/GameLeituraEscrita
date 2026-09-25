@@ -4,7 +4,7 @@ import { Botao } from '../../components/Botao';
 import type { Configuracao } from '../../services/configuracao';
 import { combinacoesDisponiveis } from '../../services/banco_de_conteudo';
 import type { Classificacao, FormaMatematica, Modalidade } from '../../models/registro_historico';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio } from '../../theme';
 
 export type Tipo = 'leitura' | 'matematica' | 'misto';
 export type Formato = 'sozinho' | 'dupla';
@@ -306,11 +306,12 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   titulo: {
+    fontFamily: fontes.titulo,
     fontSize: 22,
-    fontWeight: '800',
     color: cores.tinta,
   },
   legenda: {
+    fontFamily: fontes.corpo,
     fontSize: 13,
     color: cores.tintaFraca,
   },
@@ -318,8 +319,8 @@ const estilos = StyleSheet.create({
     gap: espacamento.xs,
   },
   secaoRotulo: {
+    fontFamily: fontes.corpoBold,
     fontSize: 13,
-    fontWeight: '700',
     color: cores.tintaFraca,
   },
   segmentado: {
@@ -339,20 +340,21 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoAzul,
   },
   chipTexto: {
+    fontFamily: fontes.corpoSemiBold,
     fontSize: 14,
-    fontWeight: '700',
     color: cores.tinta,
   },
   chipTextoAtivo: {
     color: cores.papel,
   },
   aviso: {
+    fontFamily: fontes.corpo,
     fontSize: 12,
     color: cores.blocoVermelho,
   },
   linkVoz: {
+    fontFamily: fontes.corpoBold,
     fontSize: 15,
-    fontWeight: '700',
     color: cores.blocoAzul,
     textAlign: 'center',
   },

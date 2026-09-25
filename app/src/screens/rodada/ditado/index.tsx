@@ -5,7 +5,7 @@ import { MontagemPalavra } from '../../../components/MontagemPalavra';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { gerarAlternativasLetra } from '../../../services/alternativas_letra';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../../../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../../theme';
 
 /**
  * Tela de desafio — Ditado (T029). Nível 1: 4 alternativas de letra
@@ -115,7 +115,7 @@ const estilos = StyleSheet.create({
     fontSize: 36,
   },
   dica: {
-    fontWeight: '700',
+    fontFamily: fontes.corpoBold,
     color: cores.tintaFraca,
     fontSize: 13,
     marginTop: -espacamento.sm,
@@ -136,8 +136,8 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   alternativaTexto: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 26,
-    fontWeight: '800',
     color: cores.blocoAzul,
   },
 });

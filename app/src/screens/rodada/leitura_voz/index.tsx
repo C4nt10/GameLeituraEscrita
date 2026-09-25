@@ -5,7 +5,7 @@ import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { avaliarLeitura } from '../../../services/avaliacao_leitura';
 import { verificarCapacidades } from '../../../services/capacidade_aparelho';
-import { cores, espacamento, raio } from '../../../theme';
+import { cores, espacamento, fontes, raio } from '../../../theme';
 
 /**
  * Tela de desafio — Leitura·voz (T031). A palavra fica visível (é
@@ -156,8 +156,8 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   palavraAlvo: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 40,
-    fontWeight: '800',
     color: cores.tinta,
   },
   avisoMicrofone: {
@@ -166,8 +166,8 @@ const estilos = StyleSheet.create({
     maxWidth: 280,
   },
   avisoMicrofoneTexto: {
+    fontFamily: fontes.corpoBold,
     textAlign: 'center',
-    fontWeight: '700',
     color: cores.tintaFraca,
   },
   iconeMic: {
@@ -185,7 +185,7 @@ const estilos = StyleSheet.create({
     fontSize: 36,
   },
   dica: {
-    fontWeight: '700',
+    fontFamily: fontes.corpoBold,
     color: cores.tintaFraca,
     fontSize: 13,
     marginTop: -espacamento.sm,
@@ -198,7 +198,7 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoVerdeT,
   },
   balaoTexto: {
-    fontWeight: '700',
+    fontFamily: fontes.corpoBold,
     color: cores.tinta,
   },
 });

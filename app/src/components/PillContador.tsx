@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { cores, espacamento, raio } from '../theme';
+import { cores, espacamento, fontes, raio } from '../theme';
 
 export interface PillContadorProps {
   /** Emoji do tipo de ajuda: 🔁 repetições, 👀 espiadas, 🔁 tentativas (D-19). */
@@ -28,8 +28,8 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papelAlt,
   },
   texto: {
+    fontFamily: fontes.corpoBold,
     fontSize: 13,
-    fontWeight: '700',
     color: cores.tintaFraca,
   },
 });

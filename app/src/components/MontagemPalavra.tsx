@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { embaralhar } from '../lib/embaralhar';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, raio } from '../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio, sombraBlk } from '../theme';
 
 /**
  * Montagem de palavra por letras embaralhadas — mecânica compartilhada
@@ -96,19 +96,21 @@ const estilos = StyleSheet.create({
     width: ALVO_TOQUE_MINIMO,
     height: ALVO_TOQUE_MINIMO,
     borderRadius: raio.sm,
-    borderWidth: 2,
+    borderWidth: 2.5,
+    borderStyle: 'dashed',
     borderColor: cores.linha,
     backgroundColor: cores.papelAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
   vagaCheia: {
+    borderStyle: 'solid',
     borderColor: cores.blocoVerde,
     backgroundColor: cores.blocoVerdeT,
   },
   vagaTexto: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 22,
-    fontWeight: '700',
     color: cores.tinta,
   },
   ladrilhos: {
@@ -125,10 +127,11 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.blocoAmarelo,
     alignItems: 'center',
     justifyContent: 'center',
+    ...sombraBlk,
   },
   ladrilhoTexto: {
+    fontFamily: fontes.tituloExtra,
     fontSize: 22,
-    fontWeight: '700',
     color: cores.tinta,
   },
 });

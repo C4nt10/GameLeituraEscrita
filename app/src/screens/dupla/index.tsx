@@ -13,7 +13,7 @@ import type {
   Modalidade,
   RegistroHistorico,
 } from '../../models/registro_historico';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio, sombraBlk } from '../../theme';
 
 /**
  * RodadaDupla — fluxo completo de US5 (T062, CU-08, D-30): seleção de 2
@@ -229,12 +229,13 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   transicaoTitulo: {
+    fontFamily: fontes.titulo,
     fontSize: 24,
-    fontWeight: '800',
     color: cores.tinta,
     textAlign: 'center',
   },
   transicaoSubtitulo: {
+    fontFamily: fontes.corpo,
     fontSize: 14,
     color: cores.tintaFraca,
     textAlign: 'center',
@@ -243,13 +244,14 @@ const estilos = StyleSheet.create({
   botaoGrande: {
     paddingVertical: espacamento.lg,
     paddingHorizontal: espacamento.lg,
-    borderRadius: raio.lg,
+    borderRadius: raio.botao,
     minWidth: 220,
     alignItems: 'center',
+    ...sombraBlk,
   },
   botaoGrandeTexto: {
+    fontFamily: fontes.titulo,
     fontSize: 18,
-    fontWeight: '800',
     color: cores.papel,
   },
 });

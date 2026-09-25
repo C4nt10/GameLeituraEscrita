@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Botao } from '../../components/Botao';
 import type { Perfil } from '../../models/perfil';
-import { cores, espacamento, raio } from '../../theme';
+import { cores, espacamento, fontes, raio } from '../../theme';
 
 const CORES_DISPONIVEIS = [
   cores.blocoVermelho,
@@ -137,8 +137,8 @@ const estilos = StyleSheet.create({
     backgroundColor: cores.papel,
   },
   titulo: {
+    fontFamily: fontes.titulo,
     fontSize: 20,
-    fontWeight: '800',
     color: cores.tinta,
   },
   lista: {
@@ -164,8 +164,8 @@ const estilos = StyleSheet.create({
     borderRadius: raio.pill,
   },
   nomePerfil: {
+    fontFamily: fontes.corpoBold,
     fontSize: 15,
-    fontWeight: '700',
     color: cores.tinta,
   },
   formNovo: {
@@ -176,6 +176,7 @@ const estilos = StyleSheet.create({
     borderColor: cores.linha,
     borderRadius: raio.sm,
     padding: espacamento.sm,
+    fontFamily: fontes.corpo,
     fontSize: 15,
     color: cores.tinta,
   },
@@ -193,8 +194,8 @@ const estilos = StyleSheet.create({
     borderColor: cores.tinta,
   },
   linkNovo: {
+    fontFamily: fontes.corpoBold,
     fontSize: 15,
-    fontWeight: '700',
     color: cores.blocoAzul,
   },
 });
