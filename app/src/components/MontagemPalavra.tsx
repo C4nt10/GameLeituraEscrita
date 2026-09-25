@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { embaralhar } from '../lib/embaralhar';
 import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio, sombraBlk } from '../theme';
 
@@ -39,6 +39,21 @@ function MontagemPalavraPorPalavra({ palavra, onErro, onCompleta }: MontagemPala
   const ladrilhos = useMemo(() => embaralhar(letras), [letras]);
   const [preenchidas, setPreenchidas] = useState<string[]>([]);
   const [usados, setUsados] = useState<boolean[]>(() => letras.map(() => false));
+  // feedback lúdico (item 5 da análise de UX): pop de escala na vaga que
+  // acabou de ser preenchida certo. Só o movimento — som de acerto fica
+  // pra depois, precisa de um asset de áudio real que não existe ainda.
+  // useState (não useRef) porque o valor é lido durante o render — ler
+  // ref.current no corpo do render é o padrão que o eslint rejeita.
+  const [escalasVagas] = useState(() => letras.map(() => new Animated.Value(1)));
+
+  function animarAcertoNaVaga(indice: number) {
+    escalasVagas[indice].setValue(1.3);
+    Animated.spring(escalasVagas[indice], {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  }
 
   function tocarLadrilho(letra: string, indiceLadrilho: number) {
     if (usados[indiceLadrilho]) return;
@@ -55,6 +70,7 @@ function MontagemPalavraPorPalavra({ palavra, onErro, onCompleta }: MontagemPala
     novosUsados[indiceLadrilho] = true;
     setUsados(novosUsados);
 
+    animarAcertoNaVaga(preenchidas.length);
     const novasPreenchidas = [...preenchidas, letra];
     setPreenchidas(novasPreenchidas);
 
@@ -67,14 +83,18 @@ function MontagemPalavraPorPalavra({ palavra, onErro, onCompleta }: MontagemPala
     <View style={estilos.raiz}>
       <View style={estilos.vagas}>
         {letras.map((_, indice) => (
-          <View
+          <Animated.View
             key={indice}
-            style={[estilos.vaga, indice < preenchidas.length && estilos.vagaCheia]}
+            style={[
+              estilos.vaga,
+              indice < preenchidas.length && estilos.vagaCheia,
+              { transform: [{ scale: escalasVagas[indice] }] },
+            ]}
           >
             <Text style={estilos.vagaTexto}>
               {indice < preenchidas.length ? preenchidas[indice].toUpperCase() : '?'}
             </Text>
-          </View>
+          </Animated.View>
         ))}
       </View>
       <View style={estilos.ladrilhos}>

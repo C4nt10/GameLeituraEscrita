@@ -5,7 +5,7 @@ import { Botao } from '../../components/Botao';
 import type { Configuracao } from '../../services/configuracao';
 import { combinacoesDisponiveis } from '../../services/banco_de_conteudo';
 import type { Classificacao, FormaMatematica, Modalidade } from '../../models/registro_historico';
-import { cores, espacamento, fontes, raio } from '../../theme';
+import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../theme';
 
 export type Tipo = 'leitura' | 'matematica' | 'misto';
 export type Formato = 'sozinho' | 'dupla';
@@ -77,6 +77,7 @@ export function TelaConfiguracao({
   const [tamanho, setTamanho] = useState<3 | 5 | 8>(configuracaoInicial.ultimoTamanho);
   const [formato, setFormato] = useState<Formato>('sozinho');
   const [formatoDupla, setFormatoDupla] = useState<FormatoDupla | null>(null);
+  const [maisOpcoes, setMaisOpcoes] = useState(false);
 
   const combinacoes = useMemo(() => combinacoesDisponiveis(), []);
   const niveisDisponiveis = useMemo(
@@ -130,7 +131,7 @@ export function TelaConfiguracao({
           />
           {tipoIndisponivel && (
             <Text style={estilos.aviso}>
-              Rodada mista ainda não está pronta neste app — escolha Leitura ou Matemática.
+              Misto ainda não está pronto — escolhe Leitura ou Matemática por enquanto 🙂
             </Text>
           )}
         </Secao>
@@ -148,81 +149,93 @@ export function TelaConfiguracao({
           </Secao>
         )}
 
-        {tipo !== 'matematica' && (
-          <Secao rotulo="Nível">
-            <Segmentado
-              opcoes={niveisDisponiveis.map((n) => ({ valor: n, rotulo: String(n) }))}
-              selecionado={nivel}
-              onSelecionar={(n) => {
-                setNivel(n);
-                setClassificacao(null);
-              }}
-            />
-          </Secao>
-        )}
+        <TouchableOpacity
+          onPress={() => setMaisOpcoes((v) => !v)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: maisOpcoes }}
+        >
+          <Text style={estilos.linkVoz}>{maisOpcoes ? '▲ menos opções' : '⚙️ mais opções'}</Text>
+        </TouchableOpacity>
 
-        {tipo !== 'matematica' && classificacoesDoNivel.length > 0 && (
-          <Secao rotulo="Classificação">
-            <Segmentado
-              opcoes={[
-                { valor: null, rotulo: 'Todas' },
-                ...classificacoesDoNivel.map((c) => ({ valor: c, rotulo: c })),
-              ]}
-              selecionado={classificacao}
-              onSelecionar={setClassificacao}
-            />
-          </Secao>
-        )}
-
-        {tipo !== 'leitura' && (
-          <Secao rotulo="Forma da matemática">
-            <Segmentado
-              opcoes={[
-                { valor: 'pura', rotulo: 'Conta pura' },
-                { valor: 'contextualizada', rotulo: 'Problema' },
-              ]}
-              selecionado={formaMatematica}
-              onSelecionar={setFormaMatematica}
-            />
-          </Secao>
-        )}
-
-        <Secao rotulo="Tamanho da rodada">
-          <Segmentado
-            opcoes={TAMANHOS.map((t) => ({ valor: t, rotulo: String(t) }))}
-            selecionado={tamanho}
-            onSelecionar={setTamanho}
-          />
-        </Secao>
-
-        <Secao rotulo="Sozinho ou dupla">
-          <Segmentado
-            opcoes={[
-              { valor: 'sozinho' as const, rotulo: 'Sozinho' },
-              { valor: 'dupla' as const, rotulo: 'Dupla' },
-            ]}
-            selecionado={formato}
-            onSelecionar={(valor) => {
-              setFormato(valor);
-              if (valor === 'sozinho') setFormatoDupla(null);
-            }}
-          />
-        </Secao>
-
-        {formato === 'dupla' && (
-          <Secao rotulo="Cooperativo ou adversarial">
-            <Segmentado
-              opcoes={[
-                { valor: 'cooperativo' as const, rotulo: 'Cooperativo' },
-                { valor: 'adversarial' as const, rotulo: 'Adversarial' },
-              ]}
-              selecionado={formatoDupla}
-              onSelecionar={setFormatoDupla}
-            />
-            {formatoIndisponivel && (
-              <Text style={estilos.aviso}>Escolha cooperativo ou adversarial pra continuar.</Text>
+        {maisOpcoes && (
+          <>
+            {tipo !== 'matematica' && (
+              <Secao rotulo="Nível">
+                <Segmentado
+                  opcoes={niveisDisponiveis.map((n) => ({ valor: n, rotulo: String(n) }))}
+                  selecionado={nivel}
+                  onSelecionar={(n) => {
+                    setNivel(n);
+                    setClassificacao(null);
+                  }}
+                />
+              </Secao>
             )}
-          </Secao>
+
+            {tipo !== 'matematica' && classificacoesDoNivel.length > 0 && (
+              <Secao rotulo="Classificação">
+                <Segmentado
+                  opcoes={[
+                    { valor: null, rotulo: 'Todas' },
+                    ...classificacoesDoNivel.map((c) => ({ valor: c, rotulo: c })),
+                  ]}
+                  selecionado={classificacao}
+                  onSelecionar={setClassificacao}
+                />
+              </Secao>
+            )}
+
+            {tipo !== 'leitura' && (
+              <Secao rotulo="Forma da matemática">
+                <Segmentado
+                  opcoes={[
+                    { valor: 'pura', rotulo: 'Conta pura' },
+                    { valor: 'contextualizada', rotulo: 'Problema' },
+                  ]}
+                  selecionado={formaMatematica}
+                  onSelecionar={setFormaMatematica}
+                />
+              </Secao>
+            )}
+
+            <Secao rotulo="Tamanho da rodada">
+              <Segmentado
+                opcoes={TAMANHOS.map((t) => ({ valor: t, rotulo: String(t) }))}
+                selecionado={tamanho}
+                onSelecionar={setTamanho}
+              />
+            </Secao>
+
+            <Secao rotulo="Sozinho ou dupla">
+              <Segmentado
+                opcoes={[
+                  { valor: 'sozinho' as const, rotulo: 'Sozinho' },
+                  { valor: 'dupla' as const, rotulo: 'Dupla' },
+                ]}
+                selecionado={formato}
+                onSelecionar={(valor) => {
+                  setFormato(valor);
+                  if (valor === 'sozinho') setFormatoDupla(null);
+                }}
+              />
+            </Secao>
+
+            {formato === 'dupla' && (
+              <Secao rotulo="Cooperativo ou adversarial">
+                <Segmentado
+                  opcoes={[
+                    { valor: 'cooperativo' as const, rotulo: 'Cooperativo' },
+                    { valor: 'adversarial' as const, rotulo: 'Adversarial' },
+                  ]}
+                  selecionado={formatoDupla}
+                  onSelecionar={setFormatoDupla}
+                />
+                {formatoIndisponivel && (
+                  <Text style={estilos.aviso}>Escolhe um dos dois pra continuar 🙂</Text>
+                )}
+              </Secao>
+            )}
+          </>
         )}
 
         <TouchableOpacity onPress={onAbrirHistorico} accessibilityRole="button">
@@ -230,7 +243,7 @@ export function TelaConfiguracao({
         </TouchableOpacity>
 
         <Botao onPress={iniciar} acessibilidade="começar">
-          {podeIniciar ? '▶️ Começar' : '▶️ Começar (ajuste a seleção acima)'}
+          {podeIniciar ? '▶️ Começar' : '▶️ Toque numa opção diferente acima'}
         </Botao>
       </ScrollView>
     </SafeAreaView>
@@ -314,7 +327,7 @@ const estilos = StyleSheet.create({
     paddingHorizontal: espacamento.sm,
     borderRadius: raio.pill,
     backgroundColor: cores.papelAlt,
-    minHeight: 40,
+    minHeight: ALVO_TOQUE_MINIMO,
     justifyContent: 'center',
   },
   chipAtivo: {
