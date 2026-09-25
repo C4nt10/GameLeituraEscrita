@@ -1,0 +1,25 @@
+services:
+  android-emulator:
+    image: budtmo/docker-android:emulator_13.0
+    container_name: gle-android-emulator
+    # precisa de privileged: true — o entrypoint do budtmo/docker-android
+    # roda "sudo chown .../dev/kvm" internamente; sem isso falha com
+    # "sudo: unknown user root" e o processo do emulador nem sobe
+    privileged: true
+    devices:
+      - /dev/kvm
+    environment:
+      EMULATOR_DEVICE: "Samsung Galaxy S10"
+      WEB_VNC: "true"
+      # nome correto confirmado em documentations/CUSTOM_CONFIGURATIONS.md
+      # do budtmo/docker-android (não é "ADDITIONAL_ARGS")
+      EMULATOR_ADDITIONAL_ARGS: "-no-snapshot"
+    ports:
+      - "6080:6080" # noVNC (ver o emulador pelo navegador)
+      - "5555:5555" # ADB (adb connect localhost:5555, se precisar de fora do container)
+    volumes:
+      - android-home:/home/androidusr
+    shm_size: "2g"
+
+volumes:
+  android-home:
