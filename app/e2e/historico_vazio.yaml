@@ -4,9 +4,9 @@
 # `rodadas.length === 0`, mostra a explicação em vez de uma lista vazia.
 #
 # NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre). appId é placeholder.
+# máquina (mesma ressalva de sempre).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: '📜 ver histórico'

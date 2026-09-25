@@ -5,7 +5,7 @@
 #
 # NÃO EXECUTADO — mesma ressalva de sempre.
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - assertVisible: 'Vamos jogar!'

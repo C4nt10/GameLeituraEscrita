@@ -6,7 +6,7 @@
 # modalidade leitura_montar, contadorAjuda=2) — não a rodada completa
 # (não existe orquestrador de rodada ainda, ver tasks.md T029-T032).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Resultado'

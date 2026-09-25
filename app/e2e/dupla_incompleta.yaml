@@ -6,9 +6,9 @@
 # não seria honesto).
 #
 # NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre). appId é placeholder.
+# máquina (mesma ressalva de sempre).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Dupla'

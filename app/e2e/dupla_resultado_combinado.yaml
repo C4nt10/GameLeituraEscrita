@@ -6,7 +6,7 @@
 # completas (não dá pra scriptar sem saber as respostas certas
 # sorteadas, mesma limitação de rodada_completa.yaml).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Dupla'

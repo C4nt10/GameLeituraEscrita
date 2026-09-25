@@ -3,15 +3,17 @@
 # decide quando sair, o app nunca troca de modalidade sozinho.
 #
 # NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta máquina
-# (mesma ressalva de sempre, research.md §T002 "1b"). appId é
-# placeholder (sem android.package/ios.bundleIdentifier fixado, sem
-# `expo prebuild` rodado ainda).
+# (mesma ressalva de sempre, research.md §T002 "1b").
 #
-# Cobre só a presença/toque do botão nas 3 telas isoladas — a
-# persistência de verdade da rodada como "não concluída" ao sair depende
-# do orquestrador de rodada, ainda não construído (tasks.md T029-T032).
+# Cobre só a presença/toque do botão nas 3 telas isoladas de dev — a
+# persistência de verdade da rodada como "não concluída" ao sair já está
+# ligada (T033b, `RodadaLeitura`/`RodadaMatematica` chamam
+# `historico.registrarRodada`), mas essas rotas `/_dev/*` não passam por
+# um orquestrador (são as telas isoladas, sem `perfilId` de um fluxo
+# real) — o comportamento de persistência de verdade fica coberto pelos
+# specs de `rodada_completa.yaml`/`rodada_matematica_completa.yaml`.
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Ditado (nível 2+)'

@@ -11,7 +11,7 @@
 # ex.: configuração do emulador/dispositivo ou comando de ADB). Rodar
 # depois de negar a permissão de microfone do app manualmente.
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Leitura · voz'

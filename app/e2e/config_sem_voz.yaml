@@ -8,7 +8,7 @@
 # NÃO EXECUTADO — mesma ressalva de sempre, mais a limitação de precisar
 # de um aparelho/emulador sem nenhuma voz pt instalada de propósito.
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: '🔊 escolher e testar a voz'

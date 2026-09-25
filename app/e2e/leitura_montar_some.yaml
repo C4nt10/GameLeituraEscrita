@@ -6,7 +6,7 @@
 # fixo: "gato", revelação de 3s por padrão — ver
 # TelaLeituraMontarProps.duracaoRevelacaoMs).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Leitura · montar'

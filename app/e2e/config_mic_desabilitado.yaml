@@ -9,7 +9,7 @@
 # este cenário precisa da permissão de microfone negada no sistema
 # ANTES do app abrir (mesma limitação de microfone_indisponivel.yaml).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Leitura · voz'

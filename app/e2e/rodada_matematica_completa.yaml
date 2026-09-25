@@ -4,7 +4,7 @@
 # jogar uma rodada em cada forma").
 #
 # NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre). appId é placeholder. Rodada de
+# máquina (mesma ressalva de sempre). Rodada de
 # dev fixa: nível 2, tamanho 3 (app/src/app/_dev/rodada-matematica.tsx).
 #
 # Limitação conhecida: os operandos e a resposta certa são sorteados
@@ -14,7 +14,7 @@
 # da tela e a navegação até o resultado quando os 2 toques certos
 # forem dados manualmente ao rodar.
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Rodada — Matemática (pura)'

@@ -7,7 +7,7 @@
 # rodada já jogada (senão cai no estado vazio de historico_vazio.yaml,
 # que nem mostra o botão de apagar).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: '📜 ver histórico'

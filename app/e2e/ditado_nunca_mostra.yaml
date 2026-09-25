@@ -5,12 +5,8 @@
 # Maestro CLI instalado (research.md §T002, "1b"). Roda contra a rota de
 # desenvolvimento /_dev/ditado (desafio fixo: "gato", nível 2 — usa a
 # montagem por ladrilhos, não a lista de 4 alternativas do nível 1).
-#
-# appId é placeholder — nenhum `android.package`/`ios.bundleIdentifier`
-# foi fixado em app.json ainda (não existe android/ios nativo, T003 não
-# rodou `expo prebuild`). Corrigir quando isso acontecer.
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Ditado (nível 2+)'

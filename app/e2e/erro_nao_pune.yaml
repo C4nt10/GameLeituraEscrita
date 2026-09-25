@@ -13,7 +13,7 @@
 # tentativa. Rodar contra /_dev/ditado-nivel1 (nível 1, "a" é a certa,
 # não revelado na tela).
 
-appId: com.anonymous.app
+appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
 - tapOn: 'Ditado (nível 1)'
