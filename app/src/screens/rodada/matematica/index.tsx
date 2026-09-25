@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioMatematica } from '../../../models/desafio_matematica';
@@ -72,7 +73,7 @@ export function TelaMatematica({
   }
 
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <BotaoSairRodada onSair={onSair} />
       <PillContador icone="🔁" rotulo="repetições" valor={repeticoes} />
 
@@ -112,7 +113,7 @@ export function TelaMatematica({
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

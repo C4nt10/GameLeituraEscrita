@@ -1,4 +1,5 @@
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Modalidade, RegistroHistorico } from '../../models/registro_historico';
 import { calcularResumoHistorico } from '../../services/resumo_historico';
 import { cores, espacamento, fontes, raio } from '../../theme';
@@ -68,18 +69,18 @@ export function TelaHistorico({ rodadas, onApagarTudo }: TelaHistoricoProps) {
 
   if (rodadas.length === 0) {
     return (
-      <View style={estilos.raizVazia}>
+      <SafeAreaView style={estilos.raizVazia} edges={['top', 'bottom']}>
         <Text style={estilos.tituloVazio}>Histórico</Text>
         <Text style={estilos.textoVazio}>
           Ainda não há nenhuma rodada registrada. Depois que a criança completar a primeira, ela
           aparece aqui.
         </Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <Text style={estilos.titulo}>Histórico</Text>
 
       <View style={estilos.resumo}>
@@ -130,7 +131,7 @@ export function TelaHistorico({ rodadas, onApagarTudo }: TelaHistoricoProps) {
       >
         <Text style={estilos.apagar}>🗑️ apagar histórico</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

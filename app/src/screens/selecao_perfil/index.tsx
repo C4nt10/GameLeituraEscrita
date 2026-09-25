@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Botao } from '../../components/Botao';
 import type { Perfil } from '../../models/perfil';
 import { cores, espacamento, fontes, raio } from '../../theme';
@@ -58,79 +59,87 @@ export function TelaSelecaoPerfil({
   const completo = selecionadosIds.length === quantidadeAlvo;
 
   return (
-    <ScrollView contentContainerStyle={estilos.raiz}>
-      <Text style={estilos.titulo}>
-        {quantidadeAlvo === 1 ? 'Quem vai jogar?' : 'Quem vai jogar? (escolha 2)'}
-      </Text>
+    <SafeAreaView style={estilos.safeArea} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={estilos.raiz}>
+        <Text style={estilos.titulo}>
+          {quantidadeAlvo === 1 ? 'Quem vai jogar?' : 'Quem vai jogar? (escolha 2)'}
+        </Text>
 
-      <View style={estilos.lista}>
-        {todosOsPerfis.map((perfil) => {
-          const selecionado = selecionadosIds.includes(perfil.id);
-          return (
-            <TouchableOpacity
-              key={perfil.id}
-              style={[
-                estilos.cartaoPerfil,
-                { borderColor: perfil.cor ?? cores.linha },
-                selecionado && estilos.cartaoPerfilAtivo,
-              ]}
-              onPress={() => alternarSelecao(perfil.id)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: selecionado }}
-              accessibilityLabel={`perfil ${perfil.nome ?? perfil.id}`}
-            >
-              <View style={[estilos.bolinhaCor, { backgroundColor: perfil.cor ?? cores.linha }]} />
-              <Text style={estilos.nomePerfil}>{perfil.nome ?? 'Sem nome'}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {criando ? (
-        <View style={estilos.formNovo}>
-          <TextInput
-            style={estilos.input}
-            placeholder="Nome"
-            value={novoNome}
-            onChangeText={setNovoNome}
-            accessibilityLabel="nome do novo perfil"
-          />
-          <View style={estilos.coresLinha}>
-            {CORES_DISPONIVEIS.map((cor) => (
+        <View style={estilos.lista}>
+          {todosOsPerfis.map((perfil) => {
+            const selecionado = selecionadosIds.includes(perfil.id);
+            return (
               <TouchableOpacity
-                key={cor}
+                key={perfil.id}
                 style={[
-                  estilos.bolinhaCorEscolha,
-                  { backgroundColor: cor },
-                  novaCor === cor && estilos.bolinhaCorEscolhaAtiva,
+                  estilos.cartaoPerfil,
+                  { borderColor: perfil.cor ?? cores.linha },
+                  selecionado && estilos.cartaoPerfilAtivo,
                 ]}
-                onPress={() => setNovaCor(cor)}
+                onPress={() => alternarSelecao(perfil.id)}
                 accessibilityRole="button"
-                accessibilityLabel={`cor ${cor}`}
-              />
-            ))}
-          </View>
-          <Botao onPress={confirmarNovoPerfil} acessibilidade="salvar novo perfil">
-            Salvar
-          </Botao>
+                accessibilityState={{ selected: selecionado }}
+                accessibilityLabel={`perfil ${perfil.nome ?? perfil.id}`}
+              >
+                <View
+                  style={[estilos.bolinhaCor, { backgroundColor: perfil.cor ?? cores.linha }]}
+                />
+                <Text style={estilos.nomePerfil}>{perfil.nome ?? 'Sem nome'}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-      ) : (
-        <TouchableOpacity onPress={() => setCriando(true)} accessibilityRole="button">
-          <Text style={estilos.linkNovo}>➕ criar novo perfil</Text>
-        </TouchableOpacity>
-      )}
 
-      <Botao
-        onPress={() => onConfirmar(todosOsPerfis.filter((p) => selecionadosIds.includes(p.id)))}
-        acessibilidade="confirmar seleção"
-      >
-        {completo ? '▶️ Continuar' : `Escolha ${quantidadeAlvo - selecionadosIds.length} a mais`}
-      </Botao>
-    </ScrollView>
+        {criando ? (
+          <View style={estilos.formNovo}>
+            <TextInput
+              style={estilos.input}
+              placeholder="Nome"
+              value={novoNome}
+              onChangeText={setNovoNome}
+              accessibilityLabel="nome do novo perfil"
+            />
+            <View style={estilos.coresLinha}>
+              {CORES_DISPONIVEIS.map((cor) => (
+                <TouchableOpacity
+                  key={cor}
+                  style={[
+                    estilos.bolinhaCorEscolha,
+                    { backgroundColor: cor },
+                    novaCor === cor && estilos.bolinhaCorEscolhaAtiva,
+                  ]}
+                  onPress={() => setNovaCor(cor)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`cor ${cor}`}
+                />
+              ))}
+            </View>
+            <Botao onPress={confirmarNovoPerfil} acessibilidade="salvar novo perfil">
+              Salvar
+            </Botao>
+          </View>
+        ) : (
+          <TouchableOpacity onPress={() => setCriando(true)} accessibilityRole="button">
+            <Text style={estilos.linkNovo}>➕ criar novo perfil</Text>
+          </TouchableOpacity>
+        )}
+
+        <Botao
+          onPress={() => onConfirmar(todosOsPerfis.filter((p) => selecionadosIds.includes(p.id)))}
+          acessibilidade="confirmar seleção"
+        >
+          {completo ? '▶️ Continuar' : `Escolha ${quantidadeAlvo - selecionadosIds.length} a mais`}
+        </Botao>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const estilos = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: cores.papel,
+  },
   raiz: {
     padding: espacamento.lg,
     gap: espacamento.md,

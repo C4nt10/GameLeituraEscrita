@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { cores, espacamento, fontes, raio } from '../../theme';
 
 export interface VozDisponivel {
@@ -33,19 +34,19 @@ export function TelaEscolhaDeVoz({
 }: TelaEscolhaDeVozProps) {
   if (motivoSemVoz !== null) {
     return (
-      <View style={estilos.raizVazia}>
+      <SafeAreaView style={estilos.raizVazia} edges={['top', 'bottom']}>
         <Text style={estilos.avisoTitulo}>Nenhuma voz em português encontrada</Text>
         <Text style={estilos.avisoTexto}>{motivoSemVoz}</Text>
         <Text style={estilos.avisoTexto}>
           Instale uma voz em português nas configurações de acessibilidade/fala do aparelho, e volte
           aqui.
         </Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <Text style={estilos.titulo}>Escolher a voz</Text>
       <Text style={estilos.legenda}>
         A qualidade do som depende da voz do aparelho, não deste app — vozes marcadas como
@@ -77,7 +78,7 @@ export function TelaEscolhaDeVoz({
           </View>
         );
       })}
-    </View>
+    </SafeAreaView>
   );
 }
 

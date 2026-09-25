@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { TelaSelecaoPerfil } from '../selecao_perfil';
 import { TelaResultadoCombinado } from '../resultado_dupla';
 import { RodadaLeitura, type DependenciasRodadaLeitura } from '../rodada';
@@ -63,7 +64,7 @@ function TelaTransicao({
   cor: string | null;
 }) {
   return (
-    <View style={estilos.raizTransicao}>
+    <SafeAreaView style={estilos.raizTransicao} edges={['top', 'bottom']}>
       <Text style={estilos.transicaoTitulo}>{titulo}</Text>
       <Text style={estilos.transicaoSubtitulo}>{subtitulo}</Text>
       <TouchableOpacity
@@ -74,7 +75,7 @@ function TelaTransicao({
       >
         <Text style={estilos.botaoGrandeTexto}>▶️ Toque pra continuar</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

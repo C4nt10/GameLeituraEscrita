@@ -21,7 +21,20 @@ export interface MontagemPalavraProps {
   onCompleta: () => void;
 }
 
-export function MontagemPalavra({ palavra, onErro, onCompleta }: MontagemPalavraProps) {
+/**
+ * Bug real encontrado em teste manual: o orquestrador da rodada reusa a
+ * mesma instância deste componente entre desafios (só troca `palavra`)
+ * — sem o `key={palavra}` abaixo, em `MontagemPalavra`, o estado
+ * `preenchidas`/`usados` (inicializado só no primeiro mount) ficava
+ * travado mostrando a montagem do desafio ANTERIOR. Solução idiomática
+ * do React pra "resetar estado quando uma prop muda": trocar de `key`
+ * força o remount, em vez de um `useEffect` chamando `setState`.
+ */
+export function MontagemPalavra(props: MontagemPalavraProps) {
+  return <MontagemPalavraPorPalavra key={props.palavra} {...props} />;
+}
+
+function MontagemPalavraPorPalavra({ palavra, onErro, onCompleta }: MontagemPalavraProps) {
   const letras = useMemo(() => palavra.split(''), [palavra]);
   const ladrilhos = useMemo(() => embaralhar(letras), [letras]);
   const [preenchidas, setPreenchidas] = useState<string[]>([]);

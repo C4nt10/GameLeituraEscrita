@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Botao } from '../../components/Botao';
 import type { Modalidade } from '../../models/registro_historico';
 import type { ResultadoAvaliacao } from '../../services/avaliacao';
@@ -89,7 +90,7 @@ export function TelaResultado({
   onVerHistorico,
 }: TelaResultadoProps) {
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <Estrelas valor={resultado.estrelas} />
 
       <View style={estilos.stats}>
@@ -137,7 +138,7 @@ export function TelaResultado({
           </Botao>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

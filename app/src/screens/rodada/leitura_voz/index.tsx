@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
@@ -103,7 +104,7 @@ export function TelaLeituraVoz({
   }
 
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <BotaoSairRodada onSair={onSair} />
       <PillContador icone="🔁" rotulo="tentativas" valor={tentativas} />
 
@@ -142,7 +143,7 @@ export function TelaLeituraVoz({
           <Text style={estilos.balaoTexto}>eu entendi: &quot;{ultimaTranscricao}&quot;</Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -19,9 +19,7 @@ export default function DevConfiguracao() {
           router.push(`/_dev/rodada?modalidade=${escolha.modalidade}`);
         }
       }}
-      onAbrirEscolhaDeVoz={() => router.push('/escolha-de-voz')}
       onAbrirHistorico={() => router.push('/historico')}
-      onAlterarNomeOuFonema={() => {}}
     />
   );
 }

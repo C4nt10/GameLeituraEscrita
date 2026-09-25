@@ -83,13 +83,7 @@ export default function Index() {
           );
         }
       }}
-      onAbrirEscolhaDeVoz={() => router.push('/escolha-de-voz')}
       onAbrirHistorico={() => router.push('/historico')}
-      onAlterarNomeOuFonema={(valor) => {
-        const atualizada = { ...configuracao, nomeOuFonema: valor };
-        setConfiguracao(atualizada);
-        void salvarConfiguracao(atualizada);
-      }}
     />
   );
 }

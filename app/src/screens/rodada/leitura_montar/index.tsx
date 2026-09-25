@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
 import { PillContador } from '../../../components/PillContador';
@@ -52,7 +53,7 @@ export function TelaLeituraMontar({
   }
 
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <BotaoSairRodada onSair={onSair} />
       <PillContador icone="👀" rotulo="espiadas" valor={espiadas} />
 
@@ -77,7 +78,7 @@ export function TelaLeituraMontar({
       >
         <MontagemPalavra palavra={desafio.palavra} onErro={onErro} onCompleta={onAcerto} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Botao } from '../../components/Botao';
 import type { Perfil } from '../../models/perfil';
 import type { RegistroHistorico } from '../../models/registro_historico';
@@ -40,7 +41,7 @@ export function TelaResultadoCombinado({
     const acertosTotal = registro1.acertos + registro2.acertos;
 
     return (
-      <View style={estilos.raiz}>
+      <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
         <Text style={estilos.titulo}>🎉 Juntos vocês fizeram muito bem!</Text>
         <Text style={estilos.totalEstrelas}>{estrelasTotal.toFixed(1)} ★ no total</Text>
         <Text style={estilos.totalTexto}>{acertosTotal} acertos somados</Text>
@@ -53,7 +54,7 @@ export function TelaResultadoCombinado({
         <Botao onPress={onJogarDeNovo} acessibilidade="jogar de novo">
           🔁 Jogar de novo
         </Botao>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -69,7 +70,7 @@ export function TelaResultadoCombinado({
   const nomeQuemTeveMais = registro1.estrelas <= registro2.estrelas ? nome2 : nome1;
 
   return (
-    <View style={estilos.raiz}>
+    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
       <Text style={estilos.titulo}>
         {quemTeveMais ? `${quemTeveMais} tirou mais hoje!` : 'Empate — os dois foram muito bem!'}
       </Text>
@@ -100,7 +101,7 @@ export function TelaResultadoCombinado({
       <Botao onPress={onJogarDeNovo} acessibilidade="jogar de novo">
         🔁 Jogar de novo
       </Botao>
-    </View>
+    </SafeAreaView>
   );
 }
 

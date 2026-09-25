@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Botao } from '../../components/Botao';
 import type { Configuracao } from '../../services/configuracao';
 import { combinacoesDisponiveis } from '../../services/banco_de_conteudo';
@@ -55,9 +56,6 @@ export interface TelaConfiguracaoProps {
   microfoneDisponivel: boolean;
   motivoMicrofoneIndisponivel: string | null;
   onIniciar: (escolha: EscolhaRodada) => void;
-  onAbrirEscolhaDeVoz: () => void;
-  /** D-26/FR-021 — salva assim que muda, igual à voz escolhida (CU-07). */
-  onAlterarNomeOuFonema: (valor: 'nome' | 'fonema') => void;
   /** CU-06 — histórico acessível pela tela inicial. */
   onAbrirHistorico: () => void;
 }
@@ -67,13 +65,8 @@ export function TelaConfiguracao({
   microfoneDisponivel,
   motivoMicrofoneIndisponivel,
   onIniciar,
-  onAbrirEscolhaDeVoz,
-  onAlterarNomeOuFonema,
   onAbrirHistorico,
 }: TelaConfiguracaoProps) {
-  const [nomeOuFonema, setNomeOuFonema] = useState<'nome' | 'fonema'>(
-    configuracaoInicial.nomeOuFonema,
-  );
   const [tipo, setTipo] = useState<Tipo>('leitura');
   const [modalidade, setModalidade] = useState<Modalidade>(configuracaoInicial.ultimaModalidade);
   const [nivel, setNivel] = useState(configuracaoInicial.ultimoNivel);
@@ -118,145 +111,129 @@ export function TelaConfiguracao({
   }
 
   return (
-    <ScrollView contentContainerStyle={estilos.raiz}>
-      <Text style={estilos.titulo}>Vamos jogar!</Text>
-      <Text style={estilos.legenda}>
-        Tudo já vem com um valor padrão — dá pra tocar em &quot;começar&quot; sem mudar nada.
-      </Text>
+    <SafeAreaView style={estilos.safeArea} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={estilos.raiz}>
+        <Text style={estilos.titulo}>Vamos jogar!</Text>
+        <Text style={estilos.legenda}>
+          Tudo já vem com um valor padrão — dá pra tocar em &quot;começar&quot; sem mudar nada.
+        </Text>
 
-      <Secao rotulo="Tipo">
-        <Segmentado
-          opcoes={[
-            { valor: 'leitura', rotulo: 'Leitura' },
-            { valor: 'matematica', rotulo: 'Matemática' },
-            { valor: 'misto', rotulo: 'Misto' },
-          ]}
-          selecionado={tipo}
-          onSelecionar={setTipo}
-        />
-        {tipoIndisponivel && (
-          <Text style={estilos.aviso}>
-            Rodada mista ainda não está pronta neste app — escolha Leitura ou Matemática.
-          </Text>
-        )}
-      </Secao>
-
-      {tipo !== 'matematica' && (
-        <Secao rotulo="Modalidade">
+        <Secao rotulo="Tipo">
           <Segmentado
-            opcoes={MODALIDADES.map((m) => ({ valor: m.valor, rotulo: m.rotulo }))}
-            selecionado={modalidade}
-            onSelecionar={setModalidade}
+            opcoes={[
+              { valor: 'leitura', rotulo: 'Leitura' },
+              { valor: 'matematica', rotulo: 'Matemática' },
+              { valor: 'misto', rotulo: 'Misto' },
+            ]}
+            selecionado={tipo}
+            onSelecionar={setTipo}
           />
-          {modalidadeIndisponivel && (
-            <Text style={estilos.aviso}>{motivoMicrofoneIndisponivel}</Text>
+          {tipoIndisponivel && (
+            <Text style={estilos.aviso}>
+              Rodada mista ainda não está pronta neste app — escolha Leitura ou Matemática.
+            </Text>
           )}
         </Secao>
-      )}
 
-      {tipo !== 'matematica' && (
-        <Secao rotulo="Nível">
+        {tipo !== 'matematica' && (
+          <Secao rotulo="Modalidade">
+            <Segmentado
+              opcoes={MODALIDADES.map((m) => ({ valor: m.valor, rotulo: m.rotulo }))}
+              selecionado={modalidade}
+              onSelecionar={setModalidade}
+            />
+            {modalidadeIndisponivel && (
+              <Text style={estilos.aviso}>{motivoMicrofoneIndisponivel}</Text>
+            )}
+          </Secao>
+        )}
+
+        {tipo !== 'matematica' && (
+          <Secao rotulo="Nível">
+            <Segmentado
+              opcoes={niveisDisponiveis.map((n) => ({ valor: n, rotulo: String(n) }))}
+              selecionado={nivel}
+              onSelecionar={(n) => {
+                setNivel(n);
+                setClassificacao(null);
+              }}
+            />
+          </Secao>
+        )}
+
+        {tipo !== 'matematica' && classificacoesDoNivel.length > 0 && (
+          <Secao rotulo="Classificação">
+            <Segmentado
+              opcoes={[
+                { valor: null, rotulo: 'Todas' },
+                ...classificacoesDoNivel.map((c) => ({ valor: c, rotulo: c })),
+              ]}
+              selecionado={classificacao}
+              onSelecionar={setClassificacao}
+            />
+          </Secao>
+        )}
+
+        {tipo !== 'leitura' && (
+          <Secao rotulo="Forma da matemática">
+            <Segmentado
+              opcoes={[
+                { valor: 'pura', rotulo: 'Conta pura' },
+                { valor: 'contextualizada', rotulo: 'Problema' },
+              ]}
+              selecionado={formaMatematica}
+              onSelecionar={setFormaMatematica}
+            />
+          </Secao>
+        )}
+
+        <Secao rotulo="Tamanho da rodada">
           <Segmentado
-            opcoes={niveisDisponiveis.map((n) => ({ valor: n, rotulo: String(n) }))}
-            selecionado={nivel}
-            onSelecionar={(n) => {
-              setNivel(n);
-              setClassificacao(null);
+            opcoes={TAMANHOS.map((t) => ({ valor: t, rotulo: String(t) }))}
+            selecionado={tamanho}
+            onSelecionar={setTamanho}
+          />
+        </Secao>
+
+        <Secao rotulo="Sozinho ou dupla">
+          <Segmentado
+            opcoes={[
+              { valor: 'sozinho' as const, rotulo: 'Sozinho' },
+              { valor: 'dupla' as const, rotulo: 'Dupla' },
+            ]}
+            selecionado={formato}
+            onSelecionar={(valor) => {
+              setFormato(valor);
+              if (valor === 'sozinho') setFormatoDupla(null);
             }}
           />
         </Secao>
-      )}
 
-      {tipo !== 'matematica' && classificacoesDoNivel.length > 0 && (
-        <Secao rotulo="Classificação">
-          <Segmentado
-            opcoes={[
-              { valor: null, rotulo: 'Todas' },
-              ...classificacoesDoNivel.map((c) => ({ valor: c, rotulo: c })),
-            ]}
-            selecionado={classificacao}
-            onSelecionar={setClassificacao}
-          />
-        </Secao>
-      )}
+        {formato === 'dupla' && (
+          <Secao rotulo="Cooperativo ou adversarial">
+            <Segmentado
+              opcoes={[
+                { valor: 'cooperativo' as const, rotulo: 'Cooperativo' },
+                { valor: 'adversarial' as const, rotulo: 'Adversarial' },
+              ]}
+              selecionado={formatoDupla}
+              onSelecionar={setFormatoDupla}
+            />
+            {formatoIndisponivel && (
+              <Text style={estilos.aviso}>Escolha cooperativo ou adversarial pra continuar.</Text>
+            )}
+          </Secao>
+        )}
 
-      {tipo !== 'leitura' && (
-        <Secao rotulo="Forma da matemática">
-          <Segmentado
-            opcoes={[
-              { valor: 'pura', rotulo: 'Conta pura' },
-              { valor: 'contextualizada', rotulo: 'Problema' },
-            ]}
-            selecionado={formaMatematica}
-            onSelecionar={setFormaMatematica}
-          />
-        </Secao>
-      )}
+        <TouchableOpacity onPress={onAbrirHistorico} accessibilityRole="button">
+          <Text style={estilos.linkVoz}>📜 ver histórico</Text>
+        </TouchableOpacity>
 
-      <Secao rotulo="Tamanho da rodada">
-        <Segmentado
-          opcoes={TAMANHOS.map((t) => ({ valor: t, rotulo: String(t) }))}
-          selecionado={tamanho}
-          onSelecionar={setTamanho}
-        />
-      </Secao>
-
-      <Secao rotulo="Sozinho ou dupla">
-        <Segmentado
-          opcoes={[
-            { valor: 'sozinho' as const, rotulo: 'Sozinho' },
-            { valor: 'dupla' as const, rotulo: 'Dupla' },
-          ]}
-          selecionado={formato}
-          onSelecionar={(valor) => {
-            setFormato(valor);
-            if (valor === 'sozinho') setFormatoDupla(null);
-          }}
-        />
-      </Secao>
-
-      {formato === 'dupla' && (
-        <Secao rotulo="Cooperativo ou adversarial">
-          <Segmentado
-            opcoes={[
-              { valor: 'cooperativo' as const, rotulo: 'Cooperativo' },
-              { valor: 'adversarial' as const, rotulo: 'Adversarial' },
-            ]}
-            selecionado={formatoDupla}
-            onSelecionar={setFormatoDupla}
-          />
-          {formatoIndisponivel && (
-            <Text style={estilos.aviso}>Escolha cooperativo ou adversarial pra continuar.</Text>
-          )}
-        </Secao>
-      )}
-
-      <Secao rotulo="Letra: nome ou som">
-        <Segmentado
-          opcoes={[
-            { valor: 'fonema' as const, rotulo: 'Som (ex.: "mmm")' },
-            { valor: 'nome' as const, rotulo: 'Nome (ex.: "eme")' },
-          ]}
-          selecionado={nomeOuFonema}
-          onSelecionar={(valor) => {
-            setNomeOuFonema(valor);
-            onAlterarNomeOuFonema(valor);
-          }}
-        />
-      </Secao>
-
-      <TouchableOpacity onPress={onAbrirEscolhaDeVoz} accessibilityRole="button">
-        <Text style={estilos.linkVoz}>🔊 escolher e testar a voz</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={onAbrirHistorico} accessibilityRole="button">
-        <Text style={estilos.linkVoz}>📜 ver histórico</Text>
-      </TouchableOpacity>
-
-      <Botao onPress={iniciar} acessibilidade="começar">
-        {podeIniciar ? '▶️ Começar' : '▶️ Começar (ajuste a seleção acima)'}
-      </Botao>
-    </ScrollView>
+        <Botao onPress={iniciar} acessibilidade="começar">
+          {podeIniciar ? '▶️ Começar' : '▶️ Começar (ajuste a seleção acima)'}
+        </Botao>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -300,6 +277,10 @@ function Segmentado<T>({
 }
 
 const estilos = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: cores.papel,
+  },
   raiz: {
     padding: espacamento.lg,
     gap: espacamento.md,
