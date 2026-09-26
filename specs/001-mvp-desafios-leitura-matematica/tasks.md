@@ -981,19 +981,24 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       > **Respondida (2026-09-26): "manter as regras, seguir o padrão visual" — D-55.** Cada pergunta resolvida no critério regra-vale/visual-segue (tabela em doc002 §16). Onde sobrou interpretação minha (A-19 portão de segurar sem emendar o Princípio VI; A-30 abertura; A-18 sem minúscula) está marcado como assumido. Os ⛔ abaixo ficam **liberados**.
 ### 10b. Fundação visual
 
-- [ ] T097 [P] Teste: `design/tema.ts` e `app/src/theme/tema.ts` são iguais
+- [x] T097 [P] Teste: `design/tema.ts` e `app/src/theme/tema.ts` são iguais
+      > **Feito (2026-09-26):** `tema_paridade_test.ts` (1 caso). Visto falhar antes (a cópia não existia).
       (falha se divergirem) — faz T098 passar.
-- [ ] T098 Copiar `tema.ts` pra `app/src/theme/tema.ts`, **convivendo** com o
+- [x] T098 Copiar `tema.ts` pra `app/src/theme/tema.ts`, **convivendo** com o
+      > **Feito (2026-09-26):** `app/src/theme/tema.ts` copiado byte a byte de `design/tema.ts`, convivendo com `theme/index.ts`; entrou em `.prettierignore` pra ficar idêntico ao do dono.
       `theme/index.ts` atual (migração tela a tela; o antigo só sai em T118).
-- [ ] T099 [P] Testes unitários das funções puras: `caixaDaLetra` (acentos,
+- [x] T099 [P] Testes unitários das funções puras: `caixaDaLetra` (acentos,
+      > **Feito (2026-09-26):** `tema_helpers_test.ts` (caixaDaLetra, ciclo de cores, rótulo de tema, estrelas em meias, mensagem de resultado, movimento reduzido). Visto falhar antes.
       "ç", "ã", "é"), cor do bloco por índice do desafio (`cicloDeBlocos`,
       repete a cada 5), `rotuloDoTema` (`acoes` → "Ações", A-33),
       `estrelasParaIcones` (0 a 5 em meias, A-22 mantendo meia estrela),
       `mensagemDoResultado` (regras hoje dentro do componente, incluindo
       "rodada sem erro" de CU-05), duração de movimento com "reduzir
       movimento". Faz T100 passar.
-- [ ] T100 Implementar as funções puras de T099.
-- [ ] T101 [P] Teste de contraste: recalcula a tabela do guia (14,37 · 11,45 ·
+- [x] T100 Implementar as funções puras de T099.
+      > **Feito (2026-09-26):** `theme/helpers.ts`: `corDoBloco`, `rotuloDoTema`, `estrelasParaIcones` (sem mínimo de 1 — A-22), `mensagemDoResultado` (regras de CU-05 preservadas), `duracaoDoMovimento`.
+- [x] T101 [P] Teste de contraste: recalcula a tabela do guia (14,37 · 11,45 ·
+      > **Feito (2026-09-26):** `contraste_test.ts` + `theme/contraste.ts`: os 9 números do guia conferem. **Correção minha:** eu tinha recomendado `madeiraBorda` pra palavra oculta (A-34), mas ela dá só 1,78:1 (medido) — a regra vigente é `tinta2` (4,94:1); D-55 corrigida.
       7,53 · 5,25 · 5,20 · 4,94 · 3,82 · 3,68 · 3,47 — conferidos à mão em
       2026-09-26) e trava os pares proibidos (branco sobre amarelo = 1,85;
       tinta2 sobre papel2 = 4,41 e palavra oculta em `grade` = 1,21 são

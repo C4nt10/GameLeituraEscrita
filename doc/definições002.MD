@@ -749,6 +749,6 @@ tela seguem `design/`. Resolução de cada pergunta aberta nesse critério:
 | A-29 | Instrução falada **não entra** (seria comportamento novo); fica registrada como ideia futura. |
 | A-30 | Abertura só na abertura a frio, com qualquer toque ou avanço automático — Princípio VII intacto. **Assumido.** |
 | A-31, A-33 | Filtro da D-35 mantido; rótulos de tema com acento (Ações...). |
-| A-34 | Texto secundário (`tinta2`) só sobre `papel`; sobre `papel2` usa `tinta`. Palavra oculta em `madeiraBorda`, não em `grade`. |
+| A-34 | Texto secundário (`tinta2`) só sobre `papel`; sobre `papel2` usa `tinta`. Palavra oculta em `tinta2`: `grade` dá 1,2:1 e até `madeiraBorda` dá só 1,78:1 (medido) — nenhuma das duas serve. |
 | A-35 | O mascote está desenhado em SVG no protótipo do dono; o ícone e o splash saem dele. |
 | A-18 | Sem minúscula no MVP (assumido; segue aberta pra depois). |

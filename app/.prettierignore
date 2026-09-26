@@ -3,3 +3,4 @@
 # o prettier explodir em multiplas linhas.
 assets/conteudo/*.json
 assets/conteudo/README.md
+src/theme/tema.ts
