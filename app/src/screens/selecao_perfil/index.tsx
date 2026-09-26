@@ -1,29 +1,33 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Botao } from '../../components/Botao';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { Perfil } from '../../models/perfil';
-import { cores, espacamento, fontes, raio } from '../../theme';
+import { alvo, cor, corTema, fonte, raio, tamanho } from '../../theme/tema';
+import { BolhaDePerfil } from '../../ui/BolhaDePerfil';
+import { Botao } from '../../ui/Botao';
+import { BotaoDeSaida } from '../../ui/BotaoDeSaida';
+import { TelaBase } from '../../ui/TelaBase';
 
-const CORES_DISPONIVEIS = [
-  cores.blocoVermelho,
-  cores.blocoAzul,
-  cores.blocoAmarelo,
-  cores.blocoVerde,
-  cores.blocoCoral,
-  cores.categoriaNatureza,
-];
+/** Cores que o adulto pode dar a um perfil novo: as seis de tema do guia (mesmas do desenho da dupla). */
+const CORES_DISPONIVEIS = Object.values(corTema);
 
 /**
- * Tela de seleção/criação de perfil (T061, D-32): aparece quando há >1
- * perfil cadastrado ou ao entrar em "dupla" — cadastro mínimo (nome +
- * cor). `quantidadeAlvo` é 1 (seleção normal) ou 2 (dupla, US5).
+ * Tela de seleção/criação de perfil (T061/T115, D-32): aparece ao entrar em
+ * "dupla" — cadastro mínimo (nome + cor). `quantidadeAlvo` é 1 (seleção
+ * normal) ou 2 (dupla, US5). **Não havia desenho pra esta tela** (registrado
+ * no visual-v1): foi montada só com os componentes do padrão — bolha de
+ * perfil, blocos de 56+ e botões — sem inventar elemento novo. Voltar sempre
+ * visível (D-48).
  */
 export interface TelaSelecaoPerfilProps {
   perfis: Perfil[];
   quantidadeAlvo: number;
   onConfirmar: (perfisEscolhidos: Perfil[]) => void;
   onCriarPerfil: (nome: string, cor: string) => Promise<Perfil>;
+  onVoltar?: () => void;
+}
+
+function nomeDoPerfil(perfil: Perfil): string {
+  return perfil.nome ?? 'Jogador';
 }
 
 export function TelaSelecaoPerfil({
@@ -31,12 +35,13 @@ export function TelaSelecaoPerfil({
   quantidadeAlvo,
   onConfirmar,
   onCriarPerfil,
+  onVoltar,
 }: TelaSelecaoPerfilProps) {
   const [todosOsPerfis, setTodosOsPerfis] = useState(perfis);
   const [selecionadosIds, setSelecionadosIds] = useState<string[]>([]);
   const [criando, setCriando] = useState(false);
   const [novoNome, setNovoNome] = useState('');
-  const [novaCor, setNovaCor] = useState(CORES_DISPONIVEIS[0]);
+  const [novaCor, setNovaCor] = useState<string>(CORES_DISPONIVEIS[0]);
 
   function alternarSelecao(id: string) {
     setSelecionadosIds((atual) => {
@@ -56,36 +61,38 @@ export function TelaSelecaoPerfil({
     setCriando(false);
   }
 
-  const completo = selecionadosIds.length === quantidadeAlvo;
+  const faltam = quantidadeAlvo - selecionadosIds.length;
+  const completo = faltam === 0;
 
   return (
-    <SafeAreaView style={estilos.safeArea} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={estilos.raiz}>
-        <Text style={estilos.titulo}>
-          {quantidadeAlvo === 1 ? 'Quem vai jogar?' : 'Quem vai jogar? (escolha 2)'}
+    <TelaBase>
+      {onVoltar ? <BotaoDeSaida tipo="voltar" onPress={onVoltar} /> : null}
+      <ScrollView
+        contentContainerStyle={estilos.conteudo}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text allowFontScaling={false} style={estilos.titulo}>
+          {quantidadeAlvo === 1 ? 'Quem vai jogar?' : `Quem vai jogar? Escolha ${quantidadeAlvo}`}
         </Text>
 
         <View style={estilos.lista}>
           {todosOsPerfis.map((perfil) => {
             const selecionado = selecionadosIds.includes(perfil.id);
             return (
-              <TouchableOpacity
+              <Pressable
                 key={perfil.id}
-                style={[
-                  estilos.cartaoPerfil,
-                  { borderColor: perfil.cor ?? cores.linha },
-                  selecionado && estilos.cartaoPerfilAtivo,
-                ]}
                 onPress={() => alternarSelecao(perfil.id)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: selecionado }}
-                accessibilityLabel={`perfil ${perfil.nome ?? perfil.id}`}
+                accessibilityLabel={`perfil ${nomeDoPerfil(perfil)}`}
+                style={[estilos.cartaoPerfil, selecionado && estilos.cartaoPerfilAtivo]}
               >
-                <View
-                  style={[estilos.bolinhaCor, { backgroundColor: perfil.cor ?? cores.linha }]}
-                />
-                <Text style={estilos.nomePerfil}>{perfil.nome ?? 'Sem nome'}</Text>
-              </TouchableOpacity>
+                <BolhaDePerfil nome={nomeDoPerfil(perfil)} cor={perfil.cor} tamanho={48} />
+                <Text allowFontScaling={false} style={estilos.nomePerfil}>
+                  {nomeDoPerfil(perfil)}
+                </Text>
+              </Pressable>
             );
           })}
         </View>
@@ -95,116 +102,95 @@ export function TelaSelecaoPerfil({
             <TextInput
               style={estilos.input}
               placeholder="Nome"
+              placeholderTextColor={cor.tinta2}
               value={novoNome}
               onChangeText={setNovoNome}
               accessibilityLabel="nome do novo perfil"
             />
             <View style={estilos.coresLinha}>
-              {CORES_DISPONIVEIS.map((cor) => (
-                <TouchableOpacity
-                  key={cor}
-                  style={[
-                    estilos.bolinhaCorEscolha,
-                    { backgroundColor: cor },
-                    novaCor === cor && estilos.bolinhaCorEscolhaAtiva,
-                  ]}
-                  onPress={() => setNovaCor(cor)}
+              {CORES_DISPONIVEIS.map((c) => (
+                <Pressable
+                  key={c}
+                  onPress={() => setNovaCor(c)}
                   accessibilityRole="button"
-                  accessibilityLabel={`cor ${cor}`}
+                  accessibilityState={{ selected: novaCor === c }}
+                  accessibilityLabel={`cor ${c}`}
+                  style={[
+                    estilos.corEscolha,
+                    { backgroundColor: c },
+                    novaCor === c && estilos.corEscolhaAtiva,
+                  ]}
                 />
               ))}
             </View>
-            <Botao onPress={confirmarNovoPerfil} acessibilidade="salvar novo perfil">
-              Salvar
-            </Botao>
+            <Botao
+              texto="Salvar"
+              variante="confirmar"
+              onPress={confirmarNovoPerfil}
+              desabilitado={novoNome.trim() === ''}
+              cheio
+              acessibilidade="salvar novo perfil"
+            />
           </View>
         ) : (
-          <TouchableOpacity onPress={() => setCriando(true)} accessibilityRole="button">
-            <Text style={estilos.linkNovo}>➕ criar novo perfil</Text>
-          </TouchableOpacity>
+          <Botao
+            texto="Novo perfil"
+            variante="claro"
+            onPress={() => setCriando(true)}
+            acessibilidade="criar novo perfil"
+          />
         )}
 
         <Botao
+          texto={completo ? 'Continuar' : `Escolha mais ${faltam}`}
+          icone={completo ? 'play' : undefined}
+          desabilitado={!completo}
           onPress={() => onConfirmar(todosOsPerfis.filter((p) => selecionadosIds.includes(p.id)))}
+          cheio
           acessibilidade="confirmar seleção"
-        >
-          {completo ? '▶️ Continuar' : `Escolha ${quantidadeAlvo - selecionadosIds.length} a mais`}
-        </Botao>
+        />
       </ScrollView>
-    </SafeAreaView>
+    </TelaBase>
   );
 }
 
 const estilos = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: cores.papel,
-  },
-  raiz: {
-    padding: espacamento.lg,
-    gap: espacamento.md,
-    backgroundColor: cores.papel,
-  },
-  titulo: {
-    fontFamily: fontes.titulo,
-    fontSize: 20,
-    color: cores.tinta,
-  },
-  lista: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: espacamento.sm,
-  },
+  conteudo: { gap: 16, paddingVertical: 8 },
+  titulo: { fontFamily: fonte.display, fontSize: tamanho.titulo, color: cor.tinta },
+  lista: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   cartaoPerfil: {
+    minHeight: alvo.botao,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: espacamento.xs,
-    padding: espacamento.sm,
-    borderRadius: raio.md,
-    borderWidth: 2,
-    backgroundColor: cores.papelAlt,
-  },
-  cartaoPerfilAtivo: {
-    backgroundColor: cores.blocoAzulT,
-  },
-  bolinhaCor: {
-    width: 20,
-    height: 20,
-    borderRadius: raio.pill,
-  },
-  nomePerfil: {
-    fontFamily: fontes.corpoBold,
-    fontSize: 15,
-    color: cores.tinta,
-  },
-  formNovo: {
-    gap: espacamento.sm,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: cores.linha,
-    borderRadius: raio.sm,
-    padding: espacamento.sm,
-    fontFamily: fontes.corpo,
-    fontSize: 15,
-    color: cores.tinta,
-  },
-  coresLinha: {
-    flexDirection: 'row',
-    gap: espacamento.sm,
-  },
-  bolinhaCorEscolha: {
-    width: 32,
-    height: 32,
-    borderRadius: raio.pill,
-  },
-  bolinhaCorEscolhaAtiva: {
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: raio.cartao,
     borderWidth: 3,
-    borderColor: cores.tinta,
+    borderColor: cor.grade,
+    backgroundColor: cor.papel2,
   },
-  linkNovo: {
-    fontFamily: fontes.corpoBold,
-    fontSize: 15,
-    color: cores.blocoAzul,
+  cartaoPerfilAtivo: { borderColor: cor.azul.base, backgroundColor: cor.azul.claro },
+  nomePerfil: { fontFamily: fonte.displayMedio, fontSize: tamanho.subtitulo, color: cor.tinta },
+  formNovo: { gap: 12 },
+  input: {
+    minHeight: alvo.minimo,
+    borderWidth: 2,
+    borderColor: cor.madeiraBorda,
+    borderRadius: raio.chip,
+    backgroundColor: cor.papel,
+    paddingHorizontal: 14,
+    fontFamily: fonte.textoForte,
+    fontSize: tamanho.subtitulo,
+    color: cor.tinta,
   },
+  coresLinha: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  corEscolha: {
+    width: alvo.minimo,
+    height: alvo.minimo,
+    borderRadius: alvo.minimo / 2,
+    borderWidth: 3,
+    borderColor: 'transparent',
+  },
+  corEscolhaAtiva: { borderColor: cor.tinta },
 });

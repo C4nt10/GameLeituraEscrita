@@ -1123,9 +1123,21 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       `resumo_historico` deixou de ser usado pela tela (segue testado; sai em
       T118 se ninguém mais usar). **Não visto:** o diálogo de apagar (é
       `Alert` do sistema, não redesenhado), paisagem, lista longa com rolagem.
-- [ ] T115 ⛔ **Dupla**: passar aparelho (bolha Andika, texto neutro — A-27) e
+- [x] T115 ⛔ **Dupla**: passar aparelho (bolha Andika, texto neutro — A-27) e
       resultado combinado (Juntos/Disputa, mensagem nunca depreciativa) + a
       **tela de seleção/criação de perfil, que ainda não tem desenho**.
+      > **Feito (2026-09-26), conferido no emulador em retrato pela rota real
+      `/dupla` (Ditado nível 1, cooperativo, 3 palavras cada):** seleção de
+      perfis (com "Novo perfil": nome + 6 cores do tema, bolinhas de 56),
+      "Agora é a vez de [Nome]!" com a bolha do perfil e o botão neutro "Vamos
+      lá!" (A-27), passar o aparelho e resultado combinado (Juntos: faixa
+      verde com o total; Disputa: destaque amarelo e mensagem sem depreciar).
+      Tela de seleção **não tinha desenho**: montada só com componentes do
+      padrão (`BolhaDePerfil`, `Botao`, `BotaoDeSaida`) e registrada aqui.
+      Ganhou "Voltar" (D-48). Perfil sem nome aparece como "Jogador" na
+      seleção e "Jogador 1/2" na vez e no resultado (regra existente).
+      **Não visto:** formato Disputa/adversarial, empate, paisagem, teclado
+      cobrindo o formulário em telas pequenas, TalkBack.
 - [ ] T116 ⛔ **Abertura**: logo em blocos caindo, mascote, "Tocar para
       começar" (A-30: só na abertura a frio).
 

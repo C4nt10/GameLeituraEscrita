@@ -1,16 +1,19 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Botao } from '../../components/Botao';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { Perfil } from '../../models/perfil';
 import type { RegistroHistorico } from '../../models/registro_historico';
-import { cores, espacamento, fontes, raio } from '../../theme';
+import { estrelasParaIcones } from '../../theme/helpers';
+import { cor, fonte, raio, tamanho } from '../../theme/tema';
+import { BolhaDePerfil } from '../../ui/BolhaDePerfil';
+import { Botao } from '../../ui/Botao';
+import { Estrela } from '../../ui/icones';
+import { TelaBase } from '../../ui/TelaBase';
 
 /**
- * Tela de resultado combinado (T063, CU-05 variante "resultado
- * combinado"): cooperativo mostra o total somado **e** o individual
- * lado a lado; adversarial mostra os dois lado a lado com destaque pra
- * quem teve mais, mensagem de quem teve menos nunca depreciativa (mesma
- * regra do CU-05 base, T025).
+ * Tela de resultado combinado (T063/T115, CU-05 variante "resultado
+ * combinado"): cooperativo (Juntos) mostra o total somado **e** o individual
+ * lado a lado; adversarial (Disputa) mostra os dois lado a lado com destaque
+ * pra quem teve mais — e a mensagem de quem teve menos nunca é depreciativa
+ * (mesma regra do CU-05 base). Rola se não couber (paisagem).
  */
 export interface TelaResultadoCombinadoProps {
   formato: 'cooperativo' | 'adversarial';
@@ -25,6 +28,39 @@ function nomeOu(perfil: Perfil, indice: number): string {
   return perfil.nome ?? `Jogador ${indice}`;
 }
 
+function CartaoIndividual({
+  nome,
+  corDoPerfil,
+  registro,
+  destaque,
+}: {
+  nome: string;
+  corDoPerfil: string | null;
+  registro: RegistroHistorico;
+  destaque?: boolean;
+}) {
+  return (
+    <View style={[estilos.cartao, destaque && estilos.cartaoDestaque]}>
+      <BolhaDePerfil nome={nome} cor={corDoPerfil} tamanho={56} />
+      <Text allowFontScaling={false} style={estilos.cartaoNome}>
+        {nome}
+      </Text>
+      <View
+        style={estilos.estrelas}
+        accessible
+        accessibilityLabel={`${registro.estrelas} de 5 estrelas`}
+        importantForAccessibility="yes"
+      >
+        {estrelasParaIcones(registro.estrelas).map((tipo, i) => (
+          <Estrela key={i} tipo={tipo} tamanho={22} />
+        ))}
+      </View>
+      <Text style={estilos.cartaoTexto}>{registro.acertos} acertos</Text>
+      <Text style={estilos.cartaoTexto}>{Math.round(registro.precisao * 100)}% precisão</Text>
+    </View>
+  );
+}
+
 export function TelaResultadoCombinado({
   formato,
   perfil1,
@@ -36,164 +72,125 @@ export function TelaResultadoCombinado({
   const nome1 = nomeOu(perfil1, 1);
   const nome2 = nomeOu(perfil2, 2);
 
-  if (formato === 'cooperativo') {
-    const estrelasTotal = registro1.estrelas + registro2.estrelas;
-    const acertosTotal = registro1.acertos + registro2.acertos;
-
-    return (
-      <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
-        <Text style={estilos.titulo}>🎉 Juntos vocês fizeram muito bem!</Text>
-        <Text style={estilos.totalEstrelas}>{estrelasTotal.toFixed(1)} ★ no total</Text>
-        <Text style={estilos.totalTexto}>{acertosTotal} acertos somados</Text>
-
-        <View style={estilos.linhaIndividual}>
-          <CartaoIndividual nome={nome1} cor={perfil1.cor} registro={registro1} />
-          <CartaoIndividual nome={nome2} cor={perfil2.cor} registro={registro2} />
-        </View>
-
-        <Botao onPress={onJogarDeNovo} acessibilidade="jogar de novo">
-          🔁 Jogar de novo
-        </Botao>
-      </SafeAreaView>
-    );
-  }
-
-  // adversarial
+  const cooperativo = formato === 'cooperativo';
   const quemTeveMais =
     registro1.estrelas === registro2.estrelas
       ? null
       : registro1.estrelas > registro2.estrelas
         ? nome1
         : nome2;
-  const quemTeveMenosRegistro = registro1.estrelas <= registro2.estrelas ? registro1 : registro2;
-  const nomeQuemTeveMenos = registro1.estrelas <= registro2.estrelas ? nome1 : nome2;
-  const nomeQuemTeveMais = registro1.estrelas <= registro2.estrelas ? nome2 : nome1;
+  const nomeQuemTeveMenos = quemTeveMais === nome1 ? nome2 : nome1;
+
+  const titulo = cooperativo
+    ? 'Juntos vocês foram muito bem!'
+    : quemTeveMais
+      ? `${quemTeveMais} tirou mais hoje!`
+      : 'Empate — os dois foram muito bem!';
+
+  const estrelasTotal = registro1.estrelas + registro2.estrelas;
+  const acertosTotal = registro1.acertos + registro2.acertos;
 
   return (
-    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
-      <Text style={estilos.titulo}>
-        {quemTeveMais ? `${quemTeveMais} tirou mais hoje!` : 'Empate — os dois foram muito bem!'}
-      </Text>
-
-      <View style={estilos.linhaIndividual}>
-        <CartaoIndividual
-          nome={nome1}
-          cor={perfil1.cor}
-          registro={registro1}
-          destaque={quemTeveMais === nome1}
-        />
-        <CartaoIndividual
-          nome={nome2}
-          cor={perfil2.cor}
-          registro={registro2}
-          destaque={quemTeveMais === nome2}
-        />
-      </View>
-
-      {quemTeveMais && (
-        <Text style={estilos.mensagemNaoDepreciativa}>
-          Você acertou {quemTeveMenosRegistro.acertos} de{' '}
-          {quemTeveMenosRegistro.acertos + quemTeveMenosRegistro.erros} — {nomeQuemTeveMais} tirou
-          mais hoje, bora tentar de novo, {nomeQuemTeveMenos}?
+    <TelaBase>
+      <ScrollView
+        contentContainerStyle={estilos.conteudo}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <Text allowFontScaling={false} style={estilos.titulo}>
+          {titulo}
         </Text>
-      )}
 
-      <Botao onPress={onJogarDeNovo} acessibilidade="jogar de novo">
-        🔁 Jogar de novo
-      </Botao>
-    </SafeAreaView>
-  );
-}
+        <View style={estilos.colunas}>
+          <CartaoIndividual
+            nome={nome1}
+            corDoPerfil={perfil1.cor}
+            registro={registro1}
+            destaque={!cooperativo && quemTeveMais === nome1}
+          />
+          <CartaoIndividual
+            nome={nome2}
+            corDoPerfil={perfil2.cor}
+            registro={registro2}
+            destaque={!cooperativo && quemTeveMais === nome2}
+          />
+        </View>
 
-function CartaoIndividual({
-  nome,
-  cor,
-  registro,
-  destaque,
-}: {
-  nome: string;
-  cor: string | null;
-  registro: RegistroHistorico;
-  destaque?: boolean;
-}) {
-  return (
-    <View
-      style={[
-        estilos.cartao,
-        destaque && estilos.cartaoDestaque,
-        { borderColor: cor ?? cores.linha },
-      ]}
-    >
-      <Text style={estilos.cartaoNome}>{nome}</Text>
-      <Text style={estilos.cartaoEstrelas}>{registro.estrelas.toFixed(1)} ★</Text>
-      <Text style={estilos.cartaoTexto}>
-        {registro.acertos} acertos · {registro.erros} erros
-      </Text>
-      <Text style={estilos.cartaoTexto}>{Math.round(registro.precisao * 100)}% precisão</Text>
-    </View>
+        {cooperativo ? (
+          <View style={[estilos.faixa, estilos.faixaVerde]}>
+            <Text style={estilos.faixaTexto}>
+              {estrelasTotal.toFixed(1)} estrelas e {acertosTotal} acertos juntos!
+            </Text>
+          </View>
+        ) : (
+          quemTeveMais && (
+            <View style={[estilos.faixa, estilos.faixaAmarela]}>
+              <Text style={estilos.faixaTexto}>
+                {quemTeveMais} acertou mais hoje — {nomeQuemTeveMenos}, bora tentar de novo?
+              </Text>
+            </View>
+          )
+        )}
+
+        <View style={estilos.botao}>
+          <Botao
+            texto="Jogar de novo"
+            icone="play"
+            onPress={onJogarDeNovo}
+            cheio
+            acessibilidade="jogar de novo"
+          />
+        </View>
+      </ScrollView>
+    </TelaBase>
   );
 }
 
 const estilos = StyleSheet.create({
-  raiz: {
-    flex: 1,
+  conteudo: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: espacamento.md,
-    padding: espacamento.lg,
-    backgroundColor: cores.papel,
+    gap: 18,
+    paddingVertical: 8,
   },
   titulo: {
-    fontFamily: fontes.titulo,
-    fontSize: 19,
-    color: cores.tinta,
+    fontFamily: fonte.display,
+    fontSize: tamanho.titulo,
+    lineHeight: 34,
+    color: cor.tinta,
     textAlign: 'center',
   },
-  totalEstrelas: {
-    fontFamily: fontes.titulo,
-    fontSize: 30,
-    color: cores.blocoAmarelo,
-  },
-  totalTexto: {
-    fontFamily: fontes.corpo,
-    fontSize: 14,
-    color: cores.tintaFraca,
-  },
-  linhaIndividual: {
-    flexDirection: 'row',
-    gap: espacamento.sm,
-  },
+  colunas: { flexDirection: 'row', gap: 12 },
   cartao: {
-    padding: espacamento.sm,
-    borderRadius: raio.md,
-    borderWidth: 2,
-    backgroundColor: cores.papelAlt,
-    minWidth: 130,
+    width: 150,
     alignItems: 'center',
+    gap: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderRadius: raio.cartao,
+    backgroundColor: cor.papel2,
+    borderWidth: 3,
+    borderColor: cor.papel2,
   },
-  cartaoDestaque: {
-    backgroundColor: cores.blocoAmareloT,
+  cartaoDestaque: { backgroundColor: cor.amarelo.claro, borderColor: cor.amarelo.base },
+  cartaoNome: { fontFamily: fonte.displayMedio, fontSize: tamanho.subtitulo, color: cor.tinta },
+  estrelas: { flexDirection: 'row' },
+  cartaoTexto: { fontFamily: fonte.texto, fontSize: tamanho.legenda, color: cor.tinta },
+  faixa: {
+    maxWidth: 320,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: raio.cartao,
+    borderWidth: 2,
   },
-  cartaoNome: {
-    fontFamily: fontes.titulo,
-    fontSize: 14,
-    color: cores.tinta,
-  },
-  cartaoEstrelas: {
-    fontFamily: fontes.titulo,
-    fontSize: 18,
-    color: cores.blocoAmarelo,
-  },
-  cartaoTexto: {
-    fontFamily: fontes.corpo,
-    fontSize: 12,
-    color: cores.tintaFraca,
-  },
-  mensagemNaoDepreciativa: {
-    fontFamily: fontes.corpo,
-    fontSize: 13,
-    color: cores.tintaFraca,
+  faixaVerde: { backgroundColor: cor.verde.claro, borderColor: cor.verde.base },
+  faixaAmarela: { backgroundColor: cor.amarelo.claro, borderColor: cor.amarelo.base },
+  faixaTexto: {
+    fontFamily: fonte.textoForte,
+    fontSize: tamanho.texto,
+    color: cor.tinta,
     textAlign: 'center',
-    maxWidth: 300,
   },
+  botao: { width: '100%', maxWidth: 320 },
 });

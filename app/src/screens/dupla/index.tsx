@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { TelaSelecaoPerfil } from '../selecao_perfil';
+import { TelaDeVez } from './TelaDeVez';
 import { TelaResultadoCombinado } from '../resultado_dupla';
 import { RodadaLeitura, type DependenciasRodadaLeitura } from '../rodada';
 import { RodadaMatematica } from '../rodada_matematica';
@@ -14,7 +13,6 @@ import type {
   Modalidade,
   RegistroHistorico,
 } from '../../models/registro_historico';
-import { cores, espacamento, fontes, raio, sombraBlk } from '../../theme';
 
 /**
  * RodadaDupla — fluxo completo de US5 (T062, CU-08, D-30): seleção de 2
@@ -51,33 +49,6 @@ export interface RodadaDuplaProps {
 }
 
 type Fase = 'selecionar_perfis' | 'vez_1' | 'jogando_1' | 'transicao' | 'jogando_2' | 'resultado';
-
-function TelaTransicao({
-  titulo,
-  subtitulo,
-  onContinuar,
-  cor,
-}: {
-  titulo: string;
-  subtitulo: string;
-  onContinuar: () => void;
-  cor: string | null;
-}) {
-  return (
-    <SafeAreaView style={estilos.raizTransicao} edges={['top', 'bottom']}>
-      <Text style={estilos.transicaoTitulo}>{titulo}</Text>
-      <Text style={estilos.transicaoSubtitulo}>{subtitulo}</Text>
-      <TouchableOpacity
-        style={[estilos.botaoGrande, { backgroundColor: cor ?? cores.blocoAzul }]}
-        onPress={onContinuar}
-        accessibilityRole="button"
-        accessibilityLabel="continuar"
-      >
-        <Text style={estilos.botaoGrandeTexto}>▶️ Toque pra continuar</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
-  );
-}
 
 export function RodadaDupla({
   formatoDupla,
@@ -151,6 +122,7 @@ export function RodadaDupla({
           setFase('vez_1');
         }}
         onCriarPerfil={onCriarPerfil}
+        onVoltar={onFinalizar}
       />
     );
   }
@@ -159,11 +131,11 @@ export function RodadaDupla({
 
   if (fase === 'vez_1') {
     return (
-      <TelaTransicao
-        titulo={`Vez de ${perfis[0].nome ?? 'Jogador 1'}!`}
-        subtitulo="A mesma configuração vale pros dois, pra comparação ser justa."
+      <TelaDeVez
+        nome={perfis[0].nome ?? 'Jogador 1'}
         cor={perfis[0].cor}
-        onContinuar={() => setFase('jogando_1')}
+        subtitulo="A mesma rodada vale para os dois, para a comparação ser justa."
+        aoContinuar={() => setFase('jogando_1')}
       />
     );
   }
@@ -182,11 +154,11 @@ export function RodadaDupla({
 
   if (fase === 'transicao') {
     return (
-      <TelaTransicao
-        titulo={`Passa o aparelho pra ${perfis[1].nome ?? 'Jogador 2'}!`}
-        subtitulo={`${perfis[0].nome ?? 'Jogador 1'} já terminou — agora é a vez de ${perfis[1].nome ?? 'Jogador 2'}.`}
+      <TelaDeVez
+        nome={perfis[1].nome ?? 'Jogador 2'}
         cor={perfis[1].cor}
-        onContinuar={() => setFase('jogando_2')}
+        subtitulo={`Passe o aparelho. ${perfis[0].nome ?? 'Jogador 1'} já terminou.`}
+        aoContinuar={() => setFase('jogando_2')}
       />
     );
   }
@@ -219,40 +191,3 @@ export function RodadaDupla({
 
   return null;
 }
-
-const estilos = StyleSheet.create({
-  raizTransicao: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: espacamento.lg,
-    padding: espacamento.lg,
-    backgroundColor: cores.papel,
-  },
-  transicaoTitulo: {
-    fontFamily: fontes.titulo,
-    fontSize: 24,
-    color: cores.tinta,
-    textAlign: 'center',
-  },
-  transicaoSubtitulo: {
-    fontFamily: fontes.corpo,
-    fontSize: 14,
-    color: cores.tintaFraca,
-    textAlign: 'center',
-    maxWidth: 280,
-  },
-  botaoGrande: {
-    paddingVertical: espacamento.lg,
-    paddingHorizontal: espacamento.lg,
-    borderRadius: raio.botao,
-    minWidth: 220,
-    alignItems: 'center',
-    ...sombraBlk,
-  },
-  botaoGrandeTexto: {
-    fontFamily: fontes.titulo,
-    fontSize: 18,
-    color: cores.papel,
-  },
-});
