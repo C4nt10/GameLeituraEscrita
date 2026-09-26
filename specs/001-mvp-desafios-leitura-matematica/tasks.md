@@ -1152,9 +1152,20 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
 
 ### 10d. Identidade do app
 
-- [ ] T117 ⛔ Nome de exibição "Letra Viva" no `app.json` (**slug, scheme e
+- [x] T117 ⛔ Nome de exibição "Letra Viva" no `app.json` (**slug, scheme e
       package ficam** — mudá-los quebra o vínculo com o EAS e a assinatura) e
       ícone/splash/adaptive icon do mascote (A-35: arte final do dono).
+      > **Feito (2026-09-26), parcial na conferência:** `name` = "Letra Viva"
+      (slug, scheme, package e projectId **intactos**); ícone, ícone adaptativo
+      (primeiro plano, fundo `#FFF8EA` liso e monocromático com recortes
+      transparentes), splash e favicon **gerados do mascote do protótipo** e
+      configuração do `expo-splash-screen` com fundo de papel. **É arte
+      provisória:** o "A" da lateral é um desenho meu (o SVG do protótipo usa a
+      fonte Andika, que o renderizador não tem) e o mascote não passou pelo
+      dono como ícone final (A-35). `expo config` e o export Android passam.
+      **Só se vê num build nativo** (Expo Go não usa ícone nem splash) — falta
+      um APK pra conferir o ícone na tela do aparelho, o recorte do adaptativo
+      e a splash. Consulta ao INPI (classes 9 e 41) segue pendente antes da loja.
 
 ### 10e. Fechamento
 

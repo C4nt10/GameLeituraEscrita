@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "GameLeituraEscrita",
+    "name": "Letra Viva",
     "slug": "gameleituraescrita",
     "owner": "devirlabs",
     "scheme": "gameleituraescrita",
@@ -18,7 +18,7 @@
     "android": {
       "package": "com.devirlabs.gameleituraescrita",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FFF8EA",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -40,7 +40,7 @@
       "expo-router",
       "expo-status-bar",
       "expo-font",
-      "expo-splash-screen"
+      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "imageWidth": 200, "backgroundColor": "#FFF8EA" }]
     ],
     "extra": {
       "router": {},
