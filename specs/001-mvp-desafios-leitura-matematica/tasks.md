@@ -850,43 +850,52 @@ material dourado.
 
 #### Tests for 9b ⚠️ (escrever e ver falhar antes)
 
-- [ ] T076 [P] [US2] Teste unitário: `gerador_matematica` respeita o teto
+- [x] T076 [P] [US2] Teste unitário: `gerador_matematica` respeita o teto
+      > **Feito (2026-09-26):** gerador_matematica_test.ts reescrito: 8 níveis, 300 amostras com seed por nível, tetos, nunca negativo, erro fora de 1–8. Visto falhar (grade antiga) antes de T079.
       de cada um dos 8 níveis (resultado ≤ 5 no 1, ≤ 10 nos 2-4, ≤ 20 nos
       5-7), nunca gera negativo nem zero em subtração, sempre 4
       alternativas distintas e próximas; nível fora de 1–8 lança erro em
       vez de virar multiplicação. Varredura com muitas amostras e gerador
       de números com seed. (US2 cenários 3, 4, 5; FR-022)
-- [ ] T077 [P] [US2] Teste unitário: `representacao_quantidade` — até 10
+- [x] T077 [P] [US2] Teste unitário: `representacao_quantidade` — até 10
+      > **Feito (2026-09-26):** representacao_quantidade_test.ts: bolinhas em linhas de 5, dourado 11–20, bordas 10/20, entradas inválidas, grupos. Visto falhar antes de T080.
       devolve bolinhas em linhas de 5 (ex.: 7 → 5+2); de 11 a 20 devolve
       dezenas + unidades (ex.: 14 → 1 barra + 4 cubinhos); 10 exato e 20
       exato nas bordas; nível 8 devolve N grupos de M. (US2 cenário 6;
       FR-023)
-- [ ] T078 [P] [US3] Teste unitário: `configuracao` guarda e devolve
+- [x] T078 [P] [US3] Teste unitário: `configuracao` guarda e devolve
+      > **Feito (2026-09-26):** configuracao_migracao_test.ts com banco falso (expo-sqlite é nativo, não roda em Jest): coluna ausente → ALTER ... DEFAULT 1, sem DROP/DELETE; presente → nada; idempotente. **O SQL em si não foi executado num banco real** — só a lógica da migração.
       `ultimo_nivel_matematica` separado de `ultimo_nivel`; padrão 1;
       migração aditiva não perde linha existente. (US2 cenário 7, US3
       cenário 6; FR-024)
 
 #### Implementation for 9b
 
-- [ ] T079 [US2] Reescrever `gerador_matematica` pra grade de 8 níveis
+- [x] T079 [US2] Reescrever `gerador_matematica` pra grade de 8 níveis
+      > **Feito (2026-09-26):** gerador reescrito; nível fora de 1–8 lança erro. Faixas são proposta (A-14).
       (faz T076 passar); ajustar `problema_contextualizado` se ele depender
       da grade antiga. Faixas marcadas "a calibrar" (A-14).
-- [ ] T080 [P] [US2] Implementar `representacao_quantidade` (função pura,
+- [x] T080 [P] [US2] Implementar `representacao_quantidade` (função pura,
+      > **Feito (2026-09-26):** representacao_quantidade (função pura) + componente QuantidadeVisual (bolinhas, barra de 10 + cubinhos, grupos). Só exibição.
       faz T077 passar) e o componente `QuantidadeVisual` (bolinhas em
       linhas de 5; barra de 10 + cubinhos; grupos no nível 8). Só exibição.
-- [ ] T081 [US2] Ligar `QuantidadeVisual` a `TelaMatematica` nas duas
+- [x] T081 [US2] Ligar `QuantidadeVisual` a `TelaMatematica` nas duas
+      > **Feito (2026-09-26):** TelaMatematica usa QuantidadeVisual nas duas formas (pura: número + desenho; contextualizada: só desenho). **Não conferido visualmente em aparelho** (nem em retrato/paisagem, D-38) — entra no próximo APK.
       formas, níveis 1–7 (substitui o `'●'.repeat(n)` da forma
       contextualizada); respeitar alvo/legibilidade em retrato e paisagem
       (D-38).
-- [ ] T082 [US3] `configuracao`: campo `ultimoNivelMatematica` + migração
+- [x] T082 [US3] `configuracao`: campo `ultimoNivelMatematica` + migração
+      > **Feito (2026-09-26):** Configuracao.ultimoNivelMatematica + migração ligada em abrirEIniciar; salvar/ler incluem a coluna.
       aditiva no `expo-sqlite` (faz T078 passar). `data-model.md` já
       atualizado.
-- [ ] T083 [US3] Seletor de nível de matemática (1–8) em "mais opções"
+- [x] T083 [US3] Seletor de nível de matemática (1–8) em "mais opções"
+      > **Feito (2026-09-26):** Seletor de nível de matemática (1–8) em 'mais opções' quando o tipo envolve matemática; EscolhaRodada.nivel é o nível do tipo escolhido; index.tsx persiste só o nível do tipo jogado. Nível 8 força conta pura (aviso na tela).
       quando o tipo envolve matemática; `/rodada-matematica` passa a usar
       o nível de matemática (deixa de herdar o de leitura); D-40
       (`sugerirProximoNivel`) age sobre o nível do tipo jogado e respeita
       o teto 8 vs 5.
-- [ ] T084 [P] Atualizar/criar specs Maestro (`app/e2e/`) pra: "mais
+- [x] T084 [P] Atualizar/criar specs Maestro (`app/e2e/`) pra: "mais
+      > **Feito (2026-09-26):** Escritos: mais_opcoes_recolhido.yaml, matematica_nivel_inicial.yaml, leitura_voz_desabilitada.yaml. **Não executados** (sem Maestro CLI).
       opções" recolhido por padrão, matemática nível 1 com quantidade
       visual, seletor de nível de matemática. **Ressalva**: até hoje nenhum
       spec Maestro foi executado; o emulador Docker (`docker/android/`) agora
@@ -898,11 +907,19 @@ material dourado.
 microfone, lê a palavra, toca de novo, e o app mostra o que entendeu; e,
 num build sem o motor, a modalidade aparece desabilitada com o motivo.
 
-- [ ] T085 [P] [US1] Teste unitário/integração: com a capacidade
+- [x] T095 [US2] **Achado ao executar a 9b:** "Problema" (matemática contextualizada) não fazia nada — a
+      tela de configuração escondia o tema quando o tipo era matemática, então `classificacao` ia
+      vazia e o orquestrador caía em conta pura em silêncio; e, com a grade nova, "Problema" no
+      nível 8 (multiplicação) lançaria erro (crash). Corrigido: `classificacaoAleatoria()` sorteia um
+      tema quando não há escolha, e o nível 8 vai sempre como conta pura (com aviso na tela). Teste em
+      `problema_contextualizado_test.ts` (visto falhar antes).
+- [x] T085 [P] [US1] Teste unitário/integração: com a capacidade
+      > **Feito (2026-09-26):** leitura_voz_disponibilidade_test.ts (5 casos do gate + repasse do STT em verificarCapacidades). Visto falhar antes de T086. Cobertura é de lógica; o comportamento da tela é só Maestro (T084, não executado).
       `reconhecimentoDeVoz` indisponível, a configuração mostra "Leitura ·
       voz" desabilitada com motivo visível e "Começar" não inicia uma
       rodada de voz. (US1 cenário 9; FR-013, FR-025)
-- [ ] T086 [US1] Implementar a capacidade `reconhecimentoDeVoz` em
+- [x] T086 [US1] Implementar a capacidade `reconhecimentoDeVoz` em
+      > **Feito (2026-09-26):** services/stt (placeholder honesto: indisponível com motivo) + CapacidadesAparelho.reconhecimentoDeVoz + leituraVozDisponivel(); configuração desabilita o chip com motivo sempre visível, não abre em Leitura · voz se ela não está disponível, e TelaLeituraVoz usa o mesmo gate.
       `capacidade_aparelho` + o gate na configuração (faz T085 passar). É a
       correção **imediata** do defeito do teste: entra antes do motor.
 - [ ] T087 [US1] **Spike de integração do `whisper.rn`** em aparelho real

@@ -1,5 +1,6 @@
 import * as Speech from 'expo-speech';
 import { getRecordingPermissionsAsync } from 'expo-audio';
+import { verificarMotorDeVoz } from '../stt';
 
 /**
  * capacidade_aparelho — detecta se microfone e voz em português estão
@@ -21,15 +22,29 @@ export interface RecursoCapacidade {
 export interface CapacidadesAparelho {
   microfone: RecursoCapacidade;
   vozPortugues: RecursoCapacidade;
+  /** Motor de STT integrado no app e com modelo carregado (D-44) — não é do aparelho, é do app. */
+  reconhecimentoDeVoz: RecursoCapacidade;
 }
 
 export async function verificarCapacidades(): Promise<CapacidadesAparelho> {
-  const [microfone, vozPortugues] = await Promise.all([
+  const [microfone, vozPortugues, reconhecimentoDeVoz] = await Promise.all([
     verificarMicrofone(),
     verificarVozPortugues(),
+    verificarMotorDeVoz(),
   ]);
 
-  return { microfone, vozPortugues };
+  return { microfone, vozPortugues, reconhecimentoDeVoz };
+}
+
+/**
+ * Leitura · voz só é jogável com microfone E motor de reconhecimento
+ * (D-44, FR-013, FR-025). Sem motor, a permissão de microfone não
+ * adianta, então o motivo do motor vem primeiro.
+ */
+export function leituraVozDisponivel(capacidades: CapacidadesAparelho): RecursoCapacidade {
+  if (!capacidades.reconhecimentoDeVoz.disponivel) return capacidades.reconhecimentoDeVoz;
+  if (!capacidades.microfone.disponivel) return capacidades.microfone;
+  return { disponivel: true, motivo: null };
 }
 
 async function verificarMicrofone(): Promise<RecursoCapacidade> {

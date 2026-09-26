@@ -7,7 +7,7 @@ import {
   salvarConfiguracao,
   type Configuracao,
 } from '../services/configuracao';
-import { verificarCapacidades } from '../services/capacidade_aparelho';
+import { leituraVozDisponivel, verificarCapacidades } from '../services/capacidade_aparelho';
 import { garantirPerfilPadrao } from '../services/perfis';
 import { PERFIL_PADRAO_ID } from '../models/perfil';
 import { cores } from '../theme';
@@ -21,9 +21,11 @@ import { cores } from '../theme';
  */
 export default function Index() {
   const [configuracao, setConfiguracao] = useState<Configuracao | null>(null);
-  const [microfoneDisponivel, setMicrofoneDisponivel] = useState(true);
-  const [motivoMicrofoneIndisponivel, setMotivoMicrofoneIndisponivel] = useState<string | null>(
-    null,
+  // começa indisponível e só habilita depois de `verificarCapacidades` confirmar — nunca oferece
+  // Leitura · voz por otimismo (D-44).
+  const [vozDisponivel, setVozDisponivel] = useState(false);
+  const [motivoVozIndisponivel, setMotivoVozIndisponivel] = useState<string | null>(
+    'Verificando o reconhecimento de voz...',
   );
 
   useEffect(() => {
@@ -34,8 +36,9 @@ export default function Index() {
     });
     verificarCapacidades().then((capacidades) => {
       if (cancelado) return;
-      setMicrofoneDisponivel(capacidades.microfone.disponivel);
-      setMotivoMicrofoneIndisponivel(capacidades.microfone.motivo);
+      const voz = leituraVozDisponivel(capacidades);
+      setVozDisponivel(voz.disponivel);
+      setMotivoVozIndisponivel(voz.motivo);
     });
     return () => {
       cancelado = true;
@@ -50,7 +53,10 @@ export default function Index() {
     if (!configuracao) return;
     void salvarConfiguracao({
       ...configuracao,
-      ultimoNivel: escolha.nivel,
+      // nível de leitura e de matemática são independentes (D-43) — salva só o do tipo jogado
+      ...(escolha.tipo === 'matematica'
+        ? { ultimoNivelMatematica: escolha.nivel }
+        : { ultimoNivel: escolha.nivel }),
       ultimasClassificacoes: escolha.classificacao ? [escolha.classificacao] : ['todas'],
       ultimoTamanho: escolha.tamanho,
       ultimaModalidade: escolha.modalidade,
@@ -61,8 +67,8 @@ export default function Index() {
   return (
     <TelaConfiguracao
       configuracaoInicial={configuracao}
-      microfoneDisponivel={microfoneDisponivel}
-      motivoMicrofoneIndisponivel={motivoMicrofoneIndisponivel}
+      leituraVozDisponivel={vozDisponivel}
+      motivoLeituraVozIndisponivel={motivoVozIndisponivel}
       onIniciar={(escolha) => {
         persistirEscolha(escolha);
         const classificacaoParam = escolha.classificacao

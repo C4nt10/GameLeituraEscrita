@@ -1,5 +1,6 @@
 import type * as SQLite from 'expo-sqlite';
 import { obterBancoLocal } from '../../lib/bancoLocal';
+import { migrarConfiguracao } from './migracao';
 import type { Classificacao, FormaMatematica, Modalidade } from '../../models/registro_historico';
 
 /**
@@ -19,7 +20,10 @@ export interface Configuracao {
   /** `null` até o primeiro teste de voz (CU-07). */
   vozId: string | null;
   nomeOuFonema: 'nome' | 'fonema';
+  /** Nível de **leitura** (1–5). */
   ultimoNivel: number;
+  /** Nível de **matemática** (1–8), independente do de leitura (D-43). */
+  ultimoNivelMatematica: number;
   /** `['todas']` é o padrão — sem filtro de classificação. */
   ultimasClassificacoes: (Classificacao | 'todas')[];
   ultimoTamanho: 3 | 5 | 8;
@@ -33,6 +37,7 @@ export function configuracaoPadrao(perfilId: string): Configuracao {
     vozId: null,
     nomeOuFonema: 'fonema', // D-26
     ultimoNivel: 1,
+    ultimoNivelMatematica: 1,
     ultimasClassificacoes: ['todas'],
     ultimoTamanho: 5,
     ultimaModalidade: 'leitura_montar',
@@ -63,6 +68,7 @@ async function abrirEIniciar(): Promise<SQLite.SQLiteDatabase> {
       ultima_forma_matematica TEXT NOT NULL
     );
   `);
+  await migrarConfiguracao(db);
   return db;
 }
 
@@ -71,6 +77,7 @@ interface LinhaConfiguracao {
   voz_id: string | null;
   nome_ou_fonema: string;
   ultimo_nivel: number;
+  ultimo_nivel_matematica: number;
   ultimas_classificacoes: string;
   ultimo_tamanho: number;
   ultima_modalidade: string;
@@ -83,6 +90,7 @@ function daLinha(linha: LinhaConfiguracao): Configuracao {
     vozId: linha.voz_id,
     nomeOuFonema: linha.nome_ou_fonema as Configuracao['nomeOuFonema'],
     ultimoNivel: linha.ultimo_nivel,
+    ultimoNivelMatematica: linha.ultimo_nivel_matematica,
     ultimasClassificacoes: JSON.parse(
       linha.ultimas_classificacoes,
     ) as Configuracao['ultimasClassificacoes'],
@@ -107,13 +115,14 @@ export async function salvarConfiguracao(config: Configuracao): Promise<void> {
   const db = await obterBanco();
   await db.runAsync(
     `INSERT INTO configuracao (
-      perfil_id, voz_id, nome_ou_fonema, ultimo_nivel, ultimas_classificacoes,
-      ultimo_tamanho, ultima_modalidade, ultima_forma_matematica
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      perfil_id, voz_id, nome_ou_fonema, ultimo_nivel, ultimo_nivel_matematica,
+      ultimas_classificacoes, ultimo_tamanho, ultima_modalidade, ultima_forma_matematica
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(perfil_id) DO UPDATE SET
       voz_id = excluded.voz_id,
       nome_ou_fonema = excluded.nome_ou_fonema,
       ultimo_nivel = excluded.ultimo_nivel,
+      ultimo_nivel_matematica = excluded.ultimo_nivel_matematica,
       ultimas_classificacoes = excluded.ultimas_classificacoes,
       ultimo_tamanho = excluded.ultimo_tamanho,
       ultima_modalidade = excluded.ultima_modalidade,
@@ -122,6 +131,7 @@ export async function salvarConfiguracao(config: Configuracao): Promise<void> {
     config.vozId,
     config.nomeOuFonema,
     config.ultimoNivel,
+    config.ultimoNivelMatematica,
     JSON.stringify(config.ultimasClassificacoes),
     config.ultimoTamanho,
     config.ultimaModalidade,

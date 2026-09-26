@@ -2,7 +2,10 @@ import { useMemo, useState } from 'react';
 import { calcularResultado } from '../../services/avaliacao';
 import { sugerirProximoNivel } from '../../services/ajuste_dificuldade';
 import { gerarDesafioMatematica } from '../../services/gerador_matematica';
-import { gerarProblemaContextualizado } from '../../services/problema_contextualizado';
+import {
+  classificacaoAleatoria,
+  gerarProblemaContextualizado,
+} from '../../services/problema_contextualizado';
 import { registrarRodada } from '../../services/historico';
 import { gerarId } from '../../lib/gerarId';
 import type { DesafioMatematica, FormaMatematica } from '../../models/desafio_matematica';
@@ -53,9 +56,14 @@ export interface RodadaMatematicaProps {
 
 type FaseRodada = 'jogando' | 'resultado';
 
+/** Multiplicação (nível 8) só existe como conta pura (D-41) — não há problema contextualizado dela. */
+const NIVEL_SO_CONTA_PURA = 8;
+
 function gerarDesafio(configuracao: ConfiguracaoRodadaMatematica): DesafioMatematica {
-  if (configuracao.forma === 'contextualizada' && configuracao.classificacao) {
-    return gerarProblemaContextualizado(configuracao.nivel, configuracao.classificacao);
+  if (configuracao.forma === 'contextualizada' && configuracao.nivel !== NIVEL_SO_CONTA_PURA) {
+    // "Problema" sem tema escolhido sorteia um tema — antes caía em conta pura em silêncio.
+    const classificacao = configuracao.classificacao ?? classificacaoAleatoria();
+    return gerarProblemaContextualizado(configuracao.nivel, classificacao);
   }
   return gerarDesafioMatematica(configuracao.nivel);
 }

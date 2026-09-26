@@ -3,7 +3,12 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { PillContador } from '../../../components/PillContador';
+import { QuantidadeVisual } from '../../../components/QuantidadeVisual';
 import type { DesafioMatematica } from '../../../models/desafio_matematica';
+import {
+  representarGrupos,
+  representarQuantidade,
+} from '../../../services/representacao_quantidade';
 import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../../theme';
 
 const SIMBOLO_OPERACAO: Record<DesafioMatematica['operacao'], string> = {
@@ -49,6 +54,48 @@ export interface TelaMatematicaProps {
   onAjuda?: () => void;
 }
 
+/**
+ * Conta com a quantidade de cada operando desenhada (D-42, FR-023) —
+ * sempre visível, nas duas formas. Na forma pura o número aparece junto
+ * do desenho; na contextualizada só o desenho (o enunciado falado já diz
+ * os números, D-24). Multiplicação (nível 8): N grupos de M.
+ */
+function ContaVisual({ desafio }: { desafio: DesafioMatematica }) {
+  const cor = desafio.forma === 'contextualizada' ? cores.categoriaAnimais : cores.blocoAzul;
+  const mostrarNumero = desafio.forma === 'pura';
+  const operador = SIMBOLO_OPERACAO[desafio.operacao];
+
+  if (desafio.operacao === 'multiplicacao') {
+    return (
+      <View style={estilos.contaColuna}>
+        <View style={estilos.objetosConta}>
+          <Text style={estilos.numeroConta}>{desafio.operandoA}</Text>
+          <Text style={estilos.operador}>{operador}</Text>
+          <Text style={estilos.numeroConta}>{desafio.operandoB}</Text>
+        </View>
+        <QuantidadeVisual
+          representacao={representarGrupos(desafio.operandoA, desafio.operandoB)}
+          cor={cor}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={estilos.objetosConta}>
+      <View style={estilos.operando}>
+        {mostrarNumero && <Text style={estilos.numeroConta}>{desafio.operandoA}</Text>}
+        <QuantidadeVisual representacao={representarQuantidade(desafio.operandoA)} cor={cor} />
+      </View>
+      <Text style={estilos.operador}>{operador}</Text>
+      <View style={estilos.operando}>
+        {mostrarNumero && <Text style={estilos.numeroConta}>{desafio.operandoB}</Text>}
+        <QuantidadeVisual representacao={representarQuantidade(desafio.operandoB)} cor={cor} />
+      </View>
+    </View>
+  );
+}
+
 export function TelaMatematica({
   desafio,
   falar,
@@ -86,19 +133,7 @@ export function TelaMatematica({
         <Text style={estilos.enunciadoTexto}>🔊 {textoFalado}</Text>
       </TouchableOpacity>
 
-      {desafio.forma === 'contextualizada' ? (
-        <View style={estilos.objetosConta}>
-          <Text style={estilos.objetos}>{'●'.repeat(desafio.operandoA)}</Text>
-          <Text style={estilos.operador}>{SIMBOLO_OPERACAO[desafio.operacao]}</Text>
-          <Text style={estilos.objetos}>{'●'.repeat(desafio.operandoB)}</Text>
-        </View>
-      ) : (
-        <View style={estilos.objetosConta}>
-          <Text style={estilos.numeroConta}>{desafio.operandoA}</Text>
-          <Text style={estilos.operador}>{SIMBOLO_OPERACAO[desafio.operacao]}</Text>
-          <Text style={estilos.numeroConta}>{desafio.operandoB}</Text>
-        </View>
-      )}
+      <ContaVisual desafio={desafio} />
 
       <View style={estilos.alternativas}>
         {desafio.alternativas.map((valor, indice) => (
@@ -141,13 +176,18 @@ const estilos = StyleSheet.create({
   },
   objetosConta: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: espacamento.md,
   },
-  objetos: {
-    fontSize: 22,
-    color: cores.categoriaAnimais,
-    maxWidth: 160,
+  contaColuna: {
+    alignItems: 'center',
+    gap: espacamento.sm,
+  },
+  operando: {
+    alignItems: 'center',
+    gap: espacamento.xs,
   },
   numeroConta: {
     fontFamily: fontes.tituloExtra,

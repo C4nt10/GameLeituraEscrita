@@ -1,0 +1,12 @@
+# US1 cenário 9 (D-44, FR-013, FR-025) — enquanto o reconhecimento de fala
+# real não estiver integrado, "Leitura · voz" aparece desabilitada com o
+# motivo visível na configuração, e a tela não abre nela por padrão.
+#
+# NÃO EXECUTADO — mesma ressalva de mais_opcoes_recolhido.yaml. Este spec
+# deixa de valer quando T091 remover o gate (motor integrado de verdade).
+
+appId: com.devirlabs.gameleituraescrita
+---
+- launchApp
+- assertVisible: 'Leitura · voz'
+- assertVisible: '.*ainda não está instalado.*'

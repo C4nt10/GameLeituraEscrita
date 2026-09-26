@@ -5,7 +5,7 @@ import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
 import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { avaliarLeitura } from '../../../services/avaliacao_leitura';
-import { verificarCapacidades } from '../../../services/capacidade_aparelho';
+import { leituraVozDisponivel, verificarCapacidades } from '../../../services/capacidade_aparelho';
 import { cores, espacamento, fontes, raio } from '../../../theme';
 
 /**
@@ -68,8 +68,9 @@ export function TelaLeituraVoz({
   useEffect(() => {
     let cancelado = false;
     verificarCapacidades().then((capacidades) => {
-      if (!cancelado && !capacidades.microfone.disponivel) {
-        setMotivoMicrofoneIndisponivel(capacidades.microfone.motivo);
+      const voz = leituraVozDisponivel(capacidades);
+      if (!cancelado && !voz.disponivel) {
+        setMotivoMicrofoneIndisponivel(voz.motivo);
       }
     });
     return () => {

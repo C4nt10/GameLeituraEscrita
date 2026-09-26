@@ -1,0 +1,18 @@
+# US2 cenários 5-7 (D-41, D-42, D-43) — matemática abre no nível 1 (padrão),
+# o seletor de nível de matemática (1–8) aparece em "mais opções", e o
+# desafio mostra a conta com a quantidade desenhada (nível 1: soma, então "+").
+#
+# NÃO EXECUTADO — mesma ressalva de mais_opcoes_recolhido.yaml. As
+# quantidades exatas são sorteadas, então este spec só confere a presença
+# da conta e do seletor, não os números.
+
+appId: com.devirlabs.gameleituraescrita
+---
+- launchApp
+- tapOn: 'Matemática'
+- tapOn: '⚙️ mais opções'
+- assertVisible: 'Nível'
+- assertVisible: '8'
+- tapOn: '▶️ Começar'
+- assertVisible: '🔁 repetições: 0'
+- assertVisible: '+'

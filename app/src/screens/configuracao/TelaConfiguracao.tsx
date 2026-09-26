@@ -14,6 +14,11 @@ export type FormatoDupla = 'cooperativo' | 'adversarial';
 export interface EscolhaRodada {
   tipo: Tipo;
   modalidade: Modalidade;
+  /**
+   * Nível **do tipo escolhido**: de matemática (1–8) quando `tipo =
+   * 'matematica'`, de leitura (1–5) nos demais — os dois são independentes
+   * e persistidos separado (D-43).
+   */
   nivel: number;
   /** `null` = "todas" (padrão) ou nível 1 (sem classificação, D-22). */
   classificacao: Classificacao | null;
@@ -25,6 +30,9 @@ export interface EscolhaRodada {
 }
 
 const TAMANHOS: (3 | 5 | 8)[] = [3, 5, 8];
+const NIVEIS_MATEMATICA = [1, 2, 3, 4, 5, 6, 7, 8];
+/** Multiplicação só existe como conta pura (D-41) — "Problema" não vale nesse nível. */
+const NIVEL_MATEMATICA_SO_CONTA = 8;
 const MODALIDADES: { valor: Modalidade; rotulo: string }[] = [
   { valor: 'ditado', rotulo: 'Ditado' },
   { valor: 'leitura_montar', rotulo: 'Leitura · montar' },
@@ -53,8 +61,9 @@ const MODALIDADES: { valor: Modalidade; rotulo: string }[] = [
  */
 export interface TelaConfiguracaoProps {
   configuracaoInicial: Configuracao;
-  microfoneDisponivel: boolean;
-  motivoMicrofoneIndisponivel: string | null;
+  /** Microfone E reconhecimento de fala reais (D-44) — `leituraVozDisponivel`. */
+  leituraVozDisponivel: boolean;
+  motivoLeituraVozIndisponivel: string | null;
   onIniciar: (escolha: EscolhaRodada) => void;
   /** CU-06 — histórico acessível pela tela inicial. */
   onAbrirHistorico: () => void;
@@ -62,14 +71,21 @@ export interface TelaConfiguracaoProps {
 
 export function TelaConfiguracao({
   configuracaoInicial,
-  microfoneDisponivel,
-  motivoMicrofoneIndisponivel,
+  leituraVozDisponivel,
+  motivoLeituraVozIndisponivel,
   onIniciar,
   onAbrirHistorico,
 }: TelaConfiguracaoProps) {
   const [tipo, setTipo] = useState<Tipo>('leitura');
-  const [modalidade, setModalidade] = useState<Modalidade>(configuracaoInicial.ultimaModalidade);
+  // nunca abre numa modalidade que não funciona (Princípio I): última era Leitura · voz e ela
+  // não está disponível → cai em Leitura · montar, que não depende de áudio nem de STT.
+  const [modalidade, setModalidade] = useState<Modalidade>(
+    configuracaoInicial.ultimaModalidade === 'leitura_voz' && !leituraVozDisponivel
+      ? 'leitura_montar'
+      : configuracaoInicial.ultimaModalidade,
+  );
   const [nivel, setNivel] = useState(configuracaoInicial.ultimoNivel);
+  const [nivelMatematica, setNivelMatematica] = useState(configuracaoInicial.ultimoNivelMatematica);
   const [classificacao, setClassificacao] = useState<Classificacao | null>(null);
   const [formaMatematica, setFormaMatematica] = useState<FormaMatematica>(
     configuracaoInicial.ultimaFormaMatematica,
@@ -92,7 +108,7 @@ export function TelaConfiguracao({
     [combinacoes, nivel],
   );
 
-  const modalidadeIndisponivel = modalidade === 'leitura_voz' && !microfoneDisponivel;
+  const modalidadeIndisponivel = modalidade === 'leitura_voz' && !leituraVozDisponivel;
   const tipoIndisponivel = tipo === 'misto';
   const formatoIndisponivel = formato === 'dupla' && formatoDupla === null;
   const podeIniciar = !modalidadeIndisponivel && !tipoIndisponivel && !formatoIndisponivel;
@@ -102,9 +118,9 @@ export function TelaConfiguracao({
     onIniciar({
       tipo,
       modalidade,
-      nivel,
+      nivel: tipo === 'matematica' ? nivelMatematica : nivel,
       classificacao,
-      formaMatematica,
+      formaMatematica: nivelMatematica === NIVEL_MATEMATICA_SO_CONTA ? 'pura' : formaMatematica,
       tamanho,
       formato,
       formatoDupla,
@@ -139,12 +155,16 @@ export function TelaConfiguracao({
         {tipo !== 'matematica' && (
           <Secao rotulo="Modalidade">
             <Segmentado
-              opcoes={MODALIDADES.map((m) => ({ valor: m.valor, rotulo: m.rotulo }))}
+              opcoes={MODALIDADES.map((m) => ({
+                valor: m.valor,
+                rotulo: m.rotulo,
+                desabilitada: m.valor === 'leitura_voz' && !leituraVozDisponivel,
+              }))}
               selecionado={modalidade}
               onSelecionar={setModalidade}
             />
-            {modalidadeIndisponivel && (
-              <Text style={estilos.aviso}>{motivoMicrofoneIndisponivel}</Text>
+            {!leituraVozDisponivel && (
+              <Text style={estilos.aviso}>🎤 Leitura · voz: {motivoLeituraVozIndisponivel}</Text>
             )}
           </Secao>
         )}
@@ -159,8 +179,18 @@ export function TelaConfiguracao({
 
         {maisOpcoes && (
           <>
+            {tipo !== 'leitura' && (
+              <Secao rotulo={tipo === 'misto' ? 'Nível de matemática' : 'Nível'}>
+                <Segmentado
+                  opcoes={NIVEIS_MATEMATICA.map((n) => ({ valor: n, rotulo: String(n) }))}
+                  selecionado={nivelMatematica}
+                  onSelecionar={setNivelMatematica}
+                />
+              </Secao>
+            )}
+
             {tipo !== 'matematica' && (
-              <Secao rotulo="Nível">
+              <Secao rotulo={tipo === 'misto' ? 'Nível de leitura' : 'Nível'}>
                 <Segmentado
                   opcoes={niveisDisponiveis.map((n) => ({ valor: n, rotulo: String(n) }))}
                   selecionado={nivel}
@@ -195,6 +225,9 @@ export function TelaConfiguracao({
                   selecionado={formaMatematica}
                   onSelecionar={setFormaMatematica}
                 />
+                {nivelMatematica === NIVEL_MATEMATICA_SO_CONTA && (
+                  <Text style={estilos.aviso}>No nível 8 só tem conta, sem problema 🙂</Text>
+                )}
               </Secao>
             )}
 
@@ -264,7 +297,7 @@ function Segmentado<T>({
   selecionado,
   onSelecionar,
 }: {
-  opcoes: { valor: T; rotulo: string }[];
+  opcoes: { valor: T; rotulo: string; desabilitada?: boolean }[];
   selecionado: T;
   onSelecionar: (valor: T) => void;
 }) {
@@ -272,13 +305,19 @@ function Segmentado<T>({
     <View style={estilos.segmentado}>
       {opcoes.map((opcao) => {
         const ativo = opcao.valor === selecionado;
+        const desabilitada = opcao.desabilitada ?? false;
         return (
           <TouchableOpacity
             key={String(opcao.valor)}
-            style={[estilos.chip, ativo && estilos.chipAtivo]}
+            style={[
+              estilos.chip,
+              ativo && estilos.chipAtivo,
+              desabilitada && estilos.chipDesabilitado,
+            ]}
             onPress={() => onSelecionar(opcao.valor)}
+            disabled={desabilitada}
             accessibilityRole="button"
-            accessibilityState={{ selected: ativo }}
+            accessibilityState={{ selected: ativo, disabled: desabilitada }}
             accessibilityLabel={opcao.rotulo}
           >
             <Text style={[estilos.chipTexto, ativo && estilos.chipTextoAtivo]}>{opcao.rotulo}</Text>
@@ -332,6 +371,9 @@ const estilos = StyleSheet.create({
   },
   chipAtivo: {
     backgroundColor: cores.blocoAzul,
+  },
+  chipDesabilitado: {
+    opacity: 0.45,
   },
   chipTexto: {
     fontFamily: fontes.corpoSemiBold,

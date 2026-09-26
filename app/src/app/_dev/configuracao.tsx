@@ -6,8 +6,8 @@ export default function DevConfiguracao() {
   return (
     <TelaConfiguracao
       configuracaoInicial={configuracaoPadrao('padrao')}
-      microfoneDisponivel={true}
-      motivoMicrofoneIndisponivel={null}
+      leituraVozDisponivel={true}
+      motivoLeituraVozIndisponivel={null}
       onIniciar={(escolha: EscolhaRodada) => {
         if (escolha.formato === 'dupla') {
           router.push(

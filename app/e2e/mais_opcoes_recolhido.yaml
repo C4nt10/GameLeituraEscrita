@@ -1,0 +1,23 @@
+# US3 cenário 5 (D-47, FR-026) — a tela inicial mostra só Tipo e Modalidade;
+# o resto fica em "mais opções", recolhido por padrão, e "Começar" está
+# sempre à vista (Princípio VII: dá pra começar sem tocar em nada).
+#
+# NÃO EXECUTADO — nenhum spec Maestro deste projeto foi executado ainda
+# (sem Maestro CLI nesta máquina). O emulador Docker (docker/android/)
+# agora existe e permitiria tentar; se rodar, registrar em tasks.md T084.
+
+appId: com.devirlabs.gameleituraescrita
+---
+- launchApp
+- assertVisible: 'Tipo'
+- assertVisible: 'Modalidade'
+- assertVisible: '⚙️ mais opções'
+- assertVisible: '▶️ Começar'
+- assertNotVisible: 'Tamanho da rodada'
+- assertNotVisible: 'Sozinho ou dupla'
+- tapOn: '⚙️ mais opções'
+- assertVisible: 'Tamanho da rodada'
+- assertVisible: 'Sozinho ou dupla'
+- assertVisible: '▲ menos opções'
+- tapOn: '▲ menos opções'
+- assertNotVisible: 'Tamanho da rodada'

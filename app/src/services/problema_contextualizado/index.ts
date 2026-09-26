@@ -13,7 +13,7 @@ import { gerarDesafioMatematica } from '../gerador_matematica';
  * **Escopo assumido**: só soma/subtração têm forma contextualizada — o
  * schema de tema (`contracts/tema-matematica.schema.json`) só define
  * variações pra essas duas operações, nenhuma pra multiplicação.
- * Nível 5 (multiplicação, doc001 §4) fica só como conta pura no MVP.
+ * Nível 8 (multiplicação, D-41) fica só como conta pura no MVP.
  */
 
 export interface TemaMatematica {
@@ -32,6 +32,23 @@ export function temaPorClassificacao(
   temas: TemaMatematica[] = temasReais,
 ): TemaMatematica | undefined {
   return temas.find((t) => t.classificacao === classificacao);
+}
+
+/**
+ * Tema sorteado quando o adulto pede "Problema" mas não escolheu tema
+ * (na configuração, "todas" é o padrão). Antes disso o app caía em conta
+ * pura em silêncio — "Problema" não fazia nada (achado ao executar a
+ * Fase 9b, 2026-09-26).
+ */
+export function classificacaoAleatoria(
+  aleatorio: () => number = Math.random,
+  temas: TemaMatematica[] = temasReais,
+): Classificacao {
+  if (temas.length === 0) {
+    throw new Error('Nenhum tema de matemática disponível pra sortear.');
+  }
+  const indice = Math.min(temas.length - 1, Math.floor(aleatorio() * temas.length));
+  return temas[indice].classificacao;
 }
 
 function montarEnunciado(
@@ -56,7 +73,7 @@ export function gerarProblemaContextualizado(
 
   if (base.operacao === 'multiplicacao') {
     throw new Error(
-      'Problema contextualizado não existe pra multiplicação (nível 5) — só conta pura.',
+      'Problema contextualizado não existe pra multiplicação (nível 8) — só conta pura.',
     );
   }
 
