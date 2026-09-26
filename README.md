@@ -13,7 +13,7 @@ a criança **ler de verdade**, não passar de fase.
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
 constituição e plano técnico já estão fechados. Das 127 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 100 estão
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 116 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
@@ -68,24 +68,33 @@ automático) e D-40 (a *próxima* rodada, não a atual, sugere 1 nível
 abaixo depois de 2+ erros, sem mascarar o que já foi errado). Ver
 [`doc/definições002.MD`](doc/definições002.MD) §14.
 
-81/81 testes, `tsc`/`eslint` limpos, build web exportado com sucesso.
-**As 3 tarefas que restam em `tasks.md` não são mais tarefas de
-código** — nenhuma pode ser feita por quem só mexe no repositório:
+211 testes passando, `tsc`/`eslint`/`prettier` limpos e o bundle Android
+exporta (2026-09-26). **Restam 11 tarefas em `tasks.md`, e nenhuma se resolve
+só mexendo no repositório:**
 
-- **T066**: gravar os ~52 clipes de áudio de letra/fonema (D-27) —
-  precisa de uma voz humana de verdade; `tts.tocarClipe()` já está
-  pronto pra tocar os arquivos assim que existirem.
-- **T068**: sessão de observação com uma criança real — o app já está
-  pronto pro fluxo completo acontecer (configurar → jogar → resultado →
-  histórico), incluindo um achado do T065 que só essa sessão confirma
-  (se "✕ sair" sozinho é entendido por uma criança em alfabetização).
-- **T069**: bloqueada pela T068 (registra o resultado da sessão).
+- **Precisam de aparelho ou de gente:** T066 (gravar ~52 clipes de letra/
+  fonema com voz humana — `tts.tocarClipe()` já está pronto), T068/T069
+  (sessão de observação com uma criança real e o registro dela), T075 (asset
+  de som de acerto) e **T120** (conferência em aparelho real: "reduzir
+  movimento", leitor de tela, desempenho do fundo quadriculado; a passada em
+  paisagem já foi feita no emulador e achou 4 telas que estouravam).
+- **Voz de verdade (Fase 9c):** T087 (medir o `whisper.rn` num aparelho),
+  T089-T091 e **T092** — o código de captura, conversão e reconhecimento existe
+  e a modalidade fica travada, com o motivo visível, enquanto o modelo não
+  carrega. **T112** (a tela de Ler em voz alta no padrão novo) está escrita mas
+  só fecha junto com T092.
+- **Visual "Letra Viva" (Fase 10):** todas as telas foram refeitas em cima do
+  desenho do dono (`design/`) mantendo as regras existentes (D-55) e conferidas
+  no emulador. O **ícone e a splash são provisórios** (gerados do mascote) e
+  só se veem num build nativo; a consulta ao INPI para o nome "Letra Viva" segue
+  pendente antes de qualquer loja.
 
 Lacuna técnica que sobrevive: `tipo: "misto"` (leitura+matemática na
 mesma rodada) é selecionável na configuração mas ainda não tem
 orquestrador — fica desabilitado com o motivo visível, nunca escondido.
-Os testes de integração (Maestro) foram escritos mas nunca executados
-(sem Android SDK/emulador nesta máquina).
+Os 21 specs de integração (Maestro) foram reescritos para o visual novo mas
+**nunca executados** — o Maestro não está instalado; o emulador Android (Docker)
+existe e serviu para a conferência visual à mão.
 
 ## Sobre o projeto
 

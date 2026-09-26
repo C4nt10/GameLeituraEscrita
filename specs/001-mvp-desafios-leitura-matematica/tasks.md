@@ -1236,7 +1236,7 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
   T085/T086 (gate honesto) → T087 (spike) → T088-T090 → T091 → T092 —
   **T090 não começa antes de T087**. 9a já está feito; T075 e T093 estão
   bloqueados por dependência externa (asset de áudio; token do Plane).
-- **Fase 10 (2026-09-26, design v1)** é planejamento: **nenhuma tarefa iniciada**.
+- **Fase 10 (2026-09-26, design v1)**: executada (T096-T119, T121); restam T112 (só fecha com T092) e T120 (aparelho real).
   Ordem: T096 (decisões) → fundação T097-T107 → telas T108-T116 → T117-T121.
   **T103 (`react-native-svg`, módulo nativo novo) bloqueia todas as telas**;
   tarefas ⛔ só começam depois da resposta do dono à pergunta indicada. A
