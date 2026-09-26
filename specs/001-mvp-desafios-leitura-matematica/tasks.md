@@ -826,6 +826,16 @@ ficar atrás do código.
 - [x] T074 **Regras de UX infantil (D-47, FR-026)**: "mais opções"
       recolhido por padrão, avisos em tom de jogo, chips com alvo 56,
       "✕ sair" com aparência de botão, pop de escala ao acertar uma vaga.
+- [x] T094 [US4] **Voltar na tela de histórico (D-48, FR-027, US4 cenário
+      5)** — achado no teste em aparelho real: a tela não tinha voltar nem
+      fechar (navegação sem cabeçalho; só o botão do sistema saía).
+      `BotaoVoltar` (alvo 56, aparência de botão) na `TelaHistorico`, nos
+      estados vazio e com rodadas; a rota volta ao histórico de navegação
+      ou, se não houver, à tela inicial. **Sem teste automatizado** (o
+      projeto não tem teste de componente) e **ainda não conferido
+      visualmente em aparelho** — entra no próximo APK. Outras telas fora da
+      rodada seguem a mesma regra; a de escolha de voz está desligada da
+      navegação (D-46).
 - [ ] T075 **Som de acerto/erro gentil (feedback sonoro)**. **Bloqueado por
       asset**: precisa de um arquivo de áudio real que não existe no
       projeto — mesma dependência humana de T066; não vou fabricar um.
@@ -959,7 +969,7 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
 | US1 | 10 (cenário 8 em 2026-09-15, D-37; cenários 9-10 em 2026-09-26, D-44/D-45) | T019–T026 + T020a (cenários 1-8); **T085 (cenário 9) e T088 (cenário 10) — a escrever**; T092 valida o 10 em aparelho real |
 | US2 | 7 (cenários 5-7 em 2026-09-26, D-41/D-42/D-43) | T034–T036 (cenários 1-4, regras de geração; 1/2 via T029/T030/T040 de UI + unit acima); **T076 (cenário 5), T077 (cenário 6), T078 (cenário 7) — a escrever** |
 | US3 | 6 (cenários 4-5 substituídos e 6 novo em 2026-09-26, D-46/D-47/D-43) | T041–T045 escritos contra a versão antiga; **os testes de voz/nome-fonema (T044, T045) ficam obsoletos pelo D-46** e o cenário 5 novo ("mais opções") não tem teste automatizado — só Maestro (T084); T078 cobre o cenário 6 |
-| US4 | 4 | T050–T052 (cenário 2 coberto por T050) |
+| US4 | 5 (cenário 5 em 2026-09-26, D-48) | T050–T052 (cenários 1-4; 2 coberto por T050); **cenário 5 sem teste automatizado — só T094 + conferência em aparelho** |
 | US5 | 6 | T055–T060 (6 tarefas cobrindo os 6 cenários) |
 
 Depois da revisão de 2026-09-26 **há cenários sem teste ainda escrito**

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { View } from 'react-native';
 import { TelaHistorico } from '../screens/historico';
 import { buscarRodadasDoPerfil, limparHistoricoDoPerfil } from '../services/historico';
@@ -32,6 +32,7 @@ export default function RotaHistorico() {
         await limparHistoricoDoPerfil(PERFIL_PADRAO_ID);
         recarregar();
       }}
+      onVoltar={() => (router.canGoBack() ? router.back() : router.replace('/'))}
     />
   );
 }

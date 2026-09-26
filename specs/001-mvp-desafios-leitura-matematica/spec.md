@@ -203,6 +203,10 @@ estrelas e o contador de ajuda daquela modalidade.
 4. **Given** duas modalidades de leitura jogadas, **When** o resumo é
    calculado, **Then** as estrelas de modalidades diferentes não são
    somadas nem comparadas entre si (Princípio IV).
+5. **Given** a tela de histórico (vazia ou com rodadas), **When** ela
+   abre, **Then** há um controle de voltar sempre visível que leva de
+   volta à tela anterior (ou à inicial, se não houver anterior), sem
+   depender do botão do sistema (D-48).
 
 ---
 
@@ -374,6 +378,10 @@ combinado nos dois formatos (cooperativo e adversarial).
   mínimo de 56, texto visível à criança em tom de jogo (nunca registro de
   desenvolvimento), "sair da rodada" com aparência de botão e todas as
   telas respeitando a safe area do sistema (D-47, Princípio VI).
+- **FR-027**: O sistema MUST mostrar, em toda tela alcançável por
+  navegação que não seja uma rodada (histórico e as demais), um controle de
+  voltar sempre visível, de alvo mínimo 56, sem depender do botão ou do
+  gesto de voltar do sistema (D-48, Princípio I).
 
 ### Key Entities *(include if feature involves data)*
 

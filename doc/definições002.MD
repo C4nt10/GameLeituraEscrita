@@ -620,6 +620,17 @@ convidativo pra criança?"):
 - Acerto tem feedback de movimento; **feedback sonoro fica pendente** — exige
   um asset de áudio real que não existe no projeto (mesma dependência de T066).
 
+### D-48 — toda tela fora da rodada tem saída visível
+
+**Decisão:** achado no teste em aparelho real — a tela de histórico não tinha
+voltar nem fechar (o app usa navegação sem cabeçalho, então só o botão/gesto
+do sistema saía dela). Vale como regra geral: **toda tela alcançável por
+navegação e que não seja uma rodada** (histórico e as demais) mostra um
+controle de voltar sempre visível, com alvo mínimo de 56 e aparência de
+botão — a saída da rodada continua sendo o "sair" de D-39. Não depende de
+o aparelho ter botão físico de voltar (Princípio I). Sem histórico de
+navegação (ex.: abertura direta), voltar leva à tela inicial.
+
 ### O que isso abre
 
 | # | Questão | O que falta |
