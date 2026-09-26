@@ -1105,10 +1105,24 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       "Subir de nível" e "Ver histórico" mantidos (D-55). Rola se não couber.
       **Não visto:** botão "Ver histórico" na rota `_dev` (não passa a ação) e
       paisagem.
-- [ ] T114 ⛔ **Histórico "Minhas estrelas"**: abas por jeito de jogar, cada uma
+- [x] T114 ⛔ **Histórico "Minhas estrelas"**: abas por jeito de jogar, cada uma
       na sua cor, resumo (rodadas, estrelas, precisão) e lista; sem cruzar
       modalidades (D-20); Voltar sempre visível (D-48); coluna de ajuda
       conforme A-21.
+      > **Feito (2026-09-26), conferido no emulador em retrato (rota `_dev/historico`,
+      dados de mentira):** `screens/historico/logica.ts` com 8 testes (vistos
+      falhar antes): abas, resumo por aba, data "hoje/ontem/3 set" com meses
+      fixos em português. Cinco abas, cada uma na cor da modalidade, resumo da
+      aba e lista; contador de ajuda só nas três de leitura (A-21); "Voltar"
+      sempre visível; "Apagar histórico" com confirmação. **Decisão minha,
+      registrada:** Conta e Historinha viraram abas separadas (o
+      `resumo_historico` antigo as juntava em "matemática"); é mais
+      conservador quanto a D-20 e casa com a tela inicial — se preferir uma
+      só, é trocar `abaDaRodada`. Abas com texto de 19 px em negrito ("texto
+      grande") porque o branco sobre vermelho/verde/turquesa fica em 3,5–3,8:1.
+      `resumo_historico` deixou de ser usado pela tela (segue testado; sai em
+      T118 se ninguém mais usar). **Não visto:** o diálogo de apagar (é
+      `Alert` do sistema, não redesenhado), paisagem, lista longa com rolagem.
 - [ ] T115 ⛔ **Dupla**: passar aparelho (bolha Andika, texto neutro — A-27) e
       resultado combinado (Juntos/Disputa, mensagem nunca depreciativa) + a
       **tela de seleção/criação de perfil, que ainda não tem desenho**.

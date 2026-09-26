@@ -5,7 +5,7 @@ import { TelaHistorico } from '../screens/historico';
 import { buscarRodadasDoPerfil, limparHistoricoDoPerfil } from '../services/historico';
 import { PERFIL_PADRAO_ID } from '../models/perfil';
 import type { RegistroHistorico } from '../models/registro_historico';
-import { cores } from '../theme';
+import { cor } from '../theme/tema';
 
 /** Rota real de histórico (T053/T054, CU-06). */
 export default function RotaHistorico() {
@@ -22,7 +22,7 @@ export default function RotaHistorico() {
   useFocusEffect(recarregar);
 
   if (rodadas === null) {
-    return <View style={{ flex: 1, backgroundColor: cores.papel }} />;
+    return <View style={{ flex: 1, backgroundColor: cor.papel }} />;
   }
 
   return (

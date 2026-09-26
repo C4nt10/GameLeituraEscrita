@@ -11,12 +11,18 @@ export function Chip({
   selecionado,
   onPress,
   corSelecionada,
+  textoSelecionado,
+  textoGrande = false,
   desabilitado = false,
 }: {
   rotulo: string;
   selecionado: boolean;
   onPress: () => void;
   corSelecionada?: string;
+  /** Cor do texto quando selecionado — o amarelo precisa de marrom, não de papel (guia). */
+  textoSelecionado?: string;
+  /** 19 px em negrito: "texto grande" (AA com 3:1) — pra branco sobre vermelho, verde e turquesa (3,5–3,8:1). */
+  textoGrande?: boolean;
   desabilitado?: boolean;
 }) {
   const fundoSelecionado = corSelecionada ?? cor.tinta;
@@ -35,7 +41,11 @@ export function Chip({
     >
       <Text
         allowFontScaling={false}
-        style={[estilos.texto, { color: selecionado ? cor.papel : cor.tinta }]}
+        style={[
+          estilos.texto,
+          textoGrande && estilos.textoGrande,
+          { color: selecionado ? (textoSelecionado ?? cor.papel) : cor.tinta },
+        ]}
       >
         {rotulo}
       </Text>
@@ -56,5 +66,6 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   texto: { fontFamily: fonte.textoForte, fontSize: tamanho.texto },
+  textoGrande: { fontFamily: fonte.rotulo, fontSize: 19 },
   desabilitado: { opacity: 0.45 },
 });
