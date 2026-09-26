@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import type { Modalidade } from '../../models/registro_historico';
 import type { ResultadoAvaliacao } from '../../services/avaliacao';
 import { estrelasParaIcones, mensagemDoResultado } from '../../theme/helpers';
@@ -83,6 +83,67 @@ export function TelaResultado({
   onSubirDeNivel,
   onVerHistorico,
 }: TelaResultadoProps) {
+  const { width, height } = useWindowDimensions();
+  const deitado = width > height;
+
+  const placar = (
+    <>
+      <Estrelas valor={resultado.estrelas} />
+
+      <View style={estilos.stats}>
+        <Numero valor={String(acertos)} rotulo="acertos" />
+        <Numero valor={String(erros)} rotulo="erros" />
+        <Numero valor={`${Math.round(resultado.precisao * 100)}%`} rotulo="precisão" />
+      </View>
+
+      {contadorAjuda !== null && modalidade !== null && (
+        <View style={estilos.chipAjuda}>
+          <Text style={estilos.chipAjudaTexto}>
+            {ROTULO_CONTADOR_AJUDA[modalidade]} nesta rodada: {contadorAjuda}
+          </Text>
+        </View>
+      )}
+    </>
+  );
+
+  const acoes = (
+    <>
+      <Text style={estilos.mensagem}>{mensagemDoResultado(resultado.estrelas, erros)}</Text>
+
+      {proximoNivelSugerido !== undefined && (
+        <Text style={estilos.avisoProximoNivel}>
+          A próxima rodada começa no nível {proximoNivelSugerido}, para treinar com mais calma.
+        </Text>
+      )}
+
+      <View style={estilos.botoes}>
+        <Botao
+          texto="Jogar de novo"
+          icone="play"
+          onPress={onJogarDeNovo}
+          cheio
+          acessibilidade="jogar de novo"
+        />
+        <Botao
+          texto="Subir de nível"
+          variante="claro"
+          onPress={onSubirDeNivel}
+          cheio
+          acessibilidade="subir de nível"
+        />
+        {onVerHistorico && (
+          <Botao
+            texto="Ver histórico"
+            variante="claro"
+            onPress={onVerHistorico}
+            cheio
+            acessibilidade="ver histórico"
+          />
+        )}
+      </View>
+    </>
+  );
+
   return (
     <TelaBase>
       <ScrollView
@@ -90,55 +151,17 @@ export function TelaResultado({
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        <Estrelas valor={resultado.estrelas} />
-
-        <View style={estilos.stats}>
-          <Numero valor={String(acertos)} rotulo="acertos" />
-          <Numero valor={String(erros)} rotulo="erros" />
-          <Numero valor={`${Math.round(resultado.precisao * 100)}%`} rotulo="precisão" />
-        </View>
-
-        {contadorAjuda !== null && modalidade !== null && (
-          <View style={estilos.chipAjuda}>
-            <Text style={estilos.chipAjudaTexto}>
-              {ROTULO_CONTADOR_AJUDA[modalidade]} nesta rodada: {contadorAjuda}
-            </Text>
+        {deitado ? (
+          <View style={estilos.duasColunas}>
+            <View style={estilos.coluna}>{placar}</View>
+            <View style={estilos.coluna}>{acoes}</View>
           </View>
+        ) : (
+          <>
+            {placar}
+            {acoes}
+          </>
         )}
-
-        <Text style={estilos.mensagem}>{mensagemDoResultado(resultado.estrelas, erros)}</Text>
-
-        {proximoNivelSugerido !== undefined && (
-          <Text style={estilos.avisoProximoNivel}>
-            A próxima rodada começa no nível {proximoNivelSugerido}, para treinar com mais calma.
-          </Text>
-        )}
-
-        <View style={estilos.botoes}>
-          <Botao
-            texto="Jogar de novo"
-            icone="play"
-            onPress={onJogarDeNovo}
-            cheio
-            acessibilidade="jogar de novo"
-          />
-          <Botao
-            texto="Subir de nível"
-            variante="claro"
-            onPress={onSubirDeNivel}
-            cheio
-            acessibilidade="subir de nível"
-          />
-          {onVerHistorico && (
-            <Botao
-              texto="Ver histórico"
-              variante="claro"
-              onPress={onVerHistorico}
-              cheio
-              acessibilidade="ver histórico"
-            />
-          )}
-        </View>
       </ScrollView>
     </TelaBase>
   );
@@ -152,6 +175,8 @@ const estilos = StyleSheet.create({
     gap: 16,
     paddingVertical: 8,
   },
+  duasColunas: { flexDirection: 'row', alignItems: 'center', gap: 24, width: '100%' },
+  coluna: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
   estrelasLinha: { flexDirection: 'row', gap: 4 },
   stats: { flexDirection: 'row', gap: 12 },
   stat: {

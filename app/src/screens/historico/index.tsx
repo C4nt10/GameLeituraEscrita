@@ -62,21 +62,13 @@ export function TelaHistorico({ rodadas, onApagarTudo, onVoltar }: TelaHistorico
     );
   }
 
-  return (
-    <TelaBase>
-      <BotaoDeSaida tipo="voltar" onPress={onVoltar} />
+  const cabecalho = (
+    <View style={estilos.cabecalho}>
       <Text allowFontScaling={false} style={estilos.titulo}>
         Minhas estrelas
       </Text>
 
-      {rodadas.length === 0 ? (
-        <View style={estilos.vazio}>
-          <Text style={estilos.textoVazio}>
-            Ainda não há nenhuma rodada registrada. Depois que a criança completar a primeira, ela
-            aparece aqui.
-          </Text>
-        </View>
-      ) : (
+      {rodadas.length === 0 ? null : (
         <>
           <View style={estilos.abas}>
             {ABAS.map((a) => (
@@ -92,67 +84,90 @@ export function TelaHistorico({ rodadas, onApagarTudo, onVoltar }: TelaHistorico
             ))}
           </View>
 
-          {daAba.length === 0 ? (
-            <View style={estilos.vazio}>
-              <Text style={estilos.textoVazio}>
-                Ainda não há rodadas de &quot;{aba.rotulo}&quot;.
+          {daAba.length > 0 && (
+            <View style={[estilos.resumo, { borderColor: aba.cor.base }]}>
+              <Text style={estilos.resumoTexto}>
+                <Text style={estilos.resumoNumero}>{resumo.total}</Text>{' '}
+                {resumo.total === 1 ? 'rodada' : 'rodadas'} ·{' '}
+                <Text style={estilos.resumoNumero}>{Math.round(resumo.precisaoMedia * 100)}%</Text>{' '}
+                precisão média ·{' '}
+                <Text style={estilos.resumoNumero}>{resumo.estrelaMedia.toFixed(1)}</Text> ★ em
+                média
               </Text>
             </View>
-          ) : (
-            <>
-              <View style={[estilos.resumo, { borderColor: aba.cor.base }]}>
-                <Text style={estilos.resumoTexto}>
-                  <Text style={estilos.resumoNumero}>{resumo.total}</Text>{' '}
-                  {resumo.total === 1 ? 'rodada' : 'rodadas'} ·{' '}
-                  <Text style={estilos.resumoNumero}>
-                    {Math.round(resumo.precisaoMedia * 100)}%
-                  </Text>{' '}
-                  precisão média ·{' '}
-                  <Text style={estilos.resumoNumero}>{resumo.estrelaMedia.toFixed(1)}</Text> ★ em
-                  média
-                </Text>
-              </View>
-
-              <FlatList
-                style={estilos.lista}
-                data={daAba}
-                keyExtractor={(r) => r.id}
-                renderItem={({ item }) => (
-                  <View style={estilos.linha}>
-                    <View style={estilos.data}>
-                      <Text style={estilos.dataTexto}>{dataDaRodada(item.iniciadaEm)}</Text>
-                    </View>
-                    <Text style={estilos.nivel}>nível {item.nivel}</Text>
-                    <Estrelinhas valor={item.estrelas} />
-                    <Text style={estilos.precisao}>{Math.round(item.precisao * 100)}%</Text>
-                    {aba.contadorDeAjuda !== null && item.contadorAjuda !== null && (
-                      <Text style={estilos.ajuda}>
-                        {aba.contadorDeAjuda} {item.contadorAjuda}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
-            </>
           )}
-
-          <Botao
-            texto="Apagar histórico"
-            variante="claro"
-            onPress={confirmarExclusao}
-            cheio
-            acessibilidade="apagar histórico"
-          />
         </>
       )}
+    </View>
+  );
+
+  const vazio =
+    rodadas.length === 0 ? (
+      <View style={estilos.vazio}>
+        <Text style={estilos.textoVazio}>
+          Ainda não há nenhuma rodada registrada. Depois que a criança completar a primeira, ela
+          aparece aqui.
+        </Text>
+      </View>
+    ) : (
+      <View style={estilos.vazio}>
+        <Text style={estilos.textoVazio}>Ainda não há rodadas de &quot;{aba.rotulo}&quot;.</Text>
+      </View>
+    );
+
+  // "Voltar" fica fixo no alto (D-48); o resto rola junto com a lista — em paisagem não sobra
+  // altura pra abas + resumo + lista + botão ao mesmo tempo.
+  return (
+    <TelaBase>
+      <BotaoDeSaida tipo="voltar" onPress={onVoltar} />
+      <FlatList
+        style={estilos.lista}
+        contentContainerStyle={estilos.conteudoDaLista}
+        data={daAba}
+        keyExtractor={(r) => r.id}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={cabecalho}
+        ListEmptyComponent={vazio}
+        ListFooterComponent={
+          rodadas.length === 0 ? null : (
+            <View style={estilos.rodape}>
+              <Botao
+                texto="Apagar histórico"
+                variante="claro"
+                onPress={confirmarExclusao}
+                cheio
+                acessibilidade="apagar histórico"
+              />
+            </View>
+          )
+        }
+        renderItem={({ item }) => (
+          <View style={estilos.linha}>
+            <View style={estilos.data}>
+              <Text style={estilos.dataTexto}>{dataDaRodada(item.iniciadaEm)}</Text>
+            </View>
+            <Text style={estilos.nivel}>nível {item.nivel}</Text>
+            <Estrelinhas valor={item.estrelas} />
+            <Text style={estilos.precisao}>{Math.round(item.precisao * 100)}%</Text>
+            {aba.contadorDeAjuda !== null && item.contadorAjuda !== null && (
+              <Text style={estilos.ajuda}>
+                {aba.contadorDeAjuda} {item.contadorAjuda}
+              </Text>
+            )}
+          </View>
+        )}
+      />
     </TelaBase>
   );
 }
 
 const estilos = StyleSheet.create({
   titulo: { fontFamily: fonte.display, fontSize: tamanho.titulo, color: cor.tinta },
+  cabecalho: { gap: 12, paddingBottom: 8 },
+  conteudoDaLista: { paddingBottom: 8 },
+  rodape: { paddingTop: 16 },
   abas: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  vazio: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  vazio: { alignItems: 'center', justifyContent: 'center', paddingVertical: 32 },
   textoVazio: {
     fontFamily: fonte.texto,
     fontSize: tamanho.texto,

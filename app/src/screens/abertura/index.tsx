@@ -1,4 +1,4 @@
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { corDoBloco } from '../../theme/helpers';
 import { tamanho } from '../../theme/tema';
 import { Bloco } from '../../ui/Bloco';
@@ -41,37 +41,63 @@ function LetraQueCai({ letra, indice, atraso }: { letra: string; indice: number;
  */
 export function TelaAbertura({ aoComecar }: { aoComecar: () => void }) {
   const pulso = usePulso();
+  const { width, height } = useWindowDimensions();
+  const deitado = width > height;
 
-  return (
-    <TelaBase>
-      <View style={estilos.centro}>
-        <View accessible accessibilityLabel="Letra Viva" style={estilos.logo}>
-          {LETRAS_POR_LINHA.map((letras, l) => (
-            <View key={l} style={estilos.linha}>
-              {letras.map(({ letra, indice }) => (
-                <LetraQueCai
-                  key={indice}
-                  letra={letra}
-                  indice={indice}
-                  atraso={indice * INTERVALO_MS}
-                />
-              ))}
-            </View>
+  const logo = (
+    <View accessible accessibilityLabel="Letra Viva" style={estilos.logo}>
+      {LETRAS_POR_LINHA.map((letras, l) => (
+        <View key={l} style={estilos.linha}>
+          {letras.map(({ letra, indice }) => (
+            <LetraQueCai
+              key={indice}
+              letra={letra}
+              indice={indice}
+              atraso={indice * INTERVALO_MS}
+            />
           ))}
         </View>
+      ))}
+    </View>
+  );
+  const botao = (
+    <Animated.View style={pulso}>
+      <Botao texto="Tocar para começar" variante="abertura" onPress={aoComecar} />
+    </Animated.View>
+  );
 
-        <Mascote tamanho={140} />
-
-        <Animated.View style={pulso}>
-          <Botao texto="Tocar para começar" variante="abertura" onPress={aoComecar} />
-        </Animated.View>
-      </View>
+  // Deitado não sobra altura pra empilhar logo + mascote + botão: mascote de um lado, logo e botão do outro.
+  return (
+    <TelaBase>
+      {deitado ? (
+        <View style={estilos.deitado}>
+          <Mascote tamanho={150} />
+          <View style={estilos.colunaDireita}>
+            {logo}
+            {botao}
+          </View>
+        </View>
+      ) : (
+        <View style={estilos.centro}>
+          {logo}
+          <Mascote tamanho={140} />
+          {botao}
+        </View>
+      )}
     </TelaBase>
   );
 }
 
 const estilos = StyleSheet.create({
   centro: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24 },
+  deitado: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 48,
+  },
+  colunaDireita: { alignItems: 'center', gap: 24 },
   logo: { alignItems: 'center', gap: 10 },
   linha: { flexDirection: 'row', gap: 8 },
 });

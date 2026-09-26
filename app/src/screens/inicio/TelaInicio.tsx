@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import type { Classificacao } from '../../models/registro_historico';
 import { combinacoesDisponiveis } from '../../services/banco_de_conteudo';
 import type { Configuracao } from '../../services/configuracao';
@@ -58,6 +58,8 @@ export function TelaInicio({
     formatoDupla: null,
   }));
   const [folhaAberta, setFolhaAberta] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const deitado = width > height;
 
   const combinacoes = useMemo(() => combinacoesDisponiveis(), []);
   const niveisDeLeitura = useMemo(
@@ -102,55 +104,82 @@ export function TelaInicio({
     onIniciar(escolhaParaRodada(estado, configuracaoInicial.ultimaModalidade));
   }
 
+  const saudacao = (
+    <View style={estilos.ola}>
+      <Mascote tamanho={deitado ? 40 : 58} />
+      <Text allowFontScaling={false} style={[estilos.titulo, deitado && estilos.tituloDeitado]}>
+        Oi! Do que vamos brincar?
+      </Text>
+    </View>
+  );
+  const tipos = (
+    <View style={estilos.tipos}>
+      {TIPOS_DA_CRIANCA.map((tipo) => (
+        <TileDeTipo
+          key={tipo.id}
+          tipo={tipo}
+          selecionado={estado.tipo === tipo.id}
+          onPress={() => escolherTipo(tipo.id)}
+        />
+      ))}
+    </View>
+  );
+  const modosDeJogo = (
+    <View style={estilos.modos}>
+      {modos.map((modo) => (
+        <LinhaDeModo
+          key={modo.id}
+          modo={modo}
+          selecionado={estado.modo === modo.id}
+          onPress={() => alterar({ modo: modo.id as IdDoModo })}
+        />
+      ))}
+    </View>
+  );
+  const pe = (
+    <View style={estilos.pe}>
+      <Text allowFontScaling={false} style={estilos.resumo}>
+        {resumoDaEscolha(estado)}
+      </Text>
+      <Botao texto="Jogar!" icone="play" onPress={jogar} desabilitado={!pronto} cheio />
+    </View>
+  );
+
+  // Deitado só há ~275 dp de altura pra tudo: a saudação sobe pra linha do topo e "Jogar!" fica
+  // embaixo dos tipos, pra não sair da tela — a coluna da direita fica só com os jeitos de jogar.
   return (
     <TelaBase>
       <View style={estilos.topo}>
         <Redondo acessibilidade="Minhas estrelas" onPress={onAbrirHistorico}>
           <Estrela tipo="cheia" tamanho={30} />
         </Redondo>
+        {deitado ? saudacao : null}
         <BotaoDoAdulto aoAbrir={() => setFolhaAberta(true)} />
       </View>
 
       <ZonasDoDesafio
         estimulo={
-          <>
-            <View style={estilos.ola}>
-              <Mascote tamanho={58} />
-              <Text allowFontScaling={false} style={estilos.titulo}>
-                Oi! Do que vamos brincar?
-              </Text>
-            </View>
-            <View style={estilos.tipos}>
-              {TIPOS_DA_CRIANCA.map((tipo) => (
-                <TileDeTipo
-                  key={tipo.id}
-                  tipo={tipo}
-                  selecionado={estado.tipo === tipo.id}
-                  onPress={() => escolherTipo(tipo.id)}
-                />
-              ))}
-            </View>
-          </>
+          deitado ? (
+            <>
+              {tipos}
+              {pe}
+            </>
+          ) : (
+            <>
+              {saudacao}
+              {tipos}
+            </>
+          )
         }
         resposta={
-          <>
-            <View style={estilos.modos}>
-              {modos.map((modo) => (
-                <LinhaDeModo
-                  key={modo.id}
-                  modo={modo}
-                  selecionado={estado.modo === modo.id}
-                  onPress={() => alterar({ modo: modo.id as IdDoModo })}
-                />
-              ))}
-            </View>
-            <View style={estilos.pe}>
-              <Text allowFontScaling={false} style={estilos.resumo}>
-                {resumoDaEscolha(estado)}
-              </Text>
-              <Botao texto="Jogar!" icone="play" onPress={jogar} desabilitado={!pronto} cheio />
-            </View>
-          </>
+          deitado ? (
+            modosDeJogo
+          ) : (
+            <>
+              {modosDeJogo}
+              {pe}
+            </>
+          )
         }
       />
 
@@ -169,7 +198,7 @@ export function TelaInicio({
 
 const estilos = StyleSheet.create({
   topo: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  ola: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  ola: { flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1 },
   titulo: {
     flex: 1,
     fontFamily: fonte.display,
@@ -177,7 +206,14 @@ const estilos = StyleSheet.create({
     lineHeight: 30,
     color: cor.tinta,
   },
-  tipos: { flexDirection: 'row', justifyContent: 'center', gap: 10, flexWrap: 'wrap' },
+  tituloDeitado: { flex: 0, fontSize: 22, lineHeight: 26 },
+  tipos: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
+    paddingTop: 8,
+  },
   modos: { alignSelf: 'stretch', gap: 8, maxWidth: 520 },
   pe: { alignSelf: 'stretch', gap: 6, maxWidth: 520 },
   resumo: {

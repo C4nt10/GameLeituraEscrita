@@ -1196,6 +1196,23 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
 - [ ] T120 Conferência em aparelho real: retrato e paisagem, "reduzir
       movimento", leitor de tela, desempenho do fundo quadriculado, e o
       `toLocaleUpperCase('pt-BR')` no Hermes. Registrar o que achar.
+      > **Parcial (2026-09-26) — EMULADOR, não aparelho real; a tarefa continua
+      ABERTA.** Feita a passada em **paisagem** no emulador (Pixel-like 1440×3040,
+      ~868×411 dp deitado). Achou e corrigiu **3 defeitos reais**: (1) Resultado:
+      "Jogar de novo" caía abaixo da dobra → duas colunas quando deitado; (2)
+      Histórico: a lista sumia (abas + resumo + botão ocupavam tudo) → lista única
+      com cabeçalho/rodapé, só "Voltar" fixo; (3) Abertura: logo cortado em cima e
+      botão fora da tela → mascote de um lado, logo + botão do outro; e o início
+      (também estourava: "Jogar!" cortado) → saudação sobe pro topo, "Jogar!" fica
+      sob os tipos. Conferidos deitados: Ditado nível 1, Conta (bolinhas),
+      Resultado, Histórico, Abertura, Início e folha do adulto (esta rola; "Pronto"
+      fica abaixo da dobra — tela de adulto, aceito e anotado). **Não conferido
+      deitado:** Ler e montar, Ler em voz alta, Conta com dourado/grupos (a conta
+      cabe por cálculo, ~226 dp de ~250), Dupla e seleção de perfil, Festa.
+      **Seguem só em aparelho real:** "reduzir movimento", TalkBack, desempenho do
+      fundo quadriculado e `toLocaleUpperCase('pt-BR')` no Hermes (o emulador
+      mostrou maiúsculas e acentos certos em Expo Go, que também roda Hermes,
+      mas isso não substitui o APK).
 - [x] T121 Sincronizar a Fase 10 no Plane.
       > **Feito (2026-09-26):** issue-mãe "[Design v1] Fase 10" + 26 filhas (T096-T121) no board; token temporário revogado.
 
