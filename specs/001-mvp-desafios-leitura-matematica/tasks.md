@@ -443,6 +443,9 @@ cada forma.
       resultado, forma, tema quando contextualizada, alternativas) em
       `app/src/models/desafio_matematica`. **Concluído (2026-09-25)**.
 - [x] T038 [US2] Implementar `gerador_matematica` (conta pura, 5 níveis de
+      > **Revisado 2026-09-26 (D-41):** a grade de 5 níveis abaixo foi
+      > substituída por 8 níveis mais fáceis — reescrita em T079. O que
+      > está descrito aqui é o histórico do que foi entregue.
       operação) — faz T034 passar — em `app/src/services/gerador_matematica`
       (depende de T037). **Concluído (2026-09-25)** — faixas numéricas
       por nível (soma pequena/maior, subtração, multiplicação básica)
@@ -457,6 +460,8 @@ cada forma.
       tema só define variação pra essas duas), nível 5/multiplicação é
       sempre pura no MVP.
 - [x] T040 [US2] Implementar tela de desafio de matemática (conta falada,
+      > **Revisado 2026-09-26 (D-42):** a tela ganha apoio visual de
+      > quantidade nas duas formas — T080/T081.
       botão de repetir, 4 alternativas) em `app/src/screens/rodada/matematica`,
       reusando T032 para o resultado. **Concluído (2026-09-25)** —
       objeto visual da forma contextualizada usa um marcador genérico
@@ -508,10 +513,14 @@ seguinte respeita as escolhas.
       `app/e2e/config_mic_desabilitado.yaml`. **Escrito (2026-09-25)**.
       Não executado.
 - [x] T044 [P] [US3] Teste de integração: sem nenhuma voz pt instalada, o
+      > **Obsoleto (D-46, 2026-09-26):** a escolha/teste de voz saiu do
+      > MVP; o spec Maestro fica no repo mas não cobre mais um cenário
+      > vigente da spec.
       app informa e orienta a instalação, sem falhar silenciosamente (US3
       cenário 4, CU-07) em `app/e2e/config_sem_voz.yaml`. **Escrito
       (2026-09-25)**. Não executado.
 - [x] T045 [P] [US3] Teste de integração: a última voz escolhida aparece
+      > **Obsoleto (D-46, 2026-09-26):** idem T044.
       pré-selecionada ao reabrir a configuração (US3 cenário 5) em
       `app/e2e/config_ultima_voz.yaml`. **Escrito (2026-09-25)**. Não
       executado.
@@ -539,11 +548,16 @@ seguinte respeita as escolhas.
       III), até esses fluxos existirem (Fase 7 pra dupla; rodada mista
       não tem fase própria ainda).
 - [x] T048 [US3] Implementar tela de escolha e teste de voz (lista de vozes
+      > **Desligada da navegação (D-46, 2026-09-26):** a tela continua no
+      > código, sem link a partir da configuração — reativar é decisão
+      > futura.
       pt do aparelho, destaque de melhor qualidade, teste com toque) —
       faz T043 e T044 passarem — em `app/src/screens/escolha_de_voz`,
       ligada a T016/T017 (CU-07). **Concluído (2026-09-25)** — escolha
       salva de verdade em `configuracao.vozId` a cada toque (T045).
 - [x] T049 [US3] Implementar seleção de "nome da letra" vs. "som da letra"
+      > **Sem interface (D-46, 2026-09-26):** o campo continua, o seletor
+      > saiu da configuração; vale sempre o padrão fonema (D-26).
       (padrão fonema) em `app/src/screens/configuracao` (D-26, FR-021).
       **Concluído (2026-09-25)** — salva em `configuracao.nomeOuFonema`
       assim que muda, igual ao padrão da escolha de voz.
@@ -777,6 +791,145 @@ dos dois lado a lado, destaque pra quem teve mais").
 
 ---
 
+## Phase 9: Ajustes depois do primeiro teste em aparelho real (2026-09-26)
+
+**Origem**: `doc/definições002.MD` §15 (D-41 a D-47) e `plan.md` "Revisão de
+2026-09-26". **Regra desta fase**: a spec e o plano foram alterados *antes*
+de qualquer código novo — os blocos 9b e 9c abaixo estão **todos em aberto**
+e só executam depois de o dono do projeto aprovar spec/plano. O bloco 9a
+registra o que já foi feito e verificado em código (tsc, eslint, 81 testes,
+`expo export -p web`) antes deste replanejamento, pra o rastreador não
+ficar atrás do código.
+
+### 9a. Já feito e verificado (registro)
+
+- [x] T070 [US1] **Bug real do Ditado**: `MontagemPalavra` é reusada
+      entre desafios da rodada (só a prop `palavra` muda) e o estado de
+      vagas/ladrilhos só inicializava no 1º mount — ao acertar, o áudio
+      trocava mas a montagem ficava travada no desafio anterior. Corrigido
+      com `key={palavra}` (remount), não com `useEffect`+`setState` (o
+      eslint do projeto rejeita, com razão). **Sem teste automatizado** —
+      o projeto não tem teste de componente; coberto só por verificação
+      manual no aparelho. Lacuna registrada, não escondida.
+- [x] T071 **Safe area**: container raiz de todas as telas reais trocado
+      por `SafeAreaView` (`react-native-safe-area-context`), bordas topo e
+      base — botões do rodapé (ex.: "Começar") ficavam sob a barra de
+      navegação do Android. (FR-026)
+- [x] T072 **Identidade visual do protótipo**: fontes Baloo 2 + Figtree
+      carregadas (`expo-font`/`useFonts` nunca existiram no app — só
+      cores/raios tinham sido portados de `design/prototipo.html`), `Botao`
+      com raio 16 e fantasma com fundo `papelAlt` (estavam pill/transparente,
+      errado), `sombraBlk`, vagas tracejadas.
+- [x] T073 **Simplificação pedida (D-46)**: removidos da tela de configurar
+      "Letra: nome ou som" e "escolher e testar a voz". `TelaEscolhaDeVoz`
+      e o campo `nomeOuFonema` continuam no código, desligados.
+- [x] T074 **Regras de UX infantil (D-47, FR-026)**: "mais opções"
+      recolhido por padrão, avisos em tom de jogo, chips com alvo 56,
+      "✕ sair" com aparência de botão, pop de escala ao acertar uma vaga.
+- [ ] T075 **Som de acerto/erro gentil (feedback sonoro)**. **Bloqueado por
+      asset**: precisa de um arquivo de áudio real que não existe no
+      projeto — mesma dependência humana de T066; não vou fabricar um.
+      Sem som de derrota (US1 cenário 5, Princípio II).
+
+### 9b. Matemática: 8 níveis + apoio visual + nível próprio (D-41, D-42, D-43)
+
+**Independent Test**: em tipo matemática, iniciar no nível 1 (padrão) e
+completar uma rodada só contando o que aparece na tela, sem nenhuma conta
+passar de 5; subir até o nível 5 e ver as quantidades de 11 a 20 no estilo
+material dourado.
+
+#### Tests for 9b ⚠️ (escrever e ver falhar antes)
+
+- [ ] T076 [P] [US2] Teste unitário: `gerador_matematica` respeita o teto
+      de cada um dos 8 níveis (resultado ≤ 5 no 1, ≤ 10 nos 2-4, ≤ 20 nos
+      5-7), nunca gera negativo nem zero em subtração, sempre 4
+      alternativas distintas e próximas; nível fora de 1–8 lança erro em
+      vez de virar multiplicação. Varredura com muitas amostras e gerador
+      de números com seed. (US2 cenários 3, 4, 5; FR-022)
+- [ ] T077 [P] [US2] Teste unitário: `representacao_quantidade` — até 10
+      devolve bolinhas em linhas de 5 (ex.: 7 → 5+2); de 11 a 20 devolve
+      dezenas + unidades (ex.: 14 → 1 barra + 4 cubinhos); 10 exato e 20
+      exato nas bordas; nível 8 devolve N grupos de M. (US2 cenário 6;
+      FR-023)
+- [ ] T078 [P] [US3] Teste unitário: `configuracao` guarda e devolve
+      `ultimo_nivel_matematica` separado de `ultimo_nivel`; padrão 1;
+      migração aditiva não perde linha existente. (US2 cenário 7, US3
+      cenário 6; FR-024)
+
+#### Implementation for 9b
+
+- [ ] T079 [US2] Reescrever `gerador_matematica` pra grade de 8 níveis
+      (faz T076 passar); ajustar `problema_contextualizado` se ele depender
+      da grade antiga. Faixas marcadas "a calibrar" (A-14).
+- [ ] T080 [P] [US2] Implementar `representacao_quantidade` (função pura,
+      faz T077 passar) e o componente `QuantidadeVisual` (bolinhas em
+      linhas de 5; barra de 10 + cubinhos; grupos no nível 8). Só exibição.
+- [ ] T081 [US2] Ligar `QuantidadeVisual` a `TelaMatematica` nas duas
+      formas, níveis 1–7 (substitui o `'●'.repeat(n)` da forma
+      contextualizada); respeitar alvo/legibilidade em retrato e paisagem
+      (D-38).
+- [ ] T082 [US3] `configuracao`: campo `ultimoNivelMatematica` + migração
+      aditiva no `expo-sqlite` (faz T078 passar). `data-model.md` já
+      atualizado.
+- [ ] T083 [US3] Seletor de nível de matemática (1–8) em "mais opções"
+      quando o tipo envolve matemática; `/rodada-matematica` passa a usar
+      o nível de matemática (deixa de herdar o de leitura); D-40
+      (`sugerirProximoNivel`) age sobre o nível do tipo jogado e respeita
+      o teto 8 vs 5.
+- [ ] T084 [P] Atualizar/criar specs Maestro (`app/e2e/`) pra: "mais
+      opções" recolhido por padrão, matemática nível 1 com quantidade
+      visual, seletor de nível de matemática. **Ressalva**: até hoje nenhum
+      spec Maestro foi executado; o emulador Docker (`docker/android/`) agora
+      permite tentar — se rodar, registrar; se não, manter a ressalva.
+
+### 9c. Leitura·voz de verdade (D-44, D-45)
+
+**Independent Test**: em aparelho real, sem rede, a criança toca no
+microfone, lê a palavra, toca de novo, e o app mostra o que entendeu; e,
+num build sem o motor, a modalidade aparece desabilitada com o motivo.
+
+- [ ] T085 [P] [US1] Teste unitário/integração: com a capacidade
+      `reconhecimentoDeVoz` indisponível, a configuração mostra "Leitura ·
+      voz" desabilitada com motivo visível e "Começar" não inicia uma
+      rodada de voz. (US1 cenário 9; FR-013, FR-025)
+- [ ] T086 [US1] Implementar a capacidade `reconhecimentoDeVoz` em
+      `capacidade_aparelho` + o gate na configuração (faz T085 passar). É a
+      correção **imediata** do defeito do teste: entra antes do motor.
+- [ ] T087 [US1] **Spike de integração do `whisper.rn`** em aparelho real
+      (build EAS): compila/roda no SDK 57? formato de áudio exigido vs o
+      que o `expo-audio` grava (e a conversão, se precisar); tamanho de
+      modelo que cabe no APK e latência real. Saída: seção nova em
+      `research.md` e decisão de modelo. **Bloqueia T090.** Verificar a
+      documentação atual do pacote e do SDK antes de escrever qualquer
+      integração — nada disso está verificado neste projeto.
+- [ ] T088 [P] [US1] Testes unitários (com fake do motor e do gravador):
+      `gravacao` pede permissão ao iniciar, toque inicia/toque para sem
+      timeout (D-37), permissão negada vira motivo visível (não erro
+      genérico); `stt` devolve texto do motor e trata modelo ausente. (US1
+      cenário 10; T026 já cobre "sem permissão")
+- [ ] T089 [US1] Implementar serviço `gravacao` (`expo-audio`) — faz T088
+      passar (parte gravador).
+- [ ] T090 [US1] Implementar serviço `stt` (`whisper.rn`, modelo embarcado,
+      100% offline) — faz T088 passar (parte motor). **Depende de T087.**
+- [ ] T091 [US1] Trocar os stubs de `iniciarGravacao`/`pararGravacao`/
+      `transcrever` na rota `/rodada` pelos serviços reais e **remover o
+      gate de T086 somente quando o modelo carregar de verdade**.
+- [ ] T092 [US1] Validar em aparelho real (não no emulador Docker, sem
+      microfone): captura, latência, falso negativo/positivo (SC-003,
+      SC-008), com o app em modo avião; registrar em `research.md` e
+      alimentar T068. **Não é tarefa de código puro — exige aparelho e
+      alguém falando.**
+
+### 9d. Rastreamento
+
+- [ ] T093 Sincronizar este plano no Plane (uma issue por bloco 9a-9c, com
+      a lista T070-T092), workspace `esteira`. **Bloqueado**: precisa de um
+      personal access token do Plane (ver conversa de 2026-09-26) — sem
+      ele não há como escrever no board.
+
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -788,6 +941,12 @@ dos dois lado a lado, destaque pra quem teve mais").
   P1 → P2 → P3 → P4 → P5, pois cada uma reaproveita a anterior (US3
   configura o que US1/US2 já jogam com default; US5 reaproveita US1/US2
   inteiras).
+- **Fase 9 (2026-09-26)** vem depois de tudo acima e não bloqueia nada
+  do que já está pronto. Dentro dela: **9b (matemática) e 9c (voz) são
+  independentes entre si** e podem seguir em paralelo; em 9c a ordem é
+  T085/T086 (gate honesto) → T087 (spike) → T088-T090 → T091 → T092 —
+  **T090 não começa antes de T087**. 9a já está feito; T075 e T093 estão
+  bloqueados por dependência externa (asset de áudio; token do Plane).
 - **US5** depende do modelo de `Perfil` multi-perfil (T012) e das telas de
   US1/US2 já existirem, mas não depende de US3 nem US4 em código — apenas
   reaproveita a mesma tela de resultado (T032).
@@ -797,14 +956,16 @@ dos dois lado a lado, destaque pra quem teve mais").
 | User Story | Cenários no spec.md | Tarefas de teste |
 |---|---|---|
 | Foundational (sem US própria no spec, mas com contrato/regra testável) | — | T006–T011 |
-| US1 | 8 (cenário 8 adicionado 2026-09-15, D-37) | T019–T026 + T020a (8 tarefas cobrindo os 8 cenários) |
-| US2 | 4 | T034–T036 (regras de geração; cenários 1/2 cobertos via T029/T030/T040 de UI + unit acima) |
-| US3 | 5 | T041–T045 (5 tarefas cobrindo os 5 cenários) |
+| US1 | 10 (cenário 8 em 2026-09-15, D-37; cenários 9-10 em 2026-09-26, D-44/D-45) | T019–T026 + T020a (cenários 1-8); **T085 (cenário 9) e T088 (cenário 10) — a escrever**; T092 valida o 10 em aparelho real |
+| US2 | 7 (cenários 5-7 em 2026-09-26, D-41/D-42/D-43) | T034–T036 (cenários 1-4, regras de geração; 1/2 via T029/T030/T040 de UI + unit acima); **T076 (cenário 5), T077 (cenário 6), T078 (cenário 7) — a escrever** |
+| US3 | 6 (cenários 4-5 substituídos e 6 novo em 2026-09-26, D-46/D-47/D-43) | T041–T045 escritos contra a versão antiga; **os testes de voz/nome-fonema (T044, T045) ficam obsoletos pelo D-46** e o cenário 5 novo ("mais opções") não tem teste automatizado — só Maestro (T084); T078 cobre o cenário 6 |
 | US4 | 4 | T050–T052 (cenário 2 coberto por T050) |
 | US5 | 6 | T055–T060 (6 tarefas cobrindo os 6 cenários) |
 
-Nenhum *Acceptance Scenario* do `spec.md` ficou sem tarefa de teste
-correspondente nesta revisão.
+Depois da revisão de 2026-09-26 **há cenários sem teste ainda escrito**
+(US1 9 e 10, US2 5-7, US3 5-6) — as tarefas existem na Fase 9, mas
+estão em aberto; a afirmação anterior de "nenhum cenário sem tarefa" só
+vale pra versão anterior da spec.
 
 ## Notes
 

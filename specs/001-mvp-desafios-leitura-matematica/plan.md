@@ -73,13 +73,83 @@ uma criança não perder o engajamento — meta a calibrar no spike de STT
 
 **Constraints**: **offline-capable é obrigatório** (FR-019, SC-005, não
 negociável — ver constituição, Princípio V). Modelo de STT embarcado deve
-caber num tamanho de instalação razoável para um app infantil (favorece
-Vosk sobre Whisper small, a confirmar). Interface para criança pré-leitora:
+caber num tamanho de instalação razoável para um app infantil (motor
+escolhido: Whisper via `whisper.rn`; tamanho do modelo e latência em
+aparelho real seguem **não medidos** — A-17, T087). Interface para criança pré-leitora:
 sem texto como única pista de ação (Princípio VI da constituição).
 
 **Scale/Scope**: uso doméstico, 1–2 perfis por aparelho no MVP (D-25,
 D-32), histórico de até 50 rodadas por perfil. Sem exigência de escala
 multiusuário/concorrência — é um app local de uso individual/familiar.
+
+## Revisão de 2026-09-26 — depois do primeiro teste em aparelho real
+
+Origem: doc002 §15 (D-41 a D-47). Nada abaixo foi implementado ainda — este
+plano vem **antes** da execução, por pedido do dono do projeto. As tarefas
+estão em `tasks.md`, Fase 9.
+
+### A. Matemática: 8 níveis + apoio visual de quantidade (D-41, D-42, D-43)
+
+- **`gerador_matematica`** (função pura, já testada em T034/T038) é
+  reescrito pra grade de 8 níveis — faixas em `doc002 §15/D-41`. Continua
+  recebendo o gerador de números aleatórios por parâmetro (testável com
+  seed) e continua garantindo: 4 alternativas, sem repetir, sem negativo,
+  erradas próximas da certa. O ramo `else` que hoje trata "qualquer nível
+  ≥ 5" como multiplicação sai — nível fora de 1–8 é erro explícito, não
+  multiplicação por engano.
+- **`representacao_quantidade`** (novo, função pura): operando →
+  descrição do que desenhar (`bolinhas` em linhas de 5 até 10; `dourado`
+  com `dezenas` e `unidades` de 11 a 20; grupos no nível 8). Puro
+  justamente pra ser testado sem renderizar nada.
+- **`QuantidadeVisual`** (novo componente): desenha a descrição acima;
+  substitui o `'●'.repeat(n)` da forma contextualizada e passa a valer
+  nas duas formas. Só exibição — sem gesto.
+- **Persistência**: `configuracao` ganha `ultimo_nivel_matematica`
+  (migração **aditiva**, `ADD COLUMN ... DEFAULT 1`). A tela de configuração
+  passa a mostrar esse seletor em "mais opções" quando o tipo envolve
+  matemática; a rota `/rodada-matematica` deixa de receber o nível de
+  leitura. D-40 age sobre o nível do tipo jogado.
+- **Risco**: histórico antigo de matemática tem níveis 1–5 da grade antiga
+  — fica como gravado, sem reinterpretar (`data-model.md`).
+
+### B. Leitura·voz de verdade (D-44, D-45)
+
+Ordem obrigatória, cada passo desbloqueia o seguinte:
+
+1. **Honestidade primeiro (rápido, sem motor):** nova capacidade
+   `reconhecimentoDeVoz` em `capacidade_aparelho`; enquanto ela for
+   "indisponível", a configuração mostra Leitura·voz desabilitada com
+   motivo. Isso já resolve o defeito mais grave do teste (a modalidade
+   parecia funcionar e não podia).
+2. **Spike curto em aparelho real (T087)** — antes de escrever serviço:
+   `whisper.rn` compila e roda no SDK 57? Que formato de áudio ele exige e
+   o que o `expo-audio` grava (a conversão, se precisar, é o risco
+   principal)? Qual tamanho de modelo cabe no APK e responde rápido o
+   bastante? Resultado registrado em `research.md`; **nenhuma dessas
+   respostas está verificada hoje** — o spike de 2026-09-22 rodou em
+   desktop.
+3. **Serviços com testes primeiro:** `gravacao` (permissão pedida ao entrar
+   no desafio, toque-inicia/toque-para, sem timeout — D-37) e `stt`
+   (carregar modelo, transcrever arquivo). Ambos atrás de interface
+   pequena, com fake nos testes — o motor real só roda em aparelho.
+4. **Ligar na rota `/rodada`** no lugar dos stubs e **remover o gate** do
+   passo 1 só quando o modelo carregar de verdade.
+5. **Validar em aparelho real** e registrar latência e taxa de falso
+   negativo/positivo (SC-003, SC-008) — não dá pra validar no emulador
+   Docker, que não tem microfone real.
+
+**Restrições de build:** `whisper.rn` é módulo nativo — não roda no Expo
+Go; cada teste no aparelho exige um build EAS novo (minutos, não
+segundos). Isso encarece o ciclo e é o motivo de o gate (passo 1) vir
+antes: o app instalado precisa ser honesto mesmo enquanto o motor não
+chega.
+
+### C. Correções já feitas em código (registradas em `tasks.md`, T070-T075)
+
+Bug de montagem de palavra que travava o Ditado, safe area, fontes do
+protótipo, simplificação da configuração (D-46) e regras de UX infantil
+(D-47) — implementados e verificados antes deste plano; a spec estava
+atrasada em relação ao código e foi alinhada agora.
 
 ## Constitution Check
 
@@ -90,10 +160,10 @@ multiusuário/concorrência — é um app local de uso individual/familiar.
 | Princípio supremo (não entregar a resposta) | FR-001–FR-005 mantêm palavra escondida/silêncio conforme a modalidade; nenhuma modalidade expõe a resposta que a criança deve produzir. **Pass.** |
 | I. Nunca fica presa | FR-005 (botão de sair sempre visível, D-39, revisado 2026-09-25 — não mais troca automática), FR-013, edge cases cobrem microfone/voz ausentes. **Pass.** |
 | II. Erro não pune | US1 cenário 5, FR-007 — erro só conta para métrica, nunca bloqueia. **Pass.** |
-| III. Falha do aparelho não é culpa da criança | FR-013, US1 cenário 7. **Pass.** |
+| III. Falha do aparelho não é culpa da criança | FR-013, US1 cenários 7 e 9. **Revisado 2026-09-26:** até então a Leitura·voz era oferecida com gravação/transcrição em stub — violação real, achada no teste em aparelho; corrigida na spec (D-44, FR-025) e no plano (Revisão §B, passo 1). **Pass após T085/T086.** |
 | IV. Métrica sempre honesta (NON-NEGOTIABLE) | FR-003, FR-007, SC-004 — contador de ajuda por modalidade, estrelas nunca cruzadas. **Pass.** |
 | V. Funciona sem internet | FR-019, SC-005, restrição "Storage"/"Constraints" acima. **Pass.** |
-| VI. Um toque, instrução no símbolo | Não detalhado a nível de FR nesta spec (é requisito de UI, tratado no design visual, não bloqueia o plano). **Pass condicional** — validar em wireframe antes da Fase 1 de design de UI. |
+| VI. Um toque, instrução no símbolo | **Revisado 2026-09-26:** virou requisito de FR (FR-026, D-47) depois de a auditoria achar chips de 40 (abaixo dos 56 declarados) e botões sob a barra do Android. **Pass após T074.** |
 | VII. Configurar é opcional | FR-012. **Pass.** |
 
 Nenhuma violação que exija entrada em Complexity Tracking.

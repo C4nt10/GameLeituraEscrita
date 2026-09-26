@@ -12,14 +12,25 @@ a criança **ler de verdade**, não passar de fase.
 
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
-constituição e plano técnico já estão fechados. Das 75 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 72 estão
+constituição e plano técnico já estão fechados. Das 99 tarefas em
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 77 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
 scaffold do projeto React Native + Expo com lint/format/testes
-configurados (T003-T005), e as Fases 2 a 8 completas (o que dava pra
-completar por código) — **as 5 user stories do MVP, todas funcionando**:
+configurados (T003-T005), e as Fases 2 a 8 (o que dava pra completar por
+código). **Depois do primeiro teste em aparelho real (2026-09-26) duas
+coisas que estavam marcadas como prontas deixaram de valer**, e a spec e o
+plano foram revistos *antes* de qualquer código novo (Fase 9,
+`doc/definições002.MD` §15):
+
+- **Leitura·voz ainda não reconhece fala** — gravação e transcrição são
+  stubs (D-44); a integração real do `whisper.rn` é a Fase 9c, começando
+  por desabilitar a modalidade com motivo visível.
+- **A matemática está difícil demais pra criança** — vira 8 níveis, com os
+  novos começando bem abaixo, e quantidade visual contável (D-41, D-42).
+
+O restante do que foi entregue:
 
 - **Fase 2 — Foundational** (T006-T018): modelos, banco de conteúdo,
   histórico, capacidade do aparelho, TTS, precisão/estrelas.
@@ -104,7 +115,7 @@ documentadas — não é código "adivinhando" requisito:
 | [`app/`](app/) | Projeto React Native + Expo (criado no T003) — código do app, ainda sem telas/lógica de jogo. |
 | [`app/assets/conteudo/`](app/assets/conteudo/) | Rascunho v0 (**não validado pedagogicamente**, issue A-06 aberta) do banco de palavras e dos temas de matemática contextualizada. |
 | [`design/prototipo.html`](design/prototipo.html) | Protótipo clicável das 8 telas do MVP — referência visual para as tarefas de tela em `tasks.md`. |
-| [`doc/`](doc/) | Documentos de definição de produto (histórico de decisões numeradas D-01 a D-37). |
+| [`doc/`](doc/) | Documentos de definição de produto (histórico de decisões numeradas D-01 a D-47). |
 | [`.specify/`](.specify/) | Configuração do [spec-kit](https://github.com/github/spec-kit) (templates, scripts, constituição). |
 
 ## Stack técnica

@@ -988,3 +988,29 @@ Se qualquer uma dessas pendências mudar o cenário (dispositivo real
 disponível, ou decisão de produto sobre o critério), reabrir T002 com uma
 nova rodada numerada, mantendo o histórico das 19 rodadas anteriores
 intacto.
+
+---
+
+## Pré-spike de integração do `whisper.rn` (2026-09-26, antes de T087)
+
+**Por que existe**: o primeiro teste em aparelho real (doc002 §15, D-44)
+mostrou que Leitura·voz "não captou a voz" — causa real: gravação e
+transcrição da rota `/rodada` são stubs desde T031. O spike de 2026-09-22
+provou que Whisper acerta 62-81% **em desktop**; nunca provou que a
+integração no app funciona. Isto é a lista do que **não sabemos** e que T087
+precisa responder, medindo, antes de qualquer serviço ser escrito:
+
+1. `whisper.rn` compila e roda com o Expo SDK 57 (config plugin/prebuild,
+   arquitetura nova do React Native)? Só o T003 de 2026-09-23 checou que o
+   pacote é "mantido e ativo" — não que builda neste projeto.
+2. Formato de áudio: o que o motor aceita como entrada versus o que o
+   gravador do `expo-audio` produz por padrão? Se houver conversão
+   (taxa de amostragem, canais, contêiner), é o principal risco técnico.
+3. Tamanho do modelo no APK e latência de transcrição num aparelho real —
+   o `research.md` já dizia (rodada 8, item 1 das pendências acima) que a
+   latência real nunca foi medida.
+4. Microfone no emulador Docker (`docker/android/`) não é real — a
+   validação de captura precisa de aparelho físico (T092).
+
+Nenhuma dessas quatro está verificada. Resultado do T087 entra aqui, como
+seção numerada, mantendo o histórico anterior intacto.

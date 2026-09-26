@@ -488,3 +488,144 @@ persistência existir.
 | # | Questão | O que falta |
 |---|---|---|
 | **A-13** | D-40 vale só pra leitura ou também matemática? | Decisão assumida (vale pros dois) sem confirmação explícita — revisar quando T046/matemática entrarem em jogo |
+
+---
+
+## 15. Depois do primeiro teste em aparelho real — matemática difícil demais, voz que nunca funcionou
+
+**Contexto (2026-09-26):** primeiro APK (EAS, perfil preview) instalado e
+jogado pelo dono do projeto num aparelho Android real. Achados relevantes
+pra esta seção: (1) as contas de matemática exigem material dourado pra uma
+criança resolver; (2) Leitura·voz "não captou a voz"; (3) bugs de
+funcionamento e de tela já corrigidos em código (ver D-47). Esta seção
+registra o que muda na **especificação** antes de qualquer implementação
+nova — `doc/definições001.MD` continua intocado, como histórico.
+
+### D-41 — matemática passa a 8 níveis, começando bem abaixo do atual
+
+**Decisão:** a grade de matemática ganha níveis iniciais mais fáceis, e os
+níveis que já existiam ficam acima deles (recalibrados pra nunca passar
+de 20). Substitui a tabela "Níveis de matemática" do doc001 §4, que fica
+como registro histórico. Resultado **nunca negativo** e, em subtração,
+sempre **maior que zero** (regra do doc001 §4 mantida).
+
+| Nível | Conteúdo | Resultado máximo | Apoio visual (D-42) |
+|---|---|---|---|
+| 1 | Soma | até 5 | bolinhas |
+| 2 | Soma (absorve o antigo nível 1) | até 10 | bolinhas |
+| 3 | Subtração, números até 10 | 10 (minuendo) | bolinhas |
+| 4 | Soma e subtração misturadas, até 10 | 10 | bolinhas |
+| 5 | Soma até 20 (antigo nível 2, recalibrado) | até 20 | estilo material dourado |
+| 6 | Subtração até 20 (antigo nível 3) | 20 (minuendo) | estilo material dourado |
+| 7 | Soma e subtração misturadas, até 20 (antigo nível 4) | 20 | estilo material dourado |
+| 8 | Multiplicação básica (antigo nível 5) | a calibrar (A-14) | grupos de objetos |
+
+**Escopo assumido, não confirmado pelo dono do projeto:** as faixas
+numéricas exatas de cada nível (em especial o nível 8) são proposta minha
+a partir do pedido "estabelecer os níveis menores" — não vêm de um número
+dado pelo dono. Ficam marcadas pra revisão (A-14), no mesmo espírito das
+faixas do `gerador_matematica` original (doc001 §10).
+
+### D-42 — apoio visual de quantidade em todo desafio de matemática dos níveis 1–7
+
+**Decisão:** o desafio de matemática passa a mostrar cada operando como
+**quantidade visual contável**, nas duas formas (pura e contextualizada):
+até 10 → bolinhas/blocos em linhas de 5 (fácil de contar); de 11 a 20 →
+estilo **material dourado** (uma barra = 10 + cubinhos = 1). É **só
+exibição** — a criança não arrasta nem agrupa nada. Fica **sempre
+visível** (nunca escondido atrás de um botão), então não entra como
+"contador de ajuda": não há ajuda invisível pra contar (Princípio IV). No
+nível 8 (multiplicação) o apoio é "N grupos de M objetos".
+
+**O que isso muda:** a tela hoje desenha uma sequência de "●" só na forma
+contextualizada — vira um componente próprio de quantidade, usado nas
+duas formas. O enunciado falado e a conta escrita continuam (D-23, D-24).
+
+### D-43 — o nível de matemática é independente do nível de leitura
+
+**Decisão:** matemática e leitura têm níveis próprios, cada um com seu
+último valor persistido. Achado durante a revisão do teste: a tela de
+configuração escondia o seletor de nível quando o tipo era matemática, e
+a rota de matemática recebia o **nível de leitura** — matemática abria
+num nível decidido por acaso pela leitura (e, com a grade de 8 níveis,
+poderia passar do que a leitura tem, 1–5). A tela passa a mostrar o nível
+de matemática (1–8, padrão 1) em "mais opções" quando o tipo envolve
+matemática.
+
+**Consequência prática:** campo novo em `configuracao`
+(`ultimo_nivel_matematica`, padrão 1, migração aditiva — não mexe em dado
+existente). D-40 (próxima rodada um nível abaixo após 2+ erros) passa a
+agir sobre o nível **do tipo jogado**.
+
+### D-44 — Leitura·voz só é oferecida como jogável quando o reconhecimento de fala existe de verdade
+
+**Decisão:** enquanto o reconhecimento de fala real não estiver integrado
+e com modelo carregado, "Leitura · voz" aparece **desabilitada com o
+motivo visível** (FR-013, Princípio III), em vez de parecer funcionar.
+
+**Por que (achado do teste):** "o microfone não captou minha voz" não foi
+falha de hardware. A causa é que gravação e transcrição são **stubs** na
+rota da rodada (`iniciarGravacao`/`pararGravacao`/`transcrever` devolvem
+vazio — T028/T031 registraram que `whisper.rn` não estava instalado, mas a
+tela continuou oferecendo a modalidade como se funcionasse). Isso
+contradiz o Princípio III (falha não é culpa da criança) e FR-013 —
+corrigir a UI é parte do conserto, não só integrar o motor.
+
+### D-45 — integração real do STT: `whisper.rn` offline, com spike antes de implementar
+
+**Decisão:** implementar de verdade o que o spike de 2026-09-22 já
+escolheu (`whisper.rn`, offline — Princípio V), num build nativo (EAS, não
+Expo Go): gravação com `expo-audio`, **permissão de microfone pedida na
+hora em que a criança entra no desafio**, toque inicia / toque para (D-37:
+sem VAD agressivo, sem timeout curto), transcrição local, modelo
+embarcado.
+
+**Não decidido ainda — vira spike curto (T087) antes de implementar:**
+compatibilidade do `whisper.rn` com o SDK 57, formato de áudio que o motor
+exige versus o que o gravador entrega, qual tamanho de modelo cabe num
+APK razoável e responde rápido o bastante num aparelho real. Nada disso
+foi verificado neste projeto — o spike do STT rodou só em desktop
+(research.md §T002, pendência "1b").
+
+### D-46 — escolha de voz, teste de voz e "nome ou som da letra" saem do MVP
+
+**Decisão do dono do projeto (2026-09-26):** o jogo é pra criança — a
+configuração não oferece escolher/testar voz do aparelho nem escolher
+entre nome e som da letra. O app usa a **voz padrão do aparelho** e o
+**som da letra (fonema, padrão de D-26)**. Já implementado em código na
+rodada de correções de 2026-09-26; esta seção só fecha a divergência
+entre spec e código.
+
+**Supersede:** FR-021 e a voz na US3 (cenários 4 e 5). A tela
+`TelaEscolhaDeVoz` e o campo `nomeOuFonema` continuam existindo no código
+(desligados da navegação) — reativar é decisão futura, não retrabalho.
+
+### D-47 — tela de configurar em divulgação progressiva + regras de UX infantil
+
+**Decisão** (resultado da análise de design/UX de 2026-09-26, "é
+convidativo pra criança?"):
+
+- Só **Tipo** e **Modalidade** ficam sempre visíveis na tela inicial; nível,
+  classificação, forma da matemática, tamanho e sozinho/dupla ficam atrás
+  de "⚙️ mais opções" (recolhido por padrão). "Começar" continua
+  funcionando sem tocar em nada (Princípio VII).
+- Nenhum texto visível à criança usa registro de desenvolvimento
+  ("ainda não está pronto neste app") — tom de jogo.
+- Todo controle tocável tem alvo mínimo de **56** (Princípio VI); os chips
+  estavam em 40, abaixo do padrão que o próprio projeto declara.
+- "Sair da rodada" (D-39) tem aparência de botão (fundo + borda), não texto
+  solto.
+- Telas respeitam a safe area do sistema (botões do rodapé não podem ficar
+  sob a barra de navegação do Android).
+- Acerto tem feedback de movimento; **feedback sonoro fica pendente** — exige
+  um asset de áudio real que não existe no projeto (mesma dependência de T066).
+
+### O que isso abre
+
+| # | Questão | O que falta |
+|---|---|---|
+| **A-14** | As faixas numéricas de cada nível de matemática (D-41), sobretudo a multiplicação do nível 8, estão adequadas? | Proposta minha, sem número dado pelo dono — validar com criança (T068) |
+| **A-15** | O apoio visual (D-42) deve ser sempre visível ou sob demanda, contando como ajuda? | Assumido "sempre visível" nos níveis 1–7; revisar se a criança passar a depender dele |
+| **A-16** | Material dourado **interativo** (a criança monta a quantidade)? | Fora do MVP — só exibição (D-42); candidato a fase própria |
+| **A-17** | Tamanho do modelo/APK, latência e taxa de acerto reais do `whisper.rn` em aparelho | Só se sabe medindo — spike T087 e validação T092 |
+| **A-13** | D-40 vale pra matemática? | Segue assumido; agora age sobre o nível de matemática (D-43) |

@@ -39,9 +39,10 @@ fica lembrada", CU-07).
 | Campo | Tipo | Regra |
 |---|---|---|
 | `perfil_id` | TEXT (PK, FK → `perfis.id`) | |
-| `voz_id` | TEXT, nullable | Identificador de voz TTS do aparelho (`expo-speech`); nulo até o 1º teste de voz (CU-07) |
-| `nome_ou_fonema` | TEXT | `"nome"` \| `"fonema"` — padrão `"fonema"` (D-26) |
-| `ultimo_nivel` | INTEGER | 1–5, padrão 1 |
+| `voz_id` | TEXT, nullable | Identificador de voz TTS do aparelho (`expo-speech`); nulo até o 1º teste de voz (CU-07). **Sem interface no MVP (D-46)** — o app usa a voz padrão do aparelho; campo mantido pra reativar a escolha depois |
+| `nome_ou_fonema` | TEXT | `"nome"` \| `"fonema"` — padrão `"fonema"` (D-26). **Sem interface no MVP (D-46)** — sempre o padrão |
+| `ultimo_nivel` | INTEGER | **nível de leitura**, 1–5, padrão 1 |
+| `ultimo_nivel_matematica` | INTEGER | **nível de matemática**, 1–8, padrão 1 (D-41, D-43). **Novo (2026-09-26)** — migração aditiva: `ALTER TABLE ... ADD COLUMN ... DEFAULT 1`, não altera nem apaga dado existente |
 | `ultimas_classificacoes` | TEXT (JSON array) | padrão `["todas"]` (doc002 §2) |
 | `ultimo_tamanho` | INTEGER | 3 \| 5 \| 8, padrão 5 |
 | `ultima_modalidade` | TEXT | `"ditado"` \| `"leitura_montar"` \| `"leitura_voz"`, padrão `"leitura_montar"` |
@@ -63,7 +64,7 @@ do `spec.md`.
 | `tipo` | TEXT | `"leitura"` \| `"matematica"` \| `"misto"` |
 | `modalidade` | TEXT, nullable | obrigatório se `tipo` envolve leitura; nulo se só matemática |
 | `forma_matematica` | TEXT, nullable | obrigatório se `tipo` envolve matemática |
-| `nivel` | INTEGER | 1–5 |
+| `nivel` | INTEGER | 1–5 quando `tipo = "leitura"`; 1–8 quando `tipo = "matematica"` (D-41). Registros antigos de matemática (nível 1–5 da grade antiga) ficam como estão — o histórico mostra o nível gravado, sem reinterpretar |
 | `classificacoes` | TEXT (JSON array), nullable | nulo quando `nivel = 1` (D-22) |
 | `tamanho` | INTEGER | 3 \| 5 \| 8 |
 | `iniciada_em` | TEXT (ISO 8601) | |

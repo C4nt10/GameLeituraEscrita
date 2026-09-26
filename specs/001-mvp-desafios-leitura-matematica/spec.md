@@ -4,10 +4,15 @@
 
 **Created**: 2026-09-10
 
-**Status**: Draft
+**Status**: Draft — **revisada em 2026-09-26** após o primeiro teste em
+aparelho real (doc002 §15, D-41 a D-47): matemática com 8 níveis e apoio
+visual de quantidade (US2, FR-008, FR-022 a FR-024), Leitura·voz só
+jogável com reconhecimento de fala real (US1 cenários 9-10, FR-025),
+escolha de voz e nome/som saem do MVP (US3, FR-021), tela de configurar em
+divulgação progressiva (US3, FR-026).
 
 **Input**: `doc/definições001.MD` + `doc/definições002.MD` — definições de produto
-consolidadas (casos de uso CU-01 a CU-08, decisões D-01 a D-33, princípios de
+consolidadas (casos de uso CU-01 a CU-08, decisões D-01 a D-47, princípios de
 usabilidade). Sem tecnologia, sem implementação — traduzido aqui para o
 formato de spec sem adicionar decisão nova.
 
@@ -64,6 +69,16 @@ Repetir uma vez em cada modalidade.
    fluida, **Then** o app aceita como acerto do mesmo jeito que aceitaria
    uma leitura fluida — nem a captura de áudio corta por pausa curta, nem
    a avaliação usa duração/número de pausas como critério (D-37).
+9. **Given** o reconhecimento de fala real ainda não integrado ou sem
+   modelo carregado no aparelho, **When** o adulto chega à escolha de
+   modalidade, **Then** "Leitura · voz" aparece desabilitada com o motivo
+   visível ("reconhecimento de voz ainda não instalado neste app") — nunca
+   jogável de mentira, com um microfone que "não pega" nada (D-44).
+10. **Given** Leitura · voz habilitada, **When** a criança entra no
+    desafio pela primeira vez, **Then** o app pede a permissão de
+    microfone naquele momento; ao tocar no microfone o app grava de
+    verdade até a criança tocar de novo (sem corte por tempo), transcreve
+    localmente, sem rede, e mostra o que entendeu (D-45, FR-025).
 
 ---
 
@@ -71,7 +86,11 @@ Repetir uma vez em cada modalidade.
 
 A criança resolve desafios de matemática — conta pura ou problema
 contextualizado, conforme configurado pelo adulto — escolhendo entre 4
-alternativas numéricas.
+alternativas numéricas. A grade tem **8 níveis**, começando em contas que
+uma criança pequena resolve contando o que vê na tela (D-41), e cada
+operando aparece como **quantidade visual contável** (D-42) — sem exigir
+material físico (o teste em aparelho real mostrou que as contas antigas,
+de até 20+20, exigiam material dourado).
 
 **Why this priority**: segunda pilastra do produto, reaproveita a mesma tela
 de resultado/estrelas da User Story 1, mas é uma habilidade e uma mecânica
@@ -84,9 +103,9 @@ contextualizado".
 
 **Acceptance Scenarios**:
 
-1. **Given** uma conta pura (ex. nível 1: soma pequena), **When** o desafio
-   abre, **Then** a conta é falada em voz alta e pode ser repetida quantas
-   vezes a criança tocar no botão de som.
+1. **Given** uma conta pura (ex. nível 1: soma com resultado até 5),
+   **When** o desafio abre, **Then** a conta é falada em voz alta e pode
+   ser repetida quantas vezes a criança tocar no botão de som.
 2. **Given** um problema contextualizado (ex. "3 maçãs, e mais 2 maçãs"),
    **When** o desafio abre, **Then** o enunciado é falado, a quantidade
    aparece como objetos desenhados na tela, e a criança não precisa ler
@@ -96,6 +115,18 @@ contextualizado".
    estão próximas da correta (sem descarte óbvio).
 4. **Given** um problema de subtração contextualizado, **When** o resultado
    seria negativo, **Then** o gerador não produz esse desafio.
+5. **Given** os níveis 1 a 4, **When** o gerador produz um desafio,
+   **Then** nenhum operando nem resultado passa de 10 (nível 1: resultado
+   até 5) — uma criança consegue resolver contando na tela, sem material
+   físico (D-41).
+6. **Given** um desafio dos níveis 1 a 7, **When** ele abre, **Then** cada
+   operando aparece como quantidade visual contável, sempre visível: até 10
+   em linhas de 5; de 11 a 20 no estilo material dourado (barra de 10 +
+   cubinhos de 1); a criança não precisa arrastar nem montar nada (D-42).
+7. **Given** o adulto escolhe matemática, **When** define o nível,
+   **Then** vale o nível **de matemática** (1–8, padrão 1), independente do
+   nível de leitura — nunca o nível de leitura reaproveitado por engano
+   (D-43).
 
 ---
 
@@ -103,15 +134,18 @@ contextualizado".
 
 O adulto escolhe tipo de desafio (leitura, matemática ou misto), modalidade
 de leitura, nível, classificação (tema), forma de matemática, tamanho da
-rodada, formato (sozinho ou dupla) e a voz do aparelho, antes de entregar
-para a criança.
+rodada e formato (sozinho ou dupla), antes de entregar para a criança. Só
+tipo e modalidade ficam sempre à vista; o resto fica em "mais opções",
+recolhido por padrão (D-47). **Escolher/testar a voz do aparelho e escolher
+nome-ou-som da letra saíram do MVP** (D-46) — o app usa a voz padrão do
+aparelho e o som da letra.
 
 **Why this priority**: as US1 e US2 já funcionam com valores padrão (Princípio
 VII); esta história adiciona controle explícito sobre elas, então pode ser
 entregue depois sem bloquear as anteriores.
 
-**Independent Test**: abrir a tela de configuração, alterar nível,
-classificação e modalidade, testar uma voz, iniciar, e confirmar que a
+**Independent Test**: abrir a tela de configuração, abrir "mais opções",
+alterar nível, classificação e modalidade, iniciar, e confirmar que a
 rodada seguinte respeita exatamente o que foi escolhido.
 
 **Acceptance Scenarios**:
@@ -125,11 +159,21 @@ rodada seguinte respeita exatamente o que foi escolhido.
 3. **Given** o aparelho sem permissão de microfone, **When** o adulto chega
    à escolha de modalidade, **Then** "Leitura · voz" aparece desabilitada
    com o motivo visível.
-4. **Given** a lista de vozes em português do aparelho, **When** não existe
-   nenhuma instalada, **Then** o app informa isso e orienta a instalação —
-   nunca falha silenciosamente.
-5. **Given** uma voz escolhida e testada, **When** o adulto volta a
-   configurar depois, **Then** a última escolha aparece pré-selecionada.
+4. ~~**Given** a lista de vozes em português do aparelho, **When** não
+   existe nenhuma instalada, **Then** o app informa isso e orienta a
+   instalação.~~ **Fora do MVP (D-46):** sem escolha de voz na
+   configuração. O app usa a voz padrão do aparelho; se o aparelho não tem
+   voz em português, o recurso que depende dela (Ditado, matemática
+   falada) aparece indisponível com o motivo (FR-013) — nunca falha em
+   silêncio.
+5. ~~Voz escolhida e testada aparece pré-selecionada depois.~~ **Fora do
+   MVP (D-46).** No lugar: **Given** o adulto abre a tela inicial,
+   **When** ela carrega, **Then** só "Tipo" e "Modalidade" aparecem, com
+   "Começar" sempre visível; nível, classificação, forma da matemática,
+   tamanho e sozinho/dupla ficam em "mais opções" (D-47).
+6. **Given** o tipo é matemática, **When** o adulto abre "mais opções",
+   **Then** aparece o seletor de nível de matemática (1–8), com o último
+   valor usado pré-selecionado (D-43).
 
 ---
 
@@ -259,7 +303,9 @@ combinado nos dois formatos (cooperativo e adversarial).
   e problema contextualizado com objetos visuais e enunciado falado — e
   MUST permitir ao adulto escolher qual (D-23, D-24). No problema
   contextualizado, o enunciado MUST ser sorteado entre 2 a 3 variações
-  fixas por operação, sem variar por nível (D-36).
+  fixas por operação, sem variar por nível (D-36). A conta MUST vir
+  acompanhada da quantidade visual de cada operando nas duas formas
+  (FR-023, D-42).
 - **FR-009**: O sistema MUST nunca gerar resultado negativo em desafios de
   subtração, puros ou contextualizados (doc001 §4, D-23).
 - **FR-010**: O sistema MUST organizar o conteúdo de leitura como grade
@@ -274,8 +320,10 @@ combinado nos dois formatos (cooperativo e adversarial).
   configuração tenha sido alterada (valores padrão válidos para todo campo)
   (Princípio VII).
 - **FR-013**: O sistema MUST apresentar qualquer recurso indisponível no
-  aparelho (microfone, voz em português) como opção desabilitada com o
-  motivo visível, nunca oculta e nunca com erro genérico (Princípio I e III).
+  aparelho **ou no app** (microfone, voz em português, reconhecimento de
+  fala ainda não integrado — D-44) como opção desabilitada com o motivo
+  visível, nunca oculta, nunca com erro genérico e nunca oferecida como
+  jogável quando não funciona (Princípio I e III).
 - **FR-014**: O sistema MUST manter um identificador de perfil em todo
   registro de histórico (valor único implícito no MVP de perfil único), sem
   exigir migração de dado ao introduzir seleção explícita de perfil (D-25).
@@ -295,9 +343,37 @@ combinado nos dois formatos (cooperativo e adversarial).
 - **FR-020**: O sistema MUST usar voz sintetizada do aparelho para
   palavras/frases/enunciados de matemática, e áudio gravado embutido apenas
   para o conjunto fechado de letras e fonemas (D-27).
-- **FR-021**: O sistema MUST permitir ao adulto escolher entre "nome da
-  letra" e "som da letra" (fonema) como configuração global, com padrão
-  fonema (D-26).
+- **FR-021**: ~~O sistema MUST permitir ao adulto escolher entre "nome da
+  letra" e "som da letra" (fonema) como configuração global.~~
+  **Suspenso no MVP (D-46):** o app usa sempre o padrão de D-26 (som/
+  fonema) e a voz padrão do aparelho, sem tela de escolha nem de teste de
+  voz. O campo de configuração continua existindo, sem interface.
+- **FR-022**: O sistema MUST organizar a matemática em **8 níveis** (D-41):
+  1 soma até 5; 2 soma até 10; 3 subtração até 10; 4 soma e subtração até
+  10; 5 soma até 20; 6 subtração até 20; 7 soma e subtração até 20; 8
+  multiplicação básica (faixa a calibrar, A-14). Nenhum resultado
+  negativo; em subtração, resultado sempre maior que zero.
+- **FR-023**: O sistema MUST mostrar, em todo desafio de matemática dos
+  níveis 1 a 7, cada operando como quantidade visual contável, sempre
+  visível: até 10 em linhas de 5; de 11 a 20 no estilo material dourado
+  (barra de 10 + cubinhos de 1); no nível 8, N grupos de M objetos. É só
+  exibição — nenhuma interação de arrastar/montar (D-42, A-16).
+- **FR-024**: O sistema MUST manter o nível de matemática independente do
+  nível de leitura — cada um com seu último valor persistido, padrão 1 —, e
+  a sugestão de "um nível abaixo" (FR-005/D-40) MUST agir sobre o nível do
+  tipo jogado (D-43).
+- **FR-025**: O sistema MUST, em Leitura · voz, pedir a permissão de
+  microfone no momento em que a criança entra no desafio, gravar áudio de
+  verdade por toque-inicia/toque-para e transcrever localmente, sem rede;
+  e MUST manter a modalidade desabilitada com motivo visível enquanto o
+  motor de reconhecimento ou seu modelo não estiverem disponíveis (D-44,
+  D-45).
+- **FR-026**: O sistema MUST apresentar a tela inicial em divulgação
+  progressiva — só tipo e modalidade sempre à vista, o restante em "mais
+  opções" recolhido por padrão —, com todo controle tocável de alvo
+  mínimo de 56, texto visível à criança em tom de jogo (nunca registro de
+  desenvolvimento), "sair da rodada" com aparência de botão e todas as
+  telas respeitando a safe area do sistema (D-47, Princípio VI).
 
 ### Key Entities *(include if feature involves data)*
 
@@ -313,14 +389,17 @@ combinado nos dois formatos (cooperativo e adversarial).
   marcador fonético opcional (dígrafo, encontro consonantal — apenas
   documental no MVP).
 - **Desafio de matemática**: uma conta (operação, operandos, resultado) com
-  forma (pura ou contextualizada), tema (quando contextualizada) e as 4
-  alternativas geradas.
+  forma (pura ou contextualizada), nível de matemática (1–8, D-41), tema
+  (quando contextualizada), as 4 alternativas geradas e a representação
+  visual de quantidade de cada operando (D-42, derivada dos operandos —
+  não persistida).
 - **Registro de histórico**: uma rodada persistida — data/hora, tipo,
   nível, classificação, modalidade, acertos, erros, precisão, estrelas,
   contador de ajuda, perfil(is) envolvidos, e se foi concluída.
-- **Configuração**: preferências persistidas por padrão — última voz
-  escolhida, nome/fonema, e os últimos valores de nível/classificação/
-  tamanho/modalidade usados.
+- **Configuração**: preferências persistidas por padrão — os últimos
+  valores de nível **de leitura**, nível **de matemática** (D-43),
+  classificação, tamanho, modalidade e forma de matemática usados. Voz e
+  nome/fonema continuam no modelo mas sem interface no MVP (D-46).
 
 ## Success Criteria *(mandatory)*
 
@@ -345,6 +424,14 @@ combinado nos dois formatos (cooperativo e adversarial).
 - **SC-006**: Numa sessão de observação, a criança pede para jogar de novo
   sem ser convidada (doc001 §10, pergunta 6 — "vale mais que todas as
   outras juntas").
+- **SC-007**: Numa sessão de observação, a criança resolve uma rodada de
+  matemática dos níveis iniciais (1 a 4) sozinha, sem material físico e
+  sem o adulto contar por ela — se precisar de material dourado físico
+  num nível inicial, a grade está alta demais (D-41, A-14).
+- **SC-008**: Em aparelho real, Leitura · voz captura a fala da criança e
+  devolve uma transcrição em tempo aceitável, com o app em modo avião
+  (D-45, A-17); a medição de latência e de taxa de acerto é registrada em
+  `research.md`.
 
 ## Assumptions
 
@@ -372,5 +459,14 @@ combinado nos dois formatos (cooperativo e adversarial).
   dupla mesmo com níveis historicamente diferentes (o adulto decide, ver
   doc002 §9); travar por compatibilidade de nível fica como possível
   melhoria pós-validação, não é requisito desta spec.
+- **A-14** (faixas numéricas dos 8 níveis de matemática): **aberta** —
+  proposta minha em doc002 §15/D-41, sem número dado pelo dono; validar
+  com criança (SC-007).
+- **A-15** (apoio visual sempre visível ou sob demanda): **aberta** —
+  assumido sempre visível nos níveis 1–7 (D-42).
+- **A-16** (material dourado interativo): **fora do escopo** desta spec;
+  candidato a fase própria depois da validação.
+- **A-17** (tamanho do modelo/APK, latência e taxa de acerto do STT em
+  aparelho real): **aberta** — só se resolve medindo (T087, T092).
 - Nenhuma conta de usuário, login ou sincronização entre aparelhos está no
   escopo (doc001 §2).
