@@ -12,8 +12,8 @@ a criança **ler de verdade**, não passar de fase.
 
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
-constituição e plano técnico já estão fechados. Das 101 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 91 estão
+constituição e plano técnico já estão fechados. Das 127 tarefas em
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 92 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o
@@ -29,6 +29,10 @@ plano foram revistos *antes* de qualquer código novo (Fase 9,
   por desabilitar a modalidade com motivo visível.
 - **A matemática está difícil demais pra criança** — vira 8 níveis, com os
   novos começando bem abaixo, e quantidade visual contável (D-41, D-42).
+
+- **Novo padrão visual "Letra Viva" v1 (design do dono, `design/`)** foi
+  avaliado e planejado (Fase 10, doc002 §16): é um redesenho de todas as telas,
+  com 17 perguntas abertas pro dono e **nenhuma tarefa iniciada**.
 
 O restante do que foi entregue:
 

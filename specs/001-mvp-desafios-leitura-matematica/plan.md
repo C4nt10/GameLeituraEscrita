@@ -151,6 +151,82 @@ protótipo, simplificação da configuração (D-46) e regras de UX infantil
 (D-47) — implementados e verificados antes deste plano; a spec estava
 atrasada em relação ao código e foi alinhada agora.
 
+## Revisão de 2026-09-26 (2) — Padrão visual "Letra Viva" v1
+
+Origem: `design/` do dono e doc002 §16 (D-50 a D-54, A-19 a A-35). **Só
+planejamento** — nada implementado. Tarefas na Fase 10 do `tasks.md`.
+
+### Tamanho real da mudança (medido, não estimado)
+
+20 arquivos importam o tema atual, com 342 usos de token (`cores.*`,
+`fontes.*`, `raio.*`, `espacamento.*`); ~3.300 linhas de telas e componentes
+a refazer; 24 specs Maestro com texto de tela; 7 rotas. É um redesenho, não um
+ajuste de cor.
+
+### Decisões técnicas propostas
+
+1. **Tokens — migração em duas etapas, sem "big bang".** `tema.ts` entra em
+   `app/src/theme/tema.ts` convivendo com o `theme/index.ts` atual; cada tela
+   migra sozinha e o arquivo antigo só sai quando nada mais o importar (T118).
+   Um teste compara `design/tema.ts` com a cópia do app e falha se divergirem
+   — o arquivo do dono é a fonte, a cópia não pode envelhecer em silêncio
+   (Metro não importa de fora da pasta do app).
+2. **Fontes.** Adicionar Andika (`@expo-google-fonts/andika` 0.4.1, existe no
+   npm) e os pesos Figtree 500/700/800 do guia. O nome exato do export
+   `Andika_700Bold` **ainda não foi conferido** no pacote — primeiro passo de
+   T102.
+3. **Ícones, mascote e fundo quadriculado: `react-native-svg`** (versão que o
+   Expo SDK 57 traz: 15.15.4). Hoje o app usa emoji; o guia usa SVG próprio
+   (som, x, voltar, play, mic, parar, olho, estrela, maçã, engrenagem,
+   mascote). O SVG também resolve o caderno quadriculado (`Pattern`), que o
+   React Native não faz com CSS. **É módulo nativo novo**: precisa passar no
+   `expo export --platform android` e num build EAS antes de qualquer tela
+   depender dele (T103) — o build do `whisper.rn` mostrou que o export web
+   sozinho não basta.
+4. **Movimento: `Animated` do próprio React Native.** Tudo que o guia pede
+   (afundar 3 px, mola de encaixe 0,6→1, tremor ±7 px, queda, pulo, pulso e
+   onda em loop, anel enchendo em 1,2 s) é transform/opacity — não precisa de
+   `reanimated`, que hoje **nem está** no projeto e traria `worklets` com
+   acoplamento de versão. "Reduzir movimento" do sistema
+   (`AccessibilityInfo.isReduceMotionEnabled`) zera durações e desliga loops.
+5. **Layout em duas zonas (D-38).** Um componente `ZonasDoDesafio`
+   (estímulo + resposta) com `useWindowDimensions`: uma sobre a outra em pé,
+   lado a lado deitado, resposta à direita. Hoje nenhuma tela se adapta.
+6. **Estrutura de rotas.** `/` vira a abertura (só na abertura a frio, A-30) e
+   o início da criança passa a `/inicio`; a folha do adulto é um `Modal` na
+   própria tela de início. As rotas de rodada e o orquestrador **não mudam** —
+   só as telas que eles renderizam.
+7. **Lógica pura extraída e testada** (o projeto não tem teste de componente):
+   `caixaDaLetra` (acentos, "ç", "ã"), cor do bloco por índice
+   (`cicloDeBlocos` deslocado), rótulo de tema com acento (A-33), ícones de
+   estrela em meias (A-22), mensagem de resultado (hoje dentro do componente),
+   duração de movimento com "reduzir movimento", e um teste de **contraste**
+   que recalcula a tabela do guia (já conferida à mão: bate) e trava os pares
+   que o guia proíbe.
+8. **Comportamento não muda sem decisão.** Contagem de erro (A-20), contador
+   de ajuda em contas (A-21), meia estrela (A-22) e ações sem lugar (A-23)
+   ficam como estão até o dono responder; as tarefas de tela afetadas ficam
+   marcadas com ⛔ e a pergunta que as bloqueia.
+
+### Ordem (cada passo entregável e verificável)
+
+Decisões (T096) → fundação (T097-T107: tokens, fontes, SVG, componentes base,
+movimento) → telas por valor: início + folha do adulto (T108, que também
+fecha A-31/A-32/A-33), desafios (T109-T112), resultado e histórico
+(T113-T114), dupla (T115), abertura (T116) → identidade do app (T117) →
+limpeza, Maestro, aparelho real e Plane (T118-T121).
+
+### Riscos
+
+- `react-native-svg` como módulo nativo novo (mesma classe de risco do
+  `whisper.rn`): validar com export Android + build EAS antes de usar.
+- Custo de desempenho do fundo quadriculado e de muitas animações ao mesmo
+  tempo em aparelho barato — medir em aparelho real (T120).
+- `toLocaleUpperCase('pt-BR')` no Hermes/Android: conferir no aparelho.
+- Portão de "segurar" sem alternativa é barreira de acessibilidade (A-19).
+- Arte final (mascote, ícone, splash) vem do dono (A-35); não vou inventar.
+- Nome "Letra Viva": INPI antes da loja (D-50).
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*

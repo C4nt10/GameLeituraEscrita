@@ -962,6 +962,121 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
 
 ---
 
+## Phase 10: Padrão visual "Letra Viva" v1 (2026-09-26)
+
+**Origem**: `design/` do dono; `doc/definições002.MD` §16 (D-50 a D-54, A-19 a
+A-35); `plan.md` "Revisão de 2026-09-26 (2)". **Só planejado — nenhuma tarefa
+abaixo foi iniciada.** Tarefas marcadas **⛔** dependem de resposta do dono a
+uma pergunta aberta (A-xx) e **não devem começar antes**. O comportamento
+existente (contagem de erro, contador de ajuda, meia estrela) **não muda** sem
+essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
+`expo export --platform android` antes de seguir.
+
+### 10a. Decisões (bloqueiam as tarefas ⛔)
+
+- [ ] T096 Responder A-19 a A-30 e A-35 com o dono (tabela em doc002 §16, cada
+      uma com recomendação). Saída: decisões numeradas D-55+ e ajuste da
+      spec. **Bloqueia** T105 (parte deitado), T108, T109, T111, T113-T117.
+
+### 10b. Fundação visual
+
+- [ ] T097 [P] Teste: `design/tema.ts` e `app/src/theme/tema.ts` são iguais
+      (falha se divergirem) — faz T098 passar.
+- [ ] T098 Copiar `tema.ts` pra `app/src/theme/tema.ts`, **convivendo** com o
+      `theme/index.ts` atual (migração tela a tela; o antigo só sai em T118).
+- [ ] T099 [P] Testes unitários das funções puras: `caixaDaLetra` (acentos,
+      "ç", "ã", "é"), cor do bloco por índice do desafio (`cicloDeBlocos`,
+      repete a cada 5), `rotuloDoTema` (`acoes` → "Ações", A-33),
+      `estrelasParaIcones` (0 a 5 em meias, A-22 mantendo meia estrela),
+      `mensagemDoResultado` (regras hoje dentro do componente, incluindo
+      "rodada sem erro" de CU-05), duração de movimento com "reduzir
+      movimento". Faz T100 passar.
+- [ ] T100 Implementar as funções puras de T099.
+- [ ] T101 [P] Teste de contraste: recalcula a tabela do guia (14,37 · 11,45 ·
+      7,53 · 5,25 · 5,20 · 4,94 · 3,82 · 3,68 · 3,47 — conferidos à mão em
+      2026-09-26) e trava os pares proibidos (branco sobre amarelo = 1,85;
+      tinta2 sobre papel2 = 4,41 e palavra oculta em `grade` = 1,21 são
+      achados A-34 a resolver).
+- [ ] T102 Fontes: instalar `@expo-google-fonts/andika` e os pesos Figtree
+      500/700/800 do guia; **conferir o nome exato do export** (`Andika_700Bold`
+      não foi verificado); carregar em `_layout.tsx`.
+- [ ] T103 Instalar `react-native-svg` na versão do SDK 57 (15.15.4) e validar
+      com `expo export --platform android` **e** um build EAS — módulo nativo
+      novo, **bloqueia** T104-T116.
+- [ ] T104 Componentes base: `Bloco` (face + degrau, afunda 3 px em 120 ms, cor
+      por índice), `Vaga` (tracejada), `Botao` (verde principal 72 / azul 64 /
+      claro 56), `Redondo` (56×56), `Chip` (A-28), `Voltar`/`Sair`. Alvo mínimo
+      56 em tudo que for tocável.
+- [ ] T105 Componentes de estrutura: `FundoCaderno` (grade de 22 px com SVG
+      `Pattern`), `ZonasDoDesafio` (estímulo + resposta, em pé ×
+      deitado — D-38; **a parte deitado ⛔ não bloqueia a em pé**),
+      `BarraDoDesafio` (Sair + trilha + contador de ajuda).
+- [ ] T106 Ícones e mascote em SVG (som, x, voltar, play, mic, parar, olho,
+      estrela, **meia estrela — a desenhar, não existe no guia**, maçã,
+      engrenagem, mascote).
+- [ ] T107 Movimento: hook `useMovimento` (reduzir movimento = duração 0 e sem
+      loops) + animações do guia com `Animated` (encaixe com mola, tremor,
+      toque, queda, pulo, pulso e onda em loop, anel de 1,2 s). Sem
+      `reanimated`.
+
+### 10c. Telas (uma por vez; a antiga só sai quando a nova passar)
+
+- [ ] T108 ⛔ **Início da criança + folha do adulto** (`Modal`, abre segurando a
+      engrenagem por 1,2 s + alternativa de acessibilidade — A-19; nível de
+      matemática 1–8 e Juntos/Disputa — A-24; combinações < 12 palavras
+      travadas — A-31; "Misturado" travado — A-26; Leitura · voz travada com
+      "chegando logo" e o motivo específico na folha — D-44; rótulos com
+      acento — A-33; "apagar histórico" e "subir de nível" — A-23).
+      Substitui `TelaConfiguracao`; persistência e níveis separados (D-43)
+      **iguais**. Fecha os achados do APK A-31, A-32 e A-33.
+- [ ] T109 ⛔ **Ouvir e montar**: `MontagemPalavra` com peças em ciclo de cor,
+      vaga tracejada, peça errada treme e volta (A-20: as certas ficam ou
+      somem?), festa por palavra ("Isso!", confete, letras pulando) e o nível 1
+      de 4 letras (A-25). A regra de erro da métrica **não muda** (D-06).
+- [ ] T110 **Ler e montar**: quadro amarelo, barra de tempo de 3 s
+      (`palavraVisivel`, parâmetro de D-18), peças travadas até a palavra
+      sumir, "Ver de novo" contando espiada; palavra oculta legível (A-34).
+- [ ] T111 ⛔ **Contas**: enunciado com botão de som + `QuantidadeVisual`
+      redesenhada (bolinhas roxas com degrau; dourado com as cores do tema;
+      numeral junto) + 4 respostas em blocos de madeira, grade 2×2; contador
+      "ouviu" só se A-21 for aprovado (exige migração do histórico).
+- [ ] T112 **Ler em voz alta**: microfone 150, estados parado/ouvindo/entendeu
+      certo/entendeu outra (balão amarelo, nunca vermelho) — reusa `gravacao`,
+      `stt` e `voz_da_rodada` já escritos; travada com "chegando logo" enquanto
+      o motor não carrega (D-44). **Só fecha junto com T092.**
+- [ ] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
+      modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
+      até A-23 ser resolvida.
+- [ ] T114 ⛔ **Histórico "Minhas estrelas"**: abas por jeito de jogar, cada uma
+      na sua cor, resumo (rodadas, estrelas, precisão) e lista; sem cruzar
+      modalidades (D-20); Voltar sempre visível (D-48); coluna de ajuda
+      conforme A-21.
+- [ ] T115 ⛔ **Dupla**: passar aparelho (bolha Andika, texto neutro — A-27) e
+      resultado combinado (Juntos/Disputa, mensagem nunca depreciativa) + a
+      **tela de seleção/criação de perfil, que ainda não tem desenho**.
+- [ ] T116 ⛔ **Abertura**: logo em blocos caindo, mascote, "Tocar para
+      começar" (A-30: só na abertura a frio).
+
+### 10d. Identidade do app
+
+- [ ] T117 ⛔ Nome de exibição "Letra Viva" no `app.json` (**slug, scheme e
+      package ficam** — mudá-los quebra o vínculo com o EAS e a assinatura) e
+      ícone/splash/adaptive icon do mascote (A-35: arte final do dono).
+
+### 10e. Fechamento
+
+- [ ] T118 Remover o `theme/index.ts` antigo e os componentes substituídos
+      (`BotaoSairRodada`, `BotaoVoltar` etc.) quando nada mais os importar.
+- [ ] T119 Reescrever os 24 specs Maestro (`app/e2e/`) pros textos novos.
+      Ressalva de sempre: nenhum spec foi executado; tentar no emulador Docker.
+- [ ] T120 Conferência em aparelho real: retrato e paisagem, "reduzir
+      movimento", leitor de tela, desempenho do fundo quadriculado, e o
+      `toLocaleUpperCase('pt-BR')` no Hermes. Registrar o que achar.
+- [ ] T121 Sincronizar a Fase 10 no Plane.
+
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -979,6 +1094,11 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
   T085/T086 (gate honesto) → T087 (spike) → T088-T090 → T091 → T092 —
   **T090 não começa antes de T087**. 9a já está feito; T075 e T093 estão
   bloqueados por dependência externa (asset de áudio; token do Plane).
+- **Fase 10 (2026-09-26, design v1)** é planejamento: **nenhuma tarefa iniciada**.
+  Ordem: T096 (decisões) → fundação T097-T107 → telas T108-T116 → T117-T121.
+  **T103 (`react-native-svg`, módulo nativo novo) bloqueia todas as telas**;
+  tarefas ⛔ só começam depois da resposta do dono à pergunta indicada. A
+  Fase 9c (voz) e a Fase 10 se encontram em T112, que só fecha com T092.
 - **US5** depende do modelo de `Perfil` multi-perfil (T012) e das telas de
   US1/US2 já existirem, mas não depende de US3 nem US4 em código — apenas
   reaproveita a mesma tela de resultado (T032).

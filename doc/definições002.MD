@@ -652,3 +652,77 @@ continua sendo erro (D-06, D-09).
 | **A-16** | Material dourado **interativo** (a criança monta a quantidade)? | Fora do MVP — só exibição (D-42); candidato a fase própria |
 | **A-17** | Tamanho do modelo/APK, latência e taxa de acerto reais do `whisper.rn` em aparelho | Só se sabe medindo — spike T087 e validação T092 |
 | **A-13** | D-40 vale pra matemática? | Segue assumido; agora age sobre o nível de matemática (D-43) |
+
+---
+
+## 16. Padrão visual "Letra Viva" v1 — design do dono (2026-09-26)
+
+**Origem:** `design/visual-v1.md`, `design/tema.ts` e dois artefatos (protótipo
+das 9 telas, em pé e deitado, e o guia "Padrão visual Letra Viva") criados
+pelo dono do projeto. Esta seção registra (a) o que o dono **decidiu** e (b) o
+que a avaliação contra a spec, a constituição e o código atual encontrou de
+**conflito ou lacuna** — esses ficam como perguntas abertas, com recomendação,
+**sem virar decisão** até o dono responder. Nada aqui foi implementado.
+
+### Decisões do dono (registradas como estão no design)
+
+- **D-50 — "Letra Viva" é o padrão visual e o nome do produto.** Blocos de
+  brinquedo sobre papel de caderno quadriculado; mascote (bloco amarelo com
+  rosto e um "A"); tokens em `tema.ts`; guia com 8 princípios. O nome já é
+  usado por outros projetos de alfabetização (livro "Novo Letra Viva",
+  "Letra Viva Alfabetiza" do Cenpec): **consultar o INPI (classes 9 e 41)
+  antes de publicar na loja** — risco apontado pelo próprio dono.
+- **D-51 — nomes e cores por jeito de jogar.** Pra criança: **Ouvir e montar**
+  (Ditado, vermelho), **Ler e montar** (amarelo), **Ler em voz alta**
+  (turquesa), **Conta** (roxo), **Historinha** (verde); tipos "Letras",
+  "Contas", "Misturado". A cor acompanha a modalidade em toda tela e no
+  histórico. Os nomes da spec (Ditado, Leitura · montar...) continuam valendo
+  na documentação técnica.
+- **D-52 — toda letra do jogo em MAIÚSCULA de imprensa, em Andika.** Peças,
+  vagas, palavra-alvo, "eu entendi", nomes dos perfis e logo. O banco de
+  palavras pode continuar em minúsculo — a conversão é na exibição
+  (`caixaDaLetra`). Baloo 2 pra títulos/botões, Figtree pro texto do adulto.
+  **A-18 (do dono, aberta):** quando entra a minúscula — no nível 5, por
+  configuração do adulto, ou nunca no MVP.
+- **D-53 — início da criança + "folha do adulto".** A tela inicial é só da
+  criança (tipo, jeito de jogar, "Jogar!", estrelas); nível, tema, tamanho e
+  "quem joga" ficam numa folha que abre **segurando a engrenagem por 1,2 s**.
+  Substitui o "⚙️ mais opções" de D-47 (que continua valendo nas demais
+  regras: alvo, tom, safe area). Ver A-19 e A-24.
+- **D-54 — linguagem de movimento e feedback.** Bloco afunda 3 px no toque
+  (120 ms); peça errada treme e volta, sem vermelho e sem som de erro; peça
+  certa encaixa com mola; comemoração por palavra no Ouvir e montar ("Isso!",
+  confete, letras pulando, com botão "Próxima"/"Ver estrelas"); trilha de
+  progresso (um quadradinho por desafio); contador de ajuda da modalidade no
+  canto do desafio e repetido no resultado. Com "reduzir movimento" do sistema
+  ligado tudo para. **O que conflita com regras existentes está em A-20 a A-22.**
+
+### O que a avaliação encontrou — perguntas abertas (nenhuma é decisão)
+
+| # | Achado (com a fonte) | Minha recomendação |
+|---|---|---|
+| **A-19** | Segurar 1,2 s é um gesto que precisa ser ensinado; a constituição (Princípio VI) diz "sem gesto que precise ser ensinado" — embora seja pra ação **principal da criança**, e este é o portão do adulto. Além disso, o botão "Nível 2 · todas · 5 palavras" do protótipo **abre a mesma folha com 1 toque**, o que anula o portão. Segurar também exclui adulto com dificuldade motora e leitor de tela. | Manter o portão, **emendar o Princípio VI com a exceção explícita** (controles do adulto), tornar o resumo só texto (não abre nada) e prever uma ação de acessibilidade pra abrir a folha sem segurar. |
+| **A-20** | O protótipo conta **no máximo 1 erro por palavra** e trata palavra com erro como erro (não como acerto): `erro na palavra ? erros++ : acertos++`. A regra vigente (D-06, FR-007, Princípio IV) é **toda tentativa errada conta**, e a palavra completada conta como acerto. Também: "peça errada treme e **volta**, as certas ficam", contra US1 cenário 5 / T025, onde a resposta é **limpa**. | Manter D-06 na métrica (é a métrica honesta). Decidir só o visual: as letras certas ficam ou somem depois do tremor? Eu deixaria ficar (menos frustração), mas isso muda US1 cenário 5 — **preciso da sua resposta**. |
+| **A-21** | O desenho mostra o contador **"ouviu" também em Contas** (barra, resultado e histórico). D-19 e o `data-model.md` dizem que matemática **não** tem contador de ajuda ("decisão do produto, não omissão"). | Adotar — combina com "ajuda sempre à vista" — mas isso exige coluna nova no histórico e migração. Sua decisão. |
+| **A-22** | Estrelas no protótipo: **inteiras, mínimo 1** (`max(1, round(5·acertos/total))`). Spec (FR-007, D-20): **meia estrela**, e o cálculo atual (`avaliacao`, testado) já entrega meias. Não há ícone de meia estrela desenhado. | Manter meia estrela e pedir o ícone. "Mínimo de 1 estrela" é decisão nova — vale? |
+| **A-23** | Ações **sem lugar** no desenho: "Subir de nível" (CU-05), "Ver histórico" a partir do resultado (CU-06), **"Apagar histórico" com confirmação** (FR-015, T054). | Levar "apagar histórico" e "subir de nível" pra folha do adulto; o histórico continua pelo botão de estrela do início. |
+| **A-24** | A folha do adulto não tem **nível de matemática 1–8** (D-41/D-43), nem **Juntos/Disputa** (D-31 exige escolha explícita do formato da dupla), e o rótulo é "palavras por rodada" mesmo pra contas. Falta a **tela de perfis da dupla** (você já listou como pendente). | Completar a folha; a tela de perfis precisa de desenho seu. |
+| **A-25** | **Ditado nível 1** (4 letras de alternativa, FR-006) e o nível 1 de Ler e montar (letra isolada) **não têm tela** — o protótipo só mostra palavras. | Desenhar: 4 blocos de letra em grade 2×2, como as respostas de conta. |
+| **A-26** | "Misturado" aparece **habilitado** e copia os modos de leitura, mas a rodada mista **não existe** (tasks.md, T047). Fere o princípio "nada parece quebrado". | Travar com "chegando logo", igual à voz. |
+| **A-27** | "**Estou pronta!**" está no feminino; perfil não tem gênero — pra o Miguel seria "pronto". | Texto neutro ("Vamos lá!"). |
+| **A-28** | O princípio diz "nada menor que 56 px", mas o guia define **chip 56 × 48**, filtro do histórico **48** e botão de resumo **44**. | 56 em tudo (custa pouco) ou registrar a exceção pros controles do adulto. |
+| **A-29** | O guia diz "**a instrução do desafio também é falada**" — isso não existe em nenhuma spec nem no protótipo. | Requisito novo, com trava: nunca falar a palavra em Ler e montar / Ler em voz alta (D-11, FR-002) — só instruções. Confirmar. |
+| **A-30** | A abertura ("Tocar para começar") aparece a cada vez que o app abre, contra o Princípio VII (abre pronto pra jogar). | Só na abertura a frio, curta, com qualquer toque ou avanço automático. |
+| **A-31** | Achado do APK "Corpo não aparece e o nível de leitura vai só até 4": **é o filtro da D-35, confirmado nos dados** (272 palavras). Nível 5: 4 a 6 palavras por tema (todas < 12). "Corpo" no nível 2: 9 palavras (< 12). Aparece nos níveis 3 e 4. O desenho mostra nível 5 e todos os temas sempre. | Não é bug. A folha deve travar/ocultar combinações indisponíveis (FR-011); o conteúdo (A-06) é que precisa crescer. |
+| **A-32** | Achado do APK "Leitura·voz vem selecionada por padrão, contrariando a D-44". | **Corrigido em código** (commit `1ae3c12`: começa desabilitada e a tela nunca abre numa modalidade indisponível), mas o APK que você testou é **anterior**. Falta conferir num APK novo. |
+| **A-33** | Achado do APK "tema 'acoes' sem acentuação": **bug real** — o rótulo vem do identificador (`acoes`), sem mapa de exibição. | Corrigir junto com a folha do adulto (Ações, Comida...). |
+| **A-34** | Contrastes do guia **conferidos** (14,37 · 11,45 · 7,53 · 5,25 · 5,20 · 4,94 · 3,82 · 3,68 · 3,47 — batem). Dois achados fora do guia: **tinta2 sobre papel2 = 4,41 : 1** (abaixo de 4,5; afeta a mensagem "próxima rodada..." em 13,6 px) e o "????" da palavra oculta em `grade` sobre papel = **1,21 : 1** (some — o estado "a palavra sumiu" perde a pista). | Usar `tinta` (ou escurecer tinta2) sobre papel2; palavra oculta em `madeiraBorda`. |
+| **A-35** | Ícone, splash e nome de exibição do app dependem de arte final do mascote. | Preciso do mascote em SVG/PNG do dono; posso derivar os tamanhos. |
+
+### O que isso muda no projeto (resumo — detalhe em `plan.md` e `tasks.md` Fase 10)
+
+Refazer as 13 telas/componentes reais (~3.300 linhas), migrar 342 usos de token
+em 20 arquivos, adicionar 2 dependências (fonte Andika e `react-native-svg`,
+esta um **módulo nativo novo**) e reescrever os 24 specs Maestro. Estratégia:
+tokens novos convivendo com os antigos, tela por tela, cada passo verificável
+e entregável.

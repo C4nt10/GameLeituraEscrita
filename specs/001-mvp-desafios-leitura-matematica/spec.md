@@ -10,6 +10,9 @@ visual de quantidade (US2, FR-008, FR-022 a FR-024), Leitura·voz só
 jogável com reconhecimento de fala real (US1 cenários 9-10, FR-025),
 escolha de voz e nome/som saem do MVP (US3, FR-021), tela de configurar em
 divulgação progressiva (US3, FR-026).
+**Nova revisão (design do dono, doc002 §16, D-50 a D-54):** padrão visual
+"Letra Viva" v1 (FR-028 a FR-031). As perguntas A-19 a A-35 estão **abertas**
+e nenhuma vira requisito antes da resposta do dono.
 
 **Input**: `doc/definições001.MD` + `doc/definições002.MD` — definições de produto
 consolidadas (casos de uso CU-01 a CU-08, decisões D-01 a D-47, princípios de
@@ -385,6 +388,26 @@ combinado nos dois formatos (cooperativo e adversarial).
   navegação que não seja uma rodada (histórico e as demais), um controle de
   voltar sempre visível, de alvo mínimo 56, sem depender do botão ou do
   gesto de voltar do sistema (D-48, Princípio I).
+- **FR-028**: O sistema MUST seguir o padrão visual "Letra Viva" v1 (D-50):
+  tokens de `design/tema.ts` (cores com face e degrau, escala de tipo,
+  espaçamento, raios, alvos, movimento) e fontes Baloo 2 (títulos e botões),
+  Figtree (texto do adulto) e Andika (toda letra que a criança lê ou monta).
+  Toda letra do jogo MUST ser exibida em maiúscula de imprensa (D-52; a
+  entrada de minúscula é a questão aberta A-18).
+- **FR-029**: O sistema MUST usar, pra criança, os nomes Ouvir e montar, Ler
+  e montar, Ler em voz alta, Conta e Historinha (tipos Letras, Contas,
+  Misturado), cada jeito de jogar com sua cor fixa em toda tela (D-51).
+- **FR-030**: O sistema MUST apresentar uma tela inicial só da criança e
+  colocar nível, tema, tamanho e formato (sozinho/dupla) numa folha do
+  adulto que abre segurando a engrenagem por 1,2 s (D-53) — **sujeito a A-19
+  (Princípio VI) e A-24 (a folha ainda não cobre nível de matemática 1–8 nem
+  Juntos/Disputa)**. Substitui o "mais opções" de FR-026.
+- **FR-031**: O sistema MUST dar feedback sem punir (D-54): peça errada treme
+  e volta, sem vermelho e sem som de erro; comemoração ao completar uma
+  palavra no Ouvir e montar; trilha de progresso; contador de ajuda da
+  modalidade sempre à vista; e, com "reduzir movimento" do sistema ligado,
+  nenhuma animação nem loop. **A contagem de erros continua a de FR-007/D-06**
+  até A-20 ser respondida.
 
 ### Key Entities *(include if feature involves data)*
 
