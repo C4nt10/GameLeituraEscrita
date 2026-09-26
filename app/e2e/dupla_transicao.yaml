@@ -1,20 +1,33 @@
-# T058 — a tela "passa o aparelho" impede a criança 1 de continuar
-# jogando no lugar da criança 2 (US5 cenário 2). Implementado: entre a
-# rodada 1 e a rodada 2, `RodadaDupla` sempre passa pela fase
-# 'transicao' (`TelaTransicao`, alvo grande, toque explícito) — nunca
-# segue direto da tela de resultado individual da rodada 1 pro próximo
-# desafio.
+# US5 cenário 2 — entre a rodada 1 e a 2 sempre passa pela tela "passe o aparelho" (toque explícito,
+# botão "Vamos lá!", A-27), nunca segue direto.
 #
-# NÃO EXECUTADO — mesma ressalva de sempre.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Dupla'
-- tapOn: 'Cooperativo'
-- tapOn: '▶️ Começar'
-- tapOn: '▶️ Continuar'
-- tapOn: '▶️ Toque pra continuar' # vez de [Nome 1]
-# ... [completar a rodada 1 dentro da modalidade escolhida] ...
-- assertVisible: 'Passa o aparelho pra'
-- assertVisible: '▶️ Toque pra continuar'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- tapOn: 'Em dupla'
+- tapOn: 'Juntos'
+- tapOn: 'Pronto'
+- tapOn: 'Jogar!'
+- tapOn: 'Novo perfil'
+- tapOn: 'Nome'
+- inputText: 'Lua'
+- hideKeyboard
+- tapOn: 'Salvar'
+- tapOn: 'perfil Jogador'
+- tapOn: 'Continuar'
+- assertVisible: 'Agora é a vez de Jogador 1!'
+- tapOn: 'Vamos lá!'
+# ... [completar a rodada — a ordem das letras é aleatória, não dá pra scriptar sem seedar o RNG] ...
+- assertVisible: 'Agora é a vez de Lua!'
+- assertVisible: 'Passe o aparelho.'
+- assertVisible: 'Vamos lá!'

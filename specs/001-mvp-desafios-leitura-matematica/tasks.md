@@ -1181,7 +1181,17 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       (a tela não o usa mais, mas é requisito testado do US4 cenário 4 — decidir
       depois se sai) e o spec Maestro `config_ultima_voz.yaml`, que testava a
       tela removida e some junto com a reescrita dos specs em T119.
-- [ ] T119 Reescrever os 24 specs Maestro (`app/e2e/`) pros textos novos.
+- [x] T119 Reescrever os 24 specs Maestro (`app/e2e/`) pros textos novos.
+      > **Escrito (2026-09-26), NÃO executado:** os 24 specs viraram 21. Saíram
+      `config_sem_voz`, `config_ultima_voz` e `config_mic_desabilitado` (testavam
+      teste/escolha de voz e a configuração antiga, que a decisão do dono
+      removeu). Os demais foram reescritos com os textos do padrão novo, abrindo
+      pelo "Tocar para começar" e, nas telas de desafio, por link direto às
+      rotas `_dev` (`gameleituraescrita://_dev/...`) — os botões "Rodada — ..."
+      que os specs antigos tocavam já não existiam. **Maestro continua sem ser
+      instalado**: os textos foram conferidos contra o código, mas seletores e
+      fluxos nunca rodaram. Os que exigem jogar uma rodada seguem com o
+      trecho "completar a rodada" marcado (ordem aleatória, sem RNG semeado).
       Ressalva de sempre: nenhum spec foi executado; tentar no emulador Docker.
 - [ ] T120 Conferência em aparelho real: retrato e paisagem, "reduzir
       movimento", leitor de tela, desempenho do fundo quadriculado, e o

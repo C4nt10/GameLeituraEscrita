@@ -1,17 +1,19 @@
-# T041 — combinação nível×classificação sem conteúdo suficiente não
-# aparece selecionável (US3 cenário 2, FR-011/D-35). Garantido por
-# `TelaConfiguracao` usar `banco_de_conteudo.combinacoesDisponiveis()`
-# (já filtra por ≥12 itens, T014) pra montar as opções de nível e
-# classificação — nunca lista uma combinação abaixo do mínimo.
+# T045 — a folha do adulto mostra os níveis e o tamanho da rodada, com valor padrão em tudo.
 #
-# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- assertVisible: 'Vamos jogar!'
-- tapOn: 'Nível'
-# todo nível listado tem que ser um dos que combinacoesDisponiveis() traz
-- assertVisible:
-    text: '^[1-5]$'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- assertVisible: 'Nível de leitura'
+- assertVisible: 'Palavras por rodada'
+- assertVisible: 'Quem joga'
+- assertVisible: 'Tudo já tem um valor padrão.'

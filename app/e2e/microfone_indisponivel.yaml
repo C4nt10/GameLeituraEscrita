@@ -1,22 +1,17 @@
-# T026 — microfone sem permissão em Leitura · voz mostra o motivo real,
-# nunca um erro genérico (US1 cenário 7, FR-013). Implementado (T033):
-# `TelaLeituraVoz` chama `capacidade_aparelho.verificarCapacidades()` no
-# carregamento e, se `microfone.disponivel === false`, mostra o `motivo`
-# no lugar do botão do microfone.
+# T017/T033 — sem microfone/motor, a tela de Ler em voz alta mostra o motivo real no lugar do
+# microfone, nunca um erro genérico (Princípio I/III).
 #
-# NÃO EXECUTADO — sem device/Maestro CLI (mesma ressalva de sempre) e,
-# além disso, este cenário específico exige a permissão de microfone já
-# **negada no sistema operacional** antes do app abrir — não é um estado
-# que o fluxo consiga forçar sozinho (precisa negar antes, por fora,
-# ex.: configuração do emulador/dispositivo ou comando de ADB). Rodar
-# depois de negar a permissão de microfone do app manualmente.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: 'Leitura · voz'
-# motivo real e específico, não "erro" genérico
-- assertVisible: 'Permissão de microfone'
-- assertNotVisible: 'toque e leia em voz alta'
+- openLink: gameleituraescrita://_dev/voz
 - assertNotVisible: 'erro'
 - assertNotVisible: 'Error'
+- assertVisible: 'Sair'

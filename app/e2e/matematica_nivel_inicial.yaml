@@ -1,18 +1,22 @@
-# US2 cenários 5-7 (D-41, D-42, D-43) — matemática abre no nível 1 (padrão),
-# o seletor de nível de matemática (1–8) aparece em "mais opções", e o
-# desafio mostra a conta com a quantidade desenhada (nível 1: soma, então "+").
+# D-41 — a matemática tem 8 níveis; o adulto escolhe na folha, e Contas não mostra contador de ajuda.
 #
-# NÃO EXECUTADO — mesma ressalva de mais_opcoes_recolhido.yaml. As
-# quantidades exatas são sorteadas, então este spec só confere a presença
-# da conta e do seletor, não os números.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Matemática'
-- tapOn: '⚙️ mais opções'
-- assertVisible: 'Nível'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- tapOn: 'Contas'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- assertVisible: 'Nível de matemática'
 - assertVisible: '8'
-- tapOn: '▶️ Começar'
-- assertVisible: '🔁 repetições: 0'
-- assertVisible: '+'
+- tapOn: 'Pronto'
+- tapOn: 'Jogar!'
+- assertVisible: 'Quanto é'
+- assertNotVisible: 'ouviu'

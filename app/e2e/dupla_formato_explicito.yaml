@@ -1,18 +1,20 @@
-# T057 — o adulto precisa escolher explicitamente cooperativo ou
-# adversarial — nenhum formato é padrão implícito (US5 cenário 1, D-31).
-# Implementado em `TelaConfiguracao`: `formatoDupla` começa `null`,
-# "Começar" fica desabilitado (`formatoIndisponivel`) até um dos dois
-# ser tocado.
+# D-31 / T057 — nenhum formato de dupla é padrão implícito: com "Em dupla" o adulto precisa escolher
+# Juntos ou Disputa antes de poder jogar.
 #
-# NÃO EXECUTADO — mesma ressalva de sempre.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Dupla'
-# sem escolher cooperativo/adversarial, "Começar" avisa que precisa escolher
-- assertVisible: 'Escolha cooperativo ou adversarial pra continuar'
-- assertVisible: '▶️ Começar (ajuste a seleção acima)'
-- tapOn: 'Adversarial'
-- assertNotVisible: 'Escolha cooperativo ou adversarial pra continuar'
-- assertVisible: '▶️ Começar'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- tapOn: 'Em dupla'
+- assertVisible: 'Escolha Juntos ou Disputa pra poder jogar.'
+- tapOn: 'Disputa'
+- assertNotVisible: 'Escolha Juntos ou Disputa pra poder jogar.'

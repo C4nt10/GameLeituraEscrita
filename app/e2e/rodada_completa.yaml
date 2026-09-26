@@ -1,27 +1,21 @@
-# T033b — orquestrador de rodada: sequencia os desafios sorteados,
-# acumula acertos/erros/ajuda da rodada inteira (não por desafio, D-19),
-# e chega na tela de resultado ao final (US1, Independent Test da
-# Fase 3: "iniciar sem configurar, jogar uma rodada em cada modalidade,
-# chegar à tela de estrelas").
+# T033b — o orquestrador sequencia os desafios, acumula acertos/erros/ajuda da rodada inteira (D-19)
+# e chega na tela de resultado. Rota `_dev/rodada`: nível 2, tema animais, 3 desafios.
 #
-# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre). Rodada de
-# dev fixa: nível 2, classificação "animais", tamanho 3
-# (app/src/app/_dev/rodada.tsx) — 3 desafios, cada um respondido certo
-# de primeira leva à tela de estrelas.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: 'Rodada — Leitura · montar'
-# 1º desafio: espera revelar e sumir, monta certo (ordem dos ladrilhos é
-# aleatória — não dá pra scriptar o toque certo sem seedar o RNG, mesma
-# limitação de erro_nao_pune.yaml). Confia que os 3 desafios da rodada
-# de dev terminam levando à tela de resultado.
-- assertVisible: 'espiadas: 1'
-# ... [montar os 3 desafios sorteados, um de cada vez] ...
+- openLink: gameleituraescrita://_dev/rodada
+- assertVisible: 'espiou'
+# ... [completar a rodada — a ordem das letras é aleatória, não dá pra scriptar sem seedar o RNG] ...
 - extendedWaitUntil:
     visible: 'acertos'
-    timeout: 15000
+    timeout: 30000
 - assertVisible: 'precisão'
-- assertVisible: 'espiadas nesta rodada'
+- assertVisible: 'Espiadas nesta rodada'

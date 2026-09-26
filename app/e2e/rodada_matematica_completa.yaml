@@ -1,23 +1,18 @@
-# T040b — orquestrador de rodada de matemática (RodadaMatematica):
-# sequencia os desafios gerados, acumula acertos/erros, chega no
-# resultado (Independent Test da Fase 4: "configurar tipo matemática,
-# jogar uma rodada em cada forma").
+# T040 — a Conta é falada, repetível, e mostra a quantidade desenhada com 4 respostas.
+# Rota `_dev/rodada-matematica`.
 #
-# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre). Rodada de
-# dev fixa: nível 2, tamanho 3 (app/src/app/_dev/rodada-matematica.tsx).
-#
-# Limitação conhecida: os operandos e a resposta certa são sorteados
-# (gerador_matematica) — não dá pra scriptar qual alternativa tocar sem
-# ler a tela em tempo real (Maestro consegue com `assertVisible`
-# condicional, não coberto aqui pra simplicidade). Cobre só a presença
-# da tela e a navegação até o resultado quando os 2 toques certos
-# forem dados manualmente ao rodar.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: 'Rodada — Matemática (pura)'
-- assertVisible: '🔁 repetições: 0'
+- openLink: gameleituraescrita://_dev/rodada-matematica
+- assertVisible: 'Quanto é'
 - assertVisible:
     text: '^[0-9]+$'
+- assertNotVisible: 'ouviu' # Conta não tem contador de ajuda (A-21)

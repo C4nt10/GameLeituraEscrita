@@ -1,21 +1,33 @@
-# T059 — resultado combinado mostra total somado + individual lado a
-# lado no cooperativo, e os dois resultados lado a lado com destaque no
-# adversarial (US5 cenário 3). Implementado em `TelaResultadoCombinado`.
+# T063 — no Juntos o resultado combinado mostra o total somado e o individual lado a lado.
 #
-# NÃO EXECUTADO — mesma ressalva de sempre. Pressupõe as duas rodadas
-# completas (não dá pra scriptar sem saber as respostas certas
-# sorteadas, mesma limitação de rodada_completa.yaml).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Dupla'
-- tapOn: 'Cooperativo'
-- tapOn: '▶️ Começar'
-- tapOn: '▶️ Continuar'
-- tapOn: '▶️ Toque pra continuar'
-# ... [completar rodada 1] ...
-- tapOn: '▶️ Toque pra continuar'
-# ... [completar rodada 2] ...
-- assertVisible: '★ no total'
-- assertVisible: 'acertos somados'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- tapOn: 'Em dupla'
+- tapOn: 'Juntos'
+- tapOn: 'Pronto'
+- tapOn: 'Jogar!'
+- tapOn: 'Novo perfil'
+- tapOn: 'Nome'
+- inputText: 'Lua'
+- hideKeyboard
+- tapOn: 'Salvar'
+- tapOn: 'perfil Jogador'
+- tapOn: 'Continuar'
+- assertVisible: 'Agora é a vez de Jogador 1!'
+- tapOn: 'Vamos lá!'
+# ... [completar a rodada — a ordem das letras é aleatória, não dá pra scriptar sem seedar o RNG] ...
+- tapOn: 'Vamos lá!'
+# ... [completar a rodada — a ordem das letras é aleatória, não dá pra scriptar sem seedar o RNG] ...
+- assertVisible: 'Juntos vocês foram muito bem!'
+- assertVisible: 'acertos juntos!'

@@ -1,19 +1,20 @@
-# T052 — apagar o histórico exige confirmação antes de executar (US4
-# cenário 3, CU-06). Implementado via `Alert.alert` nativo em
-# `TelaHistorico.confirmarExclusao` — "Apagar"/"Cancelar", só chama
-# `onApagarTudo` se "Apagar" for tocado.
+# US4 cenário 3 / FR-015 — apagar o histórico exige confirmação. Rota `_dev/historico` (dados de mentira).
+# O diálogo é o `Alert` nativo do sistema.
 #
-# NÃO EXECUTADO — mesma ressalva de sempre. Pressupõe pelo menos 1
-# rodada já jogada (senão cai no estado vazio de historico_vazio.yaml,
-# que nem mostra o botão de apagar).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: '📜 ver histórico'
-- tapOn: '🗑️ apagar histórico'
+- openLink: gameleituraescrita://_dev/historico
+- assertVisible: 'Minhas estrelas'
+- tapOn: 'Apagar histórico'
 - assertVisible: 'Apagar histórico?'
 - assertVisible: 'Cancelar'
-# cancelar não apaga nada
 - tapOn: 'Cancelar'
 - assertNotVisible: 'Ainda não há nenhuma rodada registrada'

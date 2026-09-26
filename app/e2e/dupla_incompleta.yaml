@@ -1,23 +1,32 @@
-# T055 — rodada dupla incompleta (uma criança sai no meio) não entra no
-# histórico comparativo (US5 cenário 5, FR-018). Implementado em
-# `RodadaDupla`: se `registro.concluida === false` (D-39, saiu pelo
-# botão), persiste `rodadas_duplas.completa = false` e pula direto pro
-# fim, sem mostrar resultado combinado (comparar incompleta com completa
-# não seria honesto).
+# D-39 / FR-018 — se a criança 1 sai no meio, a dupla termina incompleta e nenhum resultado combinado
+# aparece (comparar rodada incompleta com completa não seria honesto).
 #
-# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Dupla'
-- tapOn: 'Cooperativo'
-- tapOn: '▶️ Começar'
-# seleciona 2 perfis existentes (ou cria — pressupõe pelo menos 2 já cadastrados)
-- tapOn: '▶️ Continuar'
-- tapOn: '▶️ Toque pra continuar' # "vez de [Nome 1]"
-- tapOn: '✕ sair' # criança 1 sai no meio
-# não deve mostrar tela de resultado combinado
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- tapOn: 'Em dupla'
+- tapOn: 'Juntos'
+- tapOn: 'Pronto'
+- tapOn: 'Jogar!'
+- tapOn: 'Novo perfil'
+- tapOn: 'Nome'
+- inputText: 'Lua'
+- hideKeyboard
+- tapOn: 'Salvar'
+- tapOn: 'perfil Jogador'
+- tapOn: 'Continuar'
+- assertVisible: 'Agora é a vez de Jogador 1!'
+- tapOn: 'Vamos lá!'
+- tapOn: 'Sair'
 - assertNotVisible: 'tirou mais hoje'
-- assertNotVisible: 'Juntos vocês fizeram muito bem'
+- assertNotVisible: 'Juntos vocês foram muito bem'

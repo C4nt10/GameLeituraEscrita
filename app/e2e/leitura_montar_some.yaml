@@ -1,24 +1,23 @@
-# T024 — em Leitura · montar a palavra aparece e some sozinha, sem áudio
-# algum, e a espiada é contada a cada revelação (US1 cenário 2, D-18).
+# US2 / D-05 — no Ler e montar a palavra aparece, some sozinha e "Ver de novo" conta como espiada.
+# Rota `_dev/montar`: palavra "gato".
 #
-# NÃO EXECUTADO ainda (mesma ressalva de ditado_nunca_mostra.yaml — sem
-# device/Maestro CLI nesta máquina). Roda contra /_dev/montar (desafio
-# fixo: "gato", revelação de 3s por padrão — ver
-# TelaLeituraMontarProps.duracaoRevelacaoMs).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: 'Leitura · montar'
-# revelação inicial conta como 1ª espiada, e mostra a palavra em texto
-- assertVisible: 'espiadas: 1'
+- openLink: gameleituraescrita://_dev/montar
 - assertVisible: 'GATO'
-# espera a revelação sumir sozinha (sem tocar em nada) — 3s + folga
+- assertVisible: 'espiou'
 - extendedWaitUntil:
     notVisible: 'GATO'
     timeout: 5000
-- assertVisible: 'ver de novo'
-# pede pra ver de novo — conta mais 1 espiada
-- tapOn: 'ver de novo'
-- assertVisible: 'espiadas: 2'
+- assertVisible: 'Agora monte a palavra'
+- tapOn: 'Ver de novo'
 - assertVisible: 'GATO'
+- assertVisible: 'Leia com atenção…'

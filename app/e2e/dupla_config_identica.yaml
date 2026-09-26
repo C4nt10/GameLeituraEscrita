@@ -1,20 +1,31 @@
-# T056 — config idêntica é aplicada às duas rodadas da dupla (US5
-# cenário 6, D-33). Garantido estruturalmente por `RodadaDupla`: as
-# duas chamadas a `renderRodada` (perfil 1 e perfil 2) recebem o MESMO
-# `configuracaoRodada` — não há como cada uma pegar valores diferentes,
-# a config é lida uma vez, na rota, a partir da query string.
+# D-33 — a mesma configuração vale pros dois perfis (comparação honesta). O padrão é Ler e montar,
+# então a rodada da criança 1 mostra o contador "espiou".
 #
-# NÃO EXECUTADO — mesma ressalva de sempre.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Leitura'
-- tapOn: 'Leitura · montar'
-- tapOn: 'Dupla'
-- tapOn: 'Cooperativo'
-- tapOn: '▶️ Começar'
-- tapOn: '▶️ Continuar'
-- tapOn: '▶️ Toque pra continuar'
-# rodada 1: modalidade tem que ser leitura_montar (espiadas, não tentativas/repetições)
-- assertVisible: 'espiadas: 1'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- tapOn: 'Em dupla'
+- tapOn: 'Juntos'
+- tapOn: 'Pronto'
+- tapOn: 'Jogar!'
+- tapOn: 'Novo perfil'
+- tapOn: 'Nome'
+- inputText: 'Lua'
+- hideKeyboard
+- tapOn: 'Salvar'
+- tapOn: 'perfil Jogador'
+- tapOn: 'Continuar'
+- assertVisible: 'Agora é a vez de Jogador 1!'
+- tapOn: 'Vamos lá!'
+- assertVisible: 'espiou'
+# a rodada da criança 2 repete a mesma configuração (mesma modalidade e nível)

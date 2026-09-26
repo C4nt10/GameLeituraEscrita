@@ -1,16 +1,17 @@
-# T022 — contador de ajuda correto por modalidade (repetições/
-# espiadas/tentativas) aparece no resultado (D-19).
+# D-19 — o resultado mostra o contador da modalidade jogada, e só ele.
+# A rota `_dev/resultado` entrega uma rodada de Ler e montar com 2 espiadas.
 #
-# NÃO EXECUTADO ainda (mesma ressalva das demais deste diretório).
-# Cobre só a tela de resultado isolada (/_dev/resultado, dados fixos:
-# modalidade leitura_montar, contadorAjuda=2) — não a rodada completa
-# (não existe orquestrador de rodada ainda, ver tasks.md T029-T032).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: 'Resultado'
-# leitura_montar usa o rótulo "espiadas", não "repetições"/"tentativas"
-- assertVisible: 'espiadas nesta rodada: 2'
-- assertNotVisible: 'repetições nesta rodada'
-- assertNotVisible: 'tentativas nesta rodada'
+- openLink: gameleituraescrita://_dev/resultado
+- assertVisible: 'Espiadas nesta rodada: 2'
+- assertNotVisible: 'Repetições nesta rodada'
+- assertNotVisible: 'Tentativas nesta rodada'

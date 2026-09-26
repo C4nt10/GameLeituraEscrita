@@ -1,39 +1,26 @@
-# T025 — uma resposta errada, em qualquer modalidade, limpa a resposta,
-# conta como erro e libera nova tentativa sem vidas/penalidade visível
-# (US1 cenário 5, D-06, Princípio II).
+# D-06 / D-54 — tocar numa letra errada não some com as alternativas nem pune: o bloco só treme e as
+# 4 letras continuam ali. Rota `_dev/ditado-nivel1` (nível 1, 4 alternativas).
 #
-# NÃO EXECUTADO ainda (mesma ressalva das demais deste diretório).
-#
-# Limitação conhecida, não resolvida: `gerarAlternativasLetra` embaralha
-# a posição das 4 letras a cada carga (RNG real, não seedado pra teste) —
-# não dá pra scriptar "toque na letra errada" de forma determinística
-# sabendo qual posição é a certa. Cobre só o que dá pra verificar sem
-# saber isso: nenhuma alternativa é removida/desabilitada depois de um
-# toque, ou seja, não existe mecânica de "vida"/trava que impeça nova
-# tentativa. Rodar contra /_dev/ditado-nivel1 (nível 1, "a" é a certa,
-# não revelado na tela).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
 - launchApp
-- tapOn: 'Ditado (nível 1)'
+- openLink: gameleituraescrita://_dev/ditado-nivel1
 - assertVisible:
     text: '^[A-Z]$'
     index: 0
 - tapOn:
     text: '^[A-Z]$'
     index: 0
-# depois de qualquer toque (certo ou errado), as 4 alternativas
-# continuam lá — nenhuma trava, nenhum "fim de jogo"
-- assertVisible:
-    text: '^[A-Z]$'
-    index: 0
+# se a letra tocada era a errada, as 4 continuam; se era a certa, aparece "Isso!" (ordem aleatória)
 - assertVisible:
     text: '^[A-Z]$'
     index: 1
-- assertVisible:
-    text: '^[A-Z]$'
-    index: 2
-- assertVisible:
-    text: '^[A-Z]$'
-    index: 3
+- assertNotVisible: 'Erro'
+- assertNotVisible: 'Errou'

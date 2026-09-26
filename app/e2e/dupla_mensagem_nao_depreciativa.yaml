@@ -1,20 +1,34 @@
-# T060 — no adversarial, a mensagem para quem teve menos segue a regra
-# "nunca depreciativa" (US5 cenário 4, mesma regra de T025). Implementado
-# em `TelaResultadoCombinado`: a mensagem segue o padrão do exemplo do
-# doc002 ("Você acertou X de Y — [nome] tirou mais hoje, bora tentar de
-# novo?"), nunca "você perdeu" ou equivalente.
+# CU-05 — na Disputa a mensagem de quem teve menos nunca é depreciativa.
 #
-# NÃO EXECUTADO — mesma ressalva de sempre.
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: 'Dupla'
-- tapOn: 'Adversarial'
-- tapOn: '▶️ Começar'
-- tapOn: '▶️ Continuar'
-- tapOn: '▶️ Toque pra continuar'
-# ... [completar as 2 rodadas, com resultados diferentes] ...
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- longPressOn: 'Opções do adulto. Segure para abrir.'
+- tapOn: 'Em dupla'
+- tapOn: 'Disputa'
+- tapOn: 'Pronto'
+- tapOn: 'Jogar!'
+- tapOn: 'Novo perfil'
+- tapOn: 'Nome'
+- inputText: 'Lua'
+- hideKeyboard
+- tapOn: 'Salvar'
+- tapOn: 'perfil Jogador'
+- tapOn: 'Continuar'
+- assertVisible: 'Agora é a vez de Jogador 1!'
+- tapOn: 'Vamos lá!'
+# ... [completar a rodada — a ordem das letras é aleatória, não dá pra scriptar sem seedar o RNG] ...
+- tapOn: 'Vamos lá!'
+# ... [completar a rodada — a ordem das letras é aleatória, não dá pra scriptar sem seedar o RNG] ...
 - assertVisible: 'bora tentar de novo'
 - assertNotVisible: 'perdeu'
 - assertNotVisible: 'você errou'

@@ -1,13 +1,19 @@
-# T051 — antes da primeira rodada, o histórico mostra mensagem
-# explicando que estará vazio, não uma tela em branco sem contexto (US4
-# cenário 1, Princípio I). Implementado em `TelaHistorico`: quando
-# `rodadas.length === 0`, mostra a explicação em vez de uma lista vazia.
+# CU-06 / US4 cenário 1 — histórico sem rodadas explica por que está vazio (nunca tela em branco) e
+# tem "Voltar" (D-48).
 #
-# NÃO EXECUTADO — sem Android SDK/emulador nem Maestro CLI nesta
-# máquina (mesma ressalva de sempre).
+# NÃO EXECUTADO — sem Maestro CLI nesta máquina (Android SDK/emulador sim, mas o
+# Maestro nunca foi instalado). Escrito contra o app do padrão visual Letra Viva
+# (T119): os textos foram conferidos contra o código atual; seletores e fluxos
+# nunca rodaram (ex.: se `longPressOn` casa com o rótulo de acessibilidade da
+# engrenagem, se `tapOn: 'Nome'` acha o campo). Rotas `_dev` abrem por link
+# direto (`gameleituraescrita://`).
 
 appId: com.devirlabs.gameleituraescrita
 ---
-- launchApp
-- tapOn: '📜 ver histórico'
+- launchApp:
+    clearState: true
+- tapOn: 'Tocar para começar'
+- tapOn: 'Minhas estrelas'
+- assertVisible: 'Minhas estrelas'
 - assertVisible: 'Ainda não há nenhuma rodada registrada'
+- assertVisible: 'Voltar'
