@@ -1,7 +1,4 @@
-import {
-  representarGrupos,
-  representarQuantidade,
-} from '../../services/representacao_quantidade';
+import { representarGrupos, representarQuantidade } from '../../services/representacao_quantidade';
 
 describe('representacao_quantidade — até 10: bolinhas em linhas de 5 (D-42)', () => {
   it('7 vira uma linha de 5 e uma de 2', () => {

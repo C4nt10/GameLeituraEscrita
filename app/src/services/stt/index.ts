@@ -1,17 +1,32 @@
 import type { RecursoCapacidade } from '../capacidade_aparelho';
+import { criarMotorStt, ModeloAusenteError, type ContextoWhisper } from './motor';
+import { obterModeloEmpacotado } from './modelo';
 
 /**
- * stt — reconhecimento de fala offline pra Leitura · voz (D-45).
+ * stt — reconhecimento de fala offline pra Leitura · voz (D-45), ligando o
+ * núcleo testável (`motor.ts`) ao `whisper.rn` real. **Ainda não medido em
+ * aparelho** (T087/T092): compatibilidade, latência e acerto do modelo
+ * `small` quantizado só se sabem rodando num Android real.
  *
- * **Ainda não existe motor integrado.** Até `whisper.rn` estar no app e o
- * modelo carregar de verdade (T087 spike → T090), este serviço diz a
- * verdade: indisponível, com motivo. É isso que mantém "Leitura · voz"
- * desabilitada na configuração em vez de parecer funcionar com um
- * microfone que não capta nada (D-44, achado do teste em aparelho real).
+ * Se qualquer coisa falhar (modelo ausente, módulo nativo que não sobe), o
+ * motor reporta indisponível COM motivo — Leitura · voz fica desabilitada
+ * na configuração (D-44) em vez de parecer funcionar.
  */
-export async function verificarMotorDeVoz(): Promise<RecursoCapacidade> {
-  return {
-    disponivel: false,
-    motivo: 'O reconhecimento de voz ainda não está instalado neste app.',
-  };
+const motor = criarMotorStt({
+  iniciarContexto: async (): Promise<ContextoWhisper> => {
+    const modelo = obterModeloEmpacotado();
+    if (modelo === null) throw new ModeloAusenteError();
+    // require tardio: o módulo nativo só é tocado se o modelo existe
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { initWhisper } = require('whisper.rn/index') as typeof import('whisper.rn/index');
+    return initWhisper({ filePath: modelo });
+  },
+});
+
+export function verificarMotorDeVoz(): Promise<RecursoCapacidade> {
+  return motor.verificar();
+}
+
+export function transcreverAudio(audio: Float32Array): Promise<string> {
+  return motor.transcrever(audio);
 }

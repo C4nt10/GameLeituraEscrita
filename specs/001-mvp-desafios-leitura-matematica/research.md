@@ -1014,3 +1014,35 @@ precisa responder, medindo, antes de qualquer serviço ser escrito:
 
 Nenhuma dessas quatro está verificada. Resultado do T087 entra aqui, como
 seção numerada, mantendo o histórico anterior intacto.
+
+
+### Resultado parcial do T087 (2026-09-26) — o que se verificou sem aparelho
+
+Lido nos tipos e na documentação do `whisper.rn` 0.7.4 (publicado em
+2026-09-17), instalado no projeto:
+
+- **Import**: o `package.json` só declara `exports` de subcaminho (`./*`),
+  sem entrada raiz — `import 'whisper.rn'` não resolve no TypeScript;
+  funciona `whisper.rn/index`.
+- **Formato do áudio**: `transcribeData` aceita "base64 encoded float32 PCM
+  data or ArrayBuffer". O microfone em tempo real entrega PCM de 16 bits —
+  conversão em `services/stt/pcm.ts`, testada.
+- **Captura**: o `RealtimeTranscriber` do `whisper.rn` não grava sozinho
+  ("requires @fugood/react-native-audio-pcm-stream") e traz VAD/auto-corte,
+  que D-37 proíbe. O `expo-audio` no Android grava por `MediaRecorder`, que
+  não produz WAV/PCM. Caminho adotado: `@fugood/react-native-audio-pcm-stream`
+  capturando 16 kHz/mono/16 bits, sem gravar arquivo (conferido no código
+  Java do módulo), com a permissão pedida pelo `expo-audio`.
+- **Modelo**: `ggml-tiny-q5_1` 32.152.673 B · `ggml-base-q5_1` 59.707.625 B ·
+  `ggml-small-q5_1` 190.085.487 B (content-length no Hugging Face). Escolhido
+  `small` porque é o único com evidência de acerto (62-81% no spike, desktop).
+  Não cabe no git (limite de 100 MB) → `scripts/baixar-modelo.mjs`, rodado
+  também pelo hook `eas-build-post-install`.
+- **Aviso de risco**: o módulo de PCM usa a API antiga de `NativeModules` (e
+  `NativeEventEmitter`); o app roda na arquitetura nova do RN 0.86.
+  Compatibilidade **não verificada**.
+
+**Ainda sem resposta (só um aparelho responde)**: o `whisper.rn` sobe neste
+SDK? Latência real do `small` quantizado num Android de verdade? O acerto do
+`small` quantizado bate os 62-81% do desktop? O módulo de PCM entrega áudio
+na arquitetura nova? Isso é o T092.

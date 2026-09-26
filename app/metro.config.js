@@ -10,4 +10,7 @@ const config = getDefaultConfig(__dirname);
 // real do produto e Android/iOS nativo (plan.md).
 config.resolver.assetExts.push('wasm');
 
+// modelo de fala do whisper.rn (ggml) empacotado como asset — ver src/services/stt/modelo.ts
+config.resolver.assetExts.push('bin');
+
 module.exports = config;

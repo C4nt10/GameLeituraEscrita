@@ -5,9 +5,14 @@ import { RodadaDupla } from '../screens/dupla';
 import { listarPerfis, criarPerfil } from '../services/perfis';
 import { itensDoBanco } from '../services/banco_de_conteudo';
 import { falar as tocarVoz } from '../services/tts';
+import { gravacao } from '../services/gravacao';
+import { transcreverAudio } from '../services/stt';
+import { criarDependenciasDeVoz } from '../services/voz_da_rodada';
 import type { Perfil } from '../models/perfil';
 import type { Classificacao, FormaMatematica, Modalidade } from '../models/registro_historico';
 import { cores } from '../theme';
+
+const VOZ = criarDependenciasDeVoz({ gravacao, transcreverAudio });
 
 const CANDIDATAS_LETRA_NIVEL1 = itensDoBanco()
   .filter((item) => item.nivel === 1)
@@ -51,9 +56,9 @@ export default function RotaDupla() {
       dependenciasLeitura={{
         falar: (texto) => tocarVoz(texto),
         candidatasLetraNivel1: CANDIDATAS_LETRA_NIVEL1,
-        iniciarGravacao: () => Promise.resolve(),
-        pararGravacao: () => Promise.resolve(''),
-        transcrever: () => Promise.resolve(''),
+        iniciarGravacao: VOZ.iniciarGravacao,
+        pararGravacao: VOZ.pararGravacao,
+        transcrever: VOZ.transcrever,
       }}
       falarMatematica={(texto) => tocarVoz(texto)}
       onFinalizar={() => router.back()}

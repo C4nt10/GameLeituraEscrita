@@ -13,7 +13,7 @@ a criança **ler de verdade**, não passar de fase.
 🚧 **Em desenvolvimento inicial.** Este projeto segue
 [spec-driven development](https://github.com/github/spec-kit): produto,
 constituição e plano técnico já estão fechados. Das 101 tarefas em
-[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 90 estão
+[`tasks.md`](specs/001-mvp-desafios-leitura-matematica/tasks.md), 91 estão
 concluídas — decisão de stack (T001), spike de reconhecimento de fala
 offline (T002, fechado em 2026-09-22 após 19 rodadas de teste; ver
 [detalhe](specs/001-mvp-desafios-leitura-matematica/research.md)), o

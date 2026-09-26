@@ -6,6 +6,7 @@ import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { avaliarLeitura } from '../../../services/avaliacao_leitura';
 import { leituraVozDisponivel, verificarCapacidades } from '../../../services/capacidade_aparelho';
+import { PermissaoMicrofoneNegadaError } from '../../../services/gravacao/nucleo';
 import { cores, espacamento, fontes, raio } from '../../../theme';
 
 /**
@@ -61,6 +62,8 @@ export function TelaLeituraVoz({
   const [estado, setEstado] = useState<Estado>('parado');
   const [tentativas, setTentativas] = useState(0);
   const [ultimaTranscricao, setUltimaTranscricao] = useState<string | null>(null);
+  // falha ao gravar/transcrever: mensagem legível, o botão continua pra tentar de novo (Princípio I/III)
+  const [mensagemErro, setMensagemErro] = useState<string | null>(null);
   const [motivoMicrofoneIndisponivel, setMotivoMicrofoneIndisponivel] = useState<string | null>(
     null,
   );
@@ -81,16 +84,43 @@ export function TelaLeituraVoz({
   async function alternarGravacao() {
     if (estado === 'processando' || motivoMicrofoneIndisponivel !== null) return;
 
+    setMensagemErro(null);
+
     if (estado === 'parado') {
-      setEstado('gravando');
-      await iniciarGravacao();
+      try {
+        setEstado('gravando');
+        await iniciarGravacao();
+      } catch (erro) {
+        setEstado('parado');
+        setMensagemErro(
+          erro instanceof PermissaoMicrofoneNegadaError
+            ? erro.message
+            : 'Não deu pra ligar o microfone agora. Toca de novo pra tentar.',
+        );
+      }
       return;
     }
 
     // estado === 'gravando'
     setEstado('processando');
-    const audioUri = await pararGravacao();
-    const transcricaoBruta = await transcrever(audioUri);
+    let transcricaoBruta: string;
+    try {
+      const audioUri = await pararGravacao();
+      transcricaoBruta = await transcrever(audioUri);
+    } catch {
+      setEstado('parado');
+      setMensagemErro('Não consegui ouvir agora. Toca no microfone e tenta de novo.');
+      return;
+    }
+
+    // Silêncio não é tentativa: a criança não errou a palavra, o app não ouviu nada
+    // (Princípio III — falha do aparelho não é culpa da criança; não conta como erro).
+    if (transcricaoBruta.trim() === '') {
+      setEstado('parado');
+      setMensagemErro('Não ouvi nada. Toca no microfone e fala de novo.');
+      return;
+    }
+
     setUltimaTranscricao(transcricaoBruta);
     setTentativas((t) => t + 1);
     onAjuda?.();
@@ -138,6 +168,8 @@ export function TelaLeituraVoz({
           </Text>
         </>
       )}
+
+      {mensagemErro !== null && <Text style={estilos.mensagemErro}>{mensagemErro}</Text>}
 
       {ultimaTranscricao !== null && (
         <View style={estilos.balao}>
@@ -191,6 +223,12 @@ const estilos = StyleSheet.create({
     color: cores.tintaFraca,
     fontSize: 13,
     marginTop: -espacamento.sm,
+  },
+  mensagemErro: {
+    fontFamily: fontes.corpoBold,
+    color: cores.blocoVermelho,
+    textAlign: 'center',
+    maxWidth: 280,
   },
   balao: {
     marginTop: espacamento.md,

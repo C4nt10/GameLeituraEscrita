@@ -76,3 +76,18 @@ cd spike-stt
 **T002 fechado (2026-09-22)**: 19 rodadas, faixa honesta 62-81% contra
 áudio de criança real (Whisper, vocabulário no prompt + tolerância
 fonética). Detalhe completo em `research.md` §T002.
+
+## Modelo de fala (Leitura · voz)
+
+O modelo do reconhecimento de fala (`ggml-small-q5_1.bin`, ~190 MB) **não fica
+no git** (passa do limite de 100 MB do GitHub). Pra rodar/buildar localmente:
+
+```bash
+cd app
+npm run baixar-modelo
+```
+
+O build do EAS baixa sozinho (`eas-build-post-install`). Sem o arquivo o app
+funciona normalmente — só que "Leitura · voz" aparece desabilitada, com o
+motivo "modelo não incluído" (D-44). `whisper.rn` é módulo nativo: não roda
+no Expo Go, só num build (EAS/prebuild).

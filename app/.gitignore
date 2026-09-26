@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# modelo de fala (~190 MB): baixado por `npm run baixar-modelo`, nao vai pro git
+assets/modelos/*.bin
+assets/modelos/*.parcial

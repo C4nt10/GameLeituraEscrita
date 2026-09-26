@@ -631,6 +631,18 @@ botão — a saída da rodada continua sendo o "sair" de D-39. Não depende de
 o aparelho ter botão físico de voltar (Princípio I). Sem histórico de
 navegação (ex.: abertura direta), voltar leva à tela inicial.
 
+### D-49 — silêncio no microfone não é tentativa nem erro
+
+**Decisão** (tomada ao implementar a voz real, 2026-09-26): se a gravação
+volta **sem nenhum texto** (a criança não falou, o aparelho não captou), o app
+diz "não ouvi nada, toca de novo" e **não conta tentativa nem erro** — a
+palavra não foi errada, não houve leitura pra avaliar. Motivo: Princípio III
+(falha do aparelho não é culpa da criança) e Princípio IV (a métrica só pode
+contar o que a criança de fato tentou). Palavra ouvida e diferente da certa
+continua sendo erro (D-06, D-09).
+
+**Escopo assumido, não confirmado pelo dono do projeto.**
+
 ### O que isso abre
 
 | # | Questão | O que falta |

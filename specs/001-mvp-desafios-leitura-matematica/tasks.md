@@ -923,22 +923,27 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
       `capacidade_aparelho` + o gate na configuração (faz T085 passar). É a
       correção **imediata** do defeito do teste: entra antes do motor.
 - [ ] T087 [US1] **Spike de integração do `whisper.rn`** em aparelho real
+      > **Parcial (2026-09-26) — a parte que dá pra fazer sem aparelho está feita; a parte que exige aparelho NÃO.** Verificado nos tipos e na documentação do `whisper.rn` 0.7.4: (1) não tem entrada raiz em `exports` — importa-se por `whisper.rn/index`; (2) `transcribeData` espera **float32** e a lib de PCM entrega 16 bits → conversão implementada e testada; (3) o modo realtime do `whisper.rn` não grava sozinho (exige lib de PCM externa) e o `expo-audio` não gera WAV no Android → escolhida `@fugood/react-native-audio-pcm-stream` (não grava arquivo, usa a permissão do `expo-audio`); (4) tamanhos medidos: tiny-q5_1 32 MB, base-q5_1 60 MB, small-q5_1 190 MB — escolhido `small` por ser o único com evidência de acerto (spike, desktop). **Segue sem resposta, só medindo num aparelho:** o `whisper.rn` sobe no SDK 57 / arquitetura nova? latência real? acerto do `small` quantizado? O módulo de PCM (API antiga de NativeModules) funciona na arquitetura nova? Registrado em `research.md`. **Fica aberta até o T092.**
       (build EAS): compila/roda no SDK 57? formato de áudio exigido vs o
       que o `expo-audio` grava (e a conversão, se precisar); tamanho de
       modelo que cabe no APK e latência real. Saída: seção nova em
       `research.md` e decisão de modelo. **Bloqueia T090.** Verificar a
       documentação atual do pacote e do SDK antes de escrever qualquer
       integração — nada disso está verificado neste projeto.
-- [ ] T088 [P] [US1] Testes unitários (com fake do motor e do gravador):
+- [x] T088 [P] [US1] Testes unitários (com fake do motor e do gravador):
+      > Testes escritos e verdes: `pcm_audio_test`, `gravacao_test`, `stt_motor_test`, `voz_da_rodada_test`. **Ressalva**: `voz_da_rodada_test` foi escrito junto com a implementação, sem eu observar o vermelho antes; os outros três foram vistos falhar antes. Todos com fakes — o motor e o microfone reais só rodam em aparelho.
       `gravacao` pede permissão ao iniciar, toque inicia/toque para sem
       timeout (D-37), permissão negada vira motivo visível (não erro
       genérico); `stt` devolve texto do motor e trata modelo ausente. (US1
       cenário 10; T026 já cobre "sem permissão")
 - [ ] T089 [US1] Implementar serviço `gravacao` (`expo-audio`) — faz T088
+      > **Código escrito (2026-09-26), NÃO validado em aparelho — por isso segue aberta.** `services/gravacao` (núcleo testável + ligação com a lib nativa de PCM + permissão do `expo-audio`); `TelaLeituraVoz` agora trata erro de gravação/transcrição e silêncio com mensagem legível (D-49). Fecha junto com T092.
       passar (parte gravador).
 - [ ] T090 [US1] Implementar serviço `stt` (`whisper.rn`, modelo embarcado,
+      > **Código escrito (2026-09-26), NÃO validado em aparelho — segue aberta.** `services/stt` (núcleo testável + `whisper.rn` real, modelo `small` q5_1 baixado por `npm run baixar-modelo` / hook `eas-build-post-install`, fora do git por causa do limite de 100 MB do GitHub). Se o motor não sobe, reporta indisponível com motivo. Fecha junto com T092.
       100% offline) — faz T088 passar (parte motor). **Depende de T087.**
 - [ ] T091 [US1] Trocar os stubs de `iniciarGravacao`/`pararGravacao`/
+      > **Ligado (2026-09-26), NÃO validado — segue aberta.** `/rodada` e `/dupla` usam a voz real. O gate de T086 deixou de ser fixo: agora Leitura · voz só habilita quando `verificarMotorDeVoz` confirma que o modelo carregou de verdade — se o `whisper.rn` não subir no aparelho, a modalidade continua desabilitada com o motivo, sem intervenção. Fecha junto com T092.
       `transcrever` na rota `/rodada` pelos serviços reais e **remover o
       gate de T086 somente quando o modelo carregar de verdade**.
 - [ ] T092 [US1] Validar em aparelho real (não no emulador Docker, sem

@@ -79,6 +79,9 @@ Repetir uma vez em cada modalidade.
     microfone naquele momento; ao tocar no microfone o app grava de
     verdade até a criança tocar de novo (sem corte por tempo), transcreve
     localmente, sem rede, e mostra o que entendeu (D-45, FR-025).
+11. **Given** uma gravação de Leitura · voz em que nada foi captado,
+    **When** a transcrição volta vazia, **Then** o app diz que não ouviu e
+    convida a tentar de novo, **sem contar tentativa nem erro** (D-49).
 
 ---
 
