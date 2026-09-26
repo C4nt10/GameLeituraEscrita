@@ -1,6 +1,6 @@
 import type { Classificacao, FormaMatematica, Modalidade } from '../../models/registro_historico';
 import { rotuloDoTema } from '../../theme/helpers';
-import type { EscolhaRodada, Formato, FormatoDupla, Tipo } from '../configuracao/TelaConfiguracao';
+import type { EscolhaRodada, Formato, FormatoDupla, Tipo } from './tipos';
 
 /**
  * Lógica pura da tela inicial "Letra Viva" (D-51, D-53, D-55): quais jeitos de

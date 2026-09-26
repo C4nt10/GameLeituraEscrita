@@ -1169,8 +1169,18 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
 
 ### 10e. Fechamento
 
-- [ ] T118 Remover o `theme/index.ts` antigo e os componentes substituídos
+- [x] T118 Remover o `theme/index.ts` antigo e os componentes substituídos
       (`BotaoSairRodada`, `BotaoVoltar` etc.) quando nada mais os importar.
+      > **Feito (2026-09-26):** removidos `theme/index.ts`, `TelaConfiguracao`
+      (+ `_dev/configuracao`), `components/{Botao,BotaoSairRodada,BotaoVoltar,
+      PillContador}` e a tela `escolha_de_voz` com a rota `escolha-de-voz` (sem
+      link desde que a escolha de voz saiu, e ainda no tema antigo). Os tipos
+      `EscolhaRodada`, `Tipo`, `Formato`, `FormatoDupla` foram para
+      `screens/inicio/tipos.ts` sem mudar de forma. tsc, eslint, 211 testes e o
+      export Android passam. **Sobrou de propósito:** `services/resumo_historico`
+      (a tela não o usa mais, mas é requisito testado do US4 cenário 4 — decidir
+      depois se sai) e o spec Maestro `config_ultima_voz.yaml`, que testava a
+      tela removida e some junto com a reescrita dos specs em T119.
 - [ ] T119 Reescrever os 24 specs Maestro (`app/e2e/`) pros textos novos.
       Ressalva de sempre: nenhum spec foi executado; tentar no emulador Docker.
 - [ ] T120 Conferência em aparelho real: retrato e paisagem, "reduzir

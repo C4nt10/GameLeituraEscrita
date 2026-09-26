@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import type { EscolhaRodada } from '../screens/configuracao';
+import type { EscolhaRodada } from '../screens/inicio/tipos';
 import { TelaAbertura } from '../screens/abertura';
 import { aberturaPendente, marcarAberturaMostrada } from '../screens/abertura/estado';
 import { TelaInicio } from '../screens/inicio';

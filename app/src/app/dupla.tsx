@@ -10,7 +10,7 @@ import { transcreverAudio } from '../services/stt';
 import { criarDependenciasDeVoz } from '../services/voz_da_rodada';
 import type { Perfil } from '../models/perfil';
 import type { Classificacao, FormaMatematica, Modalidade } from '../models/registro_historico';
-import { cores } from '../theme';
+import { cor } from '../theme/tema';
 
 const VOZ = criarDependenciasDeVoz({ gravacao, transcreverAudio });
 
@@ -37,7 +37,7 @@ export default function RotaDupla() {
   }, []);
 
   if (!perfis) {
-    return <View style={{ flex: 1, backgroundColor: cores.papel }} />;
+    return <View style={{ flex: 1, backgroundColor: cor.papel }} />;
   }
 
   return (

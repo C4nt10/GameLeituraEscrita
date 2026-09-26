@@ -9,7 +9,7 @@ import { Estrela, Mascote } from '../../ui/icones';
 import { Redondo } from '../../ui/Redondo';
 import { TelaBase } from '../../ui/TelaBase';
 import { ZonasDoDesafio } from '../../ui/ZonasDoDesafio';
-import type { EscolhaRodada, Tipo } from '../configuracao/TelaConfiguracao';
+import type { EscolhaRodada, Tipo } from './tipos';
 import { FolhaDoAdulto } from './FolhaDoAdulto';
 import {
   escolhaParaRodada,
