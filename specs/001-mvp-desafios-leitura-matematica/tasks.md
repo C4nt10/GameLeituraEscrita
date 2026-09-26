@@ -1095,9 +1095,16 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       estado "indisponível"** (motivo real no lugar do microfone), porque o
       motor não carrega lá. **Não visto:** microfone ativo, gravando e os dois
       balões — só com o modelo num aparelho (T092).
-- [ ] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
+- [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.
+      > **Feito (2026-09-26), conferido no emulador em retrato (rota `_dev`):**
+      5 estrelas em meias (`estrelasParaIcones`, sem mínimo de 1 — D-20), três
+      números, chip do contador da modalidade (some em Contas — A-21),
+      `mensagemDoResultado` (sempre positiva), aviso de D-40, "Jogar de novo",
+      "Subir de nível" e "Ver histórico" mantidos (D-55). Rola se não couber.
+      **Não visto:** botão "Ver histórico" na rota `_dev` (não passa a ação) e
+      paisagem.
 - [ ] T114 ⛔ **Histórico "Minhas estrelas"**: abas por jeito de jogar, cada uma
       na sua cor, resumo (rodadas, estrelas, precisão) e lista; sem cruzar
       modalidades (D-20); Voltar sempre visível (D-48); coluna de ajuda
