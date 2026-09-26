@@ -91,3 +91,18 @@ O build do EAS baixa sozinho (`eas-build-post-install`). Sem o arquivo o app
 funciona normalmente — só que "Leitura · voz" aparece desabilitada, com o
 motivo "modelo não incluído" (D-44). `whisper.rn` é módulo nativo: não roda
 no Expo Go, só num build (EAS/prebuild).
+
+## Verificação antes de gastar um build no EAS
+
+`npx expo export -p web` **não basta**: a web resolve módulos do Node (como
+`buffer`) sozinha e o Android não. O primeiro build com o `whisper.rn` falhou
+por isso ("Unable to resolve module buffer", vindo de `safe-buffer`) e o
+export web passou. Rode também:
+
+```bash
+cd app
+npx expo export --platform android --output-dir dist-android && rm -rf dist-android
+```
+
+Pega erro de resolução de módulo em ~10 s, em vez de ~10 min de fila do EAS.
+(Não pega erro de compilação nativa — esse só o build mostra.)

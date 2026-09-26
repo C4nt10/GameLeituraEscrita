@@ -954,7 +954,7 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
 
 ### 9d. Rastreamento
 
-- [ ] T093 Sincronizar este plano no Plane (uma issue por bloco 9a-9c, com
+- [x] T093 Sincronizar este plano no Plane (uma issue por bloco 9a-9c, com
       a lista T070-T092), workspace `esteira`. **Bloqueado**: precisa de um
       personal access token do Plane (ver conversa de 2026-09-26) — sem
       ele não há como escrever no board.
@@ -1001,6 +1001,7 @@ vale pra versão anterior da spec.
 
 ## Notes
 
+      > **Feito (2026-09-26):** 109 issues no board (101 tarefas + 8 de fase). Fechadas: Setup, Fundação, US4, US5. Em andamento: US1, US2, US3. Canceladas por D-46: T044, T045. Títulos de T001/T003/T021 corrigidos; criadas T020a, T021b, T033b, T040a, T049a e T070-T095. Feito pela API do Plane com token gerado pela própria conta admin (revogado depois de usar).
 - [P] = arquivos diferentes, sem dependência
 - Testes marcados ⚠️ devem ser escritos e falhar antes da implementação
   correspondente

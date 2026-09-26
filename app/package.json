@@ -6,6 +6,7 @@
     "@expo-google-fonts/baloo-2": "^0.4.2",
     "@expo-google-fonts/figtree": "^0.4.1",
     "@fugood/react-native-audio-pcm-stream": "^1.1.4",
+    "buffer": "^6.0.3",
     "expo": "~57.0.24",
     "expo-audio": "~57.0.5",
     "expo-constants": "~57.0.19",
