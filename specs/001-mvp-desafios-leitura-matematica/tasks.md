@@ -1072,7 +1072,8 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
 - [ ] T120 Conferência em aparelho real: retrato e paisagem, "reduzir
       movimento", leitor de tela, desempenho do fundo quadriculado, e o
       `toLocaleUpperCase('pt-BR')` no Hermes. Registrar o que achar.
-- [ ] T121 Sincronizar a Fase 10 no Plane.
+- [x] T121 Sincronizar a Fase 10 no Plane.
+      > **Feito (2026-09-26):** issue-mãe "[Design v1] Fase 10" + 26 filhas (T096-T121) no board; token temporário revogado.
 
 
 ---
