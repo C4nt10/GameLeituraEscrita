@@ -1007,29 +1007,35 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       > **Feito (2026-09-26):** `@expo-google-fonts/andika` instalado; export **`Andika_700Bold` conferido** no pacote (era o item não verificado). Figtree 500/700/800 e Baloo 2 700/800 já existiam; carregados em `_layout.tsx` junto das fontes antigas até T118. `expo export --platform android` ok (1396 módulos).
       500/700/800 do guia; **conferir o nome exato do export** (`Andika_700Bold`
       não foi verificado); carregar em `_layout.tsx`.
-- [ ] T103 Instalar `react-native-svg` na versão do SDK 57 (15.15.4) e validar
+- [x] T103 Instalar `react-native-svg` na versão do SDK 57 (15.15.4) e validar
+      > **Fechada (2026-09-26):** o build EAS com `react-native-svg` 15.15.4 **compilou** (build 6d3ec06a) e o bundle Android passa; o SVG já renderiza no emulador.
       > **Em andamento (2026-09-26):** `react-native-svg` 15.15.4 (versão do SDK 57) instalado e o bundle Android passa; **falta o build EAS provar que o módulo nativo compila** — só então fecha.
       com `expo export --platform android` **e** um build EAS — módulo nativo
       novo, **bloqueia** T104-T116.
-- [ ] T104 Componentes base: `Bloco` (face + degrau, afunda 3 px em 120 ms, cor
+- [x] T104 Componentes base: `Bloco` (face + degrau, afunda 3 px em 120 ms, cor
+      > **Feito (2026-09-26):** `app/src/ui/` — `Bloco` (face + degrau + moldura, afunda 3 px), `Vaga` (tracejada, encaixe com mola), `Botao` (principal 72 / confirmar 64 / abertura 64 / claro 56), `Redondo`, `Chip` (56×56 — A-28), `BotaoDeSaida` (Sair/Voltar). Verificado no emulador (Expo Go) no início e na folha do adulto.
       por índice), `Vaga` (tracejada), `Botao` (verde principal 72 / azul 64 /
       claro 56), `Redondo` (56×56), `Chip` (A-28), `Voltar`/`Sair`. Alvo mínimo
       56 em tudo que for tocável.
-- [ ] T105 Componentes de estrutura: `FundoCaderno` (grade de 22 px com SVG
+- [x] T105 Componentes de estrutura: `FundoCaderno` (grade de 22 px com SVG
+      > **Feito (2026-09-26):** `TelaBase` (papel quadriculado em SVG `Pattern` + safe area + margens de 16), `ZonasDoDesafio` (estímulo/resposta, em pé × deitado por `useWindowDimensions`), `BarraDoDesafio` + `Trilha` (contador só quando a modalidade tem — Contas não, D-19). **Retrato conferido no emulador; paisagem ainda não** (T120).
       `Pattern`), `ZonasDoDesafio` (estímulo + resposta, em pé ×
       deitado — D-38; **a parte deitado ⛔ não bloqueia a em pé**),
       `BarraDoDesafio` (Sair + trilha + contador de ajuda).
-- [ ] T106 Ícones e mascote em SVG (som, x, voltar, play, mic, parar, olho,
+- [x] T106 Ícones e mascote em SVG (som, x, voltar, play, mic, parar, olho,
+      > **Feito (2026-09-26):** `Icone` (som, x, volta, play, mic, parar, olho, engrenagem, maçã), `Estrela` cheia/meia/vazia (a meia é recorte da inteira do guia — A-22) e `Mascote`, todos do protótipo do dono em SVG. Conferidos no emulador: mascote, engrenagem, estrela, som, olho, mic e play.
       estrela, **meia estrela — a desenhar, não existe no guia**, maçã,
       engrenagem, mascote).
-- [ ] T107 Movimento: hook `useMovimento` (reduzir movimento = duração 0 e sem
+- [x] T107 Movimento: hook `useMovimento` (reduzir movimento = duração 0 e sem
+      > **Feito (2026-09-26), parcial na conferência:** `ui/movimento.ts` com `Animated` (sem reanimated): afundar, tremor, encaixe, pulso, onda, queda, pulo e `useReduzirMovimento`. A parte pura (duração com movimento reduzido) está testada; **as animações em si só serão vistas quando as telas de desafio as usarem** (T109+).
       loops) + animações do guia com `Animated` (encaixe com mola, tremor,
       toque, queda, pulo, pulso e onda em loop, anel de 1,2 s). Sem
       `reanimated`.
 
 ### 10c. Telas (uma por vez; a antiga só sai quando a nova passar)
 
-- [ ] T108 ⛔ **Início da criança + folha do adulto** (`Modal`, abre segurando a
+- [x] T108 ⛔ **Início da criança + folha do adulto** (`Modal`, abre segurando a
+      > **Feito (2026-09-26):** `screens/inicio/` — `TelaInicio` (Letras / Contas / Misturado travado, jeitos de jogar com os nomes da criança, resumo só texto, "Jogar!") e `FolhaDoAdulto` (`Modal`, abre segurando 1,2 s + ação de acessibilidade; nível de leitura, nível de matemática 1–8, tema só do que tem ≥ 12 palavras, tamanho, sozinho/dupla e Juntos/Disputa). Lógica pura em `logica.ts` com 25 testes (vistos falhar antes). **Verificado no emulador**: início, portão de segurar e folha. Voz aparece travada com o motivo (no Expo Go não há modelo). Fecha A-31/A-32/A-33. **Falta:** paisagem e leitor de tela (T120); "Apagar histórico" e "Subir de nível" moram no histórico e no resultado (T113/T114).
       engrenagem por 1,2 s + alternativa de acessibilidade — A-19; nível de
       matemática 1–8 e Juntos/Disputa — A-24; combinações < 12 palavras
       travadas — A-31; "Misturado" travado — A-26; Leitura · voz travada com

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { TelaConfiguracao, type EscolhaRodada } from '../screens/configuracao';
+import type { EscolhaRodada } from '../screens/configuracao';
+import { TelaInicio } from '../screens/inicio';
 import {
   buscarConfiguracao,
   salvarConfiguracao,
@@ -65,7 +66,7 @@ export default function Index() {
   }
 
   return (
-    <TelaConfiguracao
+    <TelaInicio
       configuracaoInicial={configuracao}
       leituraVozDisponivel={vozDisponivel}
       motivoLeituraVozIndisponivel={motivoVozIndisponivel}
