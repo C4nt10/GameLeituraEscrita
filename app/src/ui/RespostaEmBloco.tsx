@@ -15,6 +15,7 @@ export function RespostaEmBloco({
   certa,
   aoAcertar,
   aoErrar,
+  aoComecarAcerto,
   familia = 'display',
   largura = 110,
   altura = 84,
@@ -24,6 +25,8 @@ export function RespostaEmBloco({
   certa: boolean;
   aoAcertar: () => void;
   aoErrar: () => void;
+  /** Avisa já no toque certo (antes do atraso de `aoAcertar`), pra quem chama travar as outras. */
+  aoComecarAcerto?: () => void;
   familia?: 'letra' | 'display';
   largura?: number;
   altura?: number;
@@ -43,6 +46,7 @@ export function RespostaEmBloco({
     if (acertou || travada) return;
     if (certa) {
       setAcertou(true);
+      aoComecarAcerto?.();
     } else {
       tremor.disparar();
       aoErrar();

@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
-import { PillContador } from '../../../components/PillContador';
-import { QuantidadeVisual } from '../../../components/QuantidadeVisual';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { DesafioMatematica } from '../../../models/desafio_matematica';
 import {
   representarGrupos,
   representarQuantidade,
 } from '../../../services/representacao_quantidade';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../../theme';
+import { cor, corModalidade, fonte, raio, tamanho } from '../../../theme/tema';
+import { BarraDoDesafio } from '../../../ui/BarraDoDesafio';
+import { Icone } from '../../../ui/icones';
+import { useAfundar } from '../../../ui/movimento';
+import { QuantidadeVisual } from '../../../ui/QuantidadeVisual';
+import { RespostaEmBloco } from '../../../ui/RespostaEmBloco';
+import { TelaBase } from '../../../ui/TelaBase';
+import { ZonasDoDesafio } from '../../../ui/ZonasDoDesafio';
 
 const SIMBOLO_OPERACAO: Record<DesafioMatematica['operacao'], string> = {
   soma: '+',
@@ -32,18 +35,16 @@ function enunciadoFaladoPura(desafio: DesafioMatematica): string {
 }
 
 /**
- * Tela de desafio de matemática (T040): conta falada (pura ou
- * contextualizada — D-23), botão de repetir, 4 alternativas numéricas
- * (FR-006, doc001 §4). A criança não precisa ler nada (D-24) — só ouve
- * e, na forma contextualizada, vê a quantidade concreta.
+ * Tela de desafio — Conta / Historinha (T040/T111): conta falada (pura ou
+ * contextualizada — D-23), faixa de enunciado que repete o áudio, quantidade
+ * desenhada (D-42) e 4 respostas em blocos de madeira, grade 2×2. A criança
+ * não precisa ler nada (D-24). **Sem contador de ajuda** (D-19, A-21) — repetir
+ * o áudio não é registrado; a barra mostra só a trilha.
  *
- * Objeto visual da forma contextualizada: o tema (`matematica_temas.json`)
- * só guarda o NOME do objeto (ex. "passarinho"), a resolução pra um
- * ícone/imagem real ficou explicitamente pra implementação
- * (`tema-matematica.schema.json`) — ainda não existe um mapa nome→asset,
- * então esta tela usa um marcador visual genérico (●) repetido, não um
- * ícone por tema. Mesma honestidade de escopo do `tts`/T016 (clipes de
- * letra que também não existem ainda).
+ * Objeto da Historinha: o tema (`matematica_temas.json`) só guarda o NOME do
+ * objeto (ex. "passarinho"); não existe mapa nome→asset, então o desenho é o
+ * marcador genérico (bolinha, verde na Historinha) — mesma honestidade de
+ * escopo dos clipes de letra (T016).
  */
 export interface TelaMatematicaProps {
   desafio: DesafioMatematica;
@@ -51,7 +52,8 @@ export interface TelaMatematicaProps {
   onAcerto: () => void;
   onErro: () => void;
   onSair: () => void;
-  onAjuda?: () => void;
+  /** Posição do desafio na rodada (trilha de progresso). */
+  posicao?: { atual: number; total: number };
 }
 
 /**
@@ -61,38 +63,83 @@ export interface TelaMatematicaProps {
  * os números, D-24). Multiplicação (nível 8): N grupos de M.
  */
 function ContaVisual({ desafio }: { desafio: DesafioMatematica }) {
-  const cor = desafio.forma === 'contextualizada' ? cores.categoriaAnimais : cores.blocoAzul;
+  const corDoObjeto = desafio.forma === 'contextualizada' ? cor.verde : cor.roxo;
   const mostrarNumero = desafio.forma === 'pura';
   const operador = SIMBOLO_OPERACAO[desafio.operacao];
 
   if (desafio.operacao === 'multiplicacao') {
     return (
       <View style={estilos.contaColuna}>
-        <View style={estilos.objetosConta}>
-          <Text style={estilos.numeroConta}>{desafio.operandoA}</Text>
-          <Text style={estilos.operador}>{operador}</Text>
-          <Text style={estilos.numeroConta}>{desafio.operandoB}</Text>
+        <View style={estilos.linhaDaConta}>
+          <Text allowFontScaling={false} style={estilos.numero}>
+            {desafio.operandoA}
+          </Text>
+          <Text allowFontScaling={false} style={estilos.operador}>
+            {operador}
+          </Text>
+          <Text allowFontScaling={false} style={estilos.numero}>
+            {desafio.operandoB}
+          </Text>
         </View>
         <QuantidadeVisual
           representacao={representarGrupos(desafio.operandoA, desafio.operandoB)}
-          cor={cor}
+          cor={corDoObjeto}
         />
       </View>
     );
   }
 
   return (
-    <View style={estilos.objetosConta}>
+    <View style={estilos.linhaDaConta}>
       <View style={estilos.operando}>
-        {mostrarNumero && <Text style={estilos.numeroConta}>{desafio.operandoA}</Text>}
-        <QuantidadeVisual representacao={representarQuantidade(desafio.operandoA)} cor={cor} />
+        {mostrarNumero && (
+          <Text allowFontScaling={false} style={estilos.numero}>
+            {desafio.operandoA}
+          </Text>
+        )}
+        <QuantidadeVisual
+          representacao={representarQuantidade(desafio.operandoA)}
+          cor={corDoObjeto}
+        />
       </View>
-      <Text style={estilos.operador}>{operador}</Text>
+      <Text allowFontScaling={false} style={estilos.operador}>
+        {operador}
+      </Text>
       <View style={estilos.operando}>
-        {mostrarNumero && <Text style={estilos.numeroConta}>{desafio.operandoB}</Text>}
-        <QuantidadeVisual representacao={representarQuantidade(desafio.operandoB)} cor={cor} />
+        {mostrarNumero && (
+          <Text allowFontScaling={false} style={estilos.numero}>
+            {desafio.operandoB}
+          </Text>
+        )}
+        <QuantidadeVisual
+          representacao={representarQuantidade(desafio.operandoB)}
+          cor={corDoObjeto}
+        />
       </View>
     </View>
+  );
+}
+
+/** Faixa do enunciado: toca o áudio de novo. Azul-claro com o alto-falante na cor da modalidade. */
+function FaixaDoEnunciado({ texto, aoTocar }: { texto: string; aoTocar: () => void }) {
+  const afundar = useAfundar();
+  return (
+    <Pressable
+      onPress={aoTocar}
+      onPressIn={afundar.aoPressionar}
+      onPressOut={afundar.aoSoltar}
+      accessibilityRole="button"
+      accessibilityLabel="ouvir de novo"
+    >
+      <Animated.View style={[estilos.faixa, afundar.estilo]}>
+        <View style={estilos.somDaFaixa}>
+          <Icone nome="som" tamanho={26} />
+        </View>
+        <Text allowFontScaling={false} style={estilos.textoDaFaixa}>
+          {texto}
+        </Text>
+      </Animated.View>
+    </Pressable>
   );
 }
 
@@ -102,9 +149,9 @@ export function TelaMatematica({
   onAcerto,
   onErro,
   onSair,
-  onAjuda,
+  posicao = { atual: 0, total: 1 },
 }: TelaMatematicaProps) {
-  const [repeticoes, setRepeticoes] = useState(0);
+  const [travada, setTravada] = useState(false);
 
   const textoFalado = desafio.enunciado ?? enunciadoFaladoPura(desafio);
 
@@ -113,110 +160,81 @@ export function TelaMatematica({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [desafio]);
 
-  function repetir() {
-    setRepeticoes((r) => r + 1);
-    onAjuda?.();
-    void falar(textoFalado);
-  }
-
   return (
-    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
-      <BotaoSairRodada onSair={onSair} />
-      <PillContador icone="🔁" rotulo="repetições" valor={repeticoes} />
+    <TelaBase>
+      <BarraDoDesafio aoSair={onSair} total={posicao.total} atual={posicao.atual} />
 
-      <TouchableOpacity
-        style={estilos.enunciado}
-        onPress={repetir}
-        accessibilityRole="button"
-        accessibilityLabel="ouvir de novo"
-      >
-        <Text style={estilos.enunciadoTexto}>🔊 {textoFalado}</Text>
-      </TouchableOpacity>
-
-      <ContaVisual desafio={desafio} />
-
-      <View style={estilos.alternativas}>
-        {desafio.alternativas.map((valor, indice) => (
-          <TouchableOpacity
-            key={`${valor}-${indice}`}
-            style={estilos.alternativa}
-            onPress={() => (valor === desafio.resultado ? onAcerto() : onErro())}
-            accessibilityRole="button"
-            accessibilityLabel={`resposta ${valor}`}
-          >
-            <Text style={estilos.alternativaTexto}>{valor}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </SafeAreaView>
+      <ZonasDoDesafio
+        estimulo={
+          <>
+            <FaixaDoEnunciado texto={textoFalado} aoTocar={() => void falar(textoFalado)} />
+            <ContaVisual desafio={desafio} />
+          </>
+        }
+        resposta={
+          <View style={estilos.grade}>
+            {desafio.alternativas.map((valor, indice) => (
+              <RespostaEmBloco
+                key={`${valor}-${indice}`}
+                texto={String(valor)}
+                certa={valor === desafio.resultado}
+                aoAcertar={onAcerto}
+                aoComecarAcerto={() => setTravada(true)}
+                aoErrar={onErro}
+                travada={travada}
+              />
+            ))}
+          </View>
+        }
+      />
+    </TelaBase>
   );
 }
 
 const estilos = StyleSheet.create({
-  raiz: {
-    flex: 1,
+  faixa: {
+    minHeight: 64,
+    maxWidth: 340,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: raio.cartao,
+    backgroundColor: cor.azul.claro,
+    borderWidth: 2,
+    borderColor: cor.azul.base,
+  },
+  somDaFaixa: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: espacamento.md,
-    padding: espacamento.lg,
-    backgroundColor: cores.papel,
+    backgroundColor: corModalidade.contaPura.base,
   },
-  enunciado: {
-    maxWidth: 320,
-    paddingVertical: espacamento.sm,
-    paddingHorizontal: espacamento.md,
-    borderRadius: raio.lg,
-    backgroundColor: cores.blocoAzulT,
+  textoDaFaixa: {
+    flexShrink: 1,
+    fontFamily: fonte.displayMedio,
+    fontSize: tamanho.subtitulo,
+    color: cor.tinta,
   },
-  enunciadoTexto: {
-    fontFamily: fontes.corpoBold,
-    fontSize: 16,
-    color: cores.blocoAzul,
-    textAlign: 'center',
-  },
-  objetosConta: {
+  linhaDaConta: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: espacamento.md,
+    gap: 14,
   },
-  contaColuna: {
-    alignItems: 'center',
-    gap: espacamento.sm,
-  },
-  operando: {
-    alignItems: 'center',
-    gap: espacamento.xs,
-  },
-  numeroConta: {
-    fontFamily: fontes.tituloExtra,
-    fontSize: 36,
-    color: cores.tinta,
-  },
-  operador: {
-    fontFamily: fontes.tituloExtra,
-    fontSize: 28,
-    color: cores.tintaFraca,
-  },
-  alternativas: {
+  contaColuna: { alignItems: 'center', gap: 8 },
+  operando: { alignItems: 'center', gap: 6 },
+  numero: { fontFamily: fonte.display, fontSize: 38, color: cor.tinta },
+  operador: { fontFamily: fonte.display, fontSize: 32, color: cor.tinta2 },
+  grade: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: espacamento.sm,
+    gap: 12,
     justifyContent: 'center',
-    marginTop: espacamento.md,
-  },
-  alternativa: {
-    width: ALVO_TOQUE_MINIMO + 8,
-    height: ALVO_TOQUE_MINIMO + 8,
-    borderRadius: raio.md,
-    backgroundColor: cores.blocoVerdeT,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  alternativaTexto: {
-    fontFamily: fontes.tituloExtra,
-    fontSize: 24,
-    color: cores.blocoVerde,
+    maxWidth: 290,
   },
 });

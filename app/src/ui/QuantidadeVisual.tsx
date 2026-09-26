@@ -1,17 +1,19 @@
 import { StyleSheet, View } from 'react-native';
 import type { RepresentacaoQuantidade } from '../services/representacao_quantidade';
-import { cores, espacamento } from '../theme';
+import { cor, degrau, espaco } from '../theme/tema';
+import type { CorDeBloco } from './Bloco';
 
 /**
  * Desenha a quantidade que `representacao_quantidade` manda (D-42): bolinhas
- * em linhas de 5, barra de 10 + cubinhos (estilo material dourado) ou N
- * grupos de M objetos. Só exibição — nada aqui é tocável, e a criança
- * conta o que vê sem precisar de material físico.
+ * em linhas de 5, barra de 10 + cubinhos (material dourado) ou N grupos de M
+ * objetos. Só exibição — "o bloco é o único objeto tocável" (guia), então nada
+ * aqui responde a toque. As bolinhas têm degrau, como os blocos do jogo; o
+ * dourado usa `dourado`/`douradoBorda` do tema.
  */
 export interface QuantidadeVisualProps {
   representacao: RepresentacaoQuantidade;
-  /** Cor das bolinhas/objetos; o "dourado" usa sempre o amarelo do tema. */
-  cor?: string;
+  /** Cor das bolinhas/objetos (roxo em Conta, verde em Historinha). */
+  cor?: CorDeBloco;
 }
 
 function descricao(r: RepresentacaoQuantidade): string {
@@ -21,11 +23,21 @@ function descricao(r: RepresentacaoQuantidade): string {
   return `${r.grupos} grupos de ${r.porGrupo}`;
 }
 
-function Bolinha({ cor }: { cor: string }) {
-  return <View style={[estilos.bolinha, { backgroundColor: cor }]} />;
+function Bolinha({ cor: c, tamanho = TAMANHO_BOLINHA }: { cor: CorDeBloco; tamanho?: number }) {
+  return (
+    <View
+      style={[
+        degrau(c, 3),
+        { width: tamanho, height: tamanho, borderRadius: tamanho / 2, shadowOpacity: 0 },
+      ]}
+    />
+  );
 }
 
-export function QuantidadeVisual({ representacao, cor = cores.blocoAzul }: QuantidadeVisualProps) {
+export function QuantidadeVisual({
+  representacao,
+  cor: corDaBolinha = cor.roxo,
+}: QuantidadeVisualProps) {
   return (
     <View
       style={estilos.raiz}
@@ -37,7 +49,7 @@ export function QuantidadeVisual({ representacao, cor = cores.blocoAzul }: Quant
         representacao.linhas.map((quantidade, linha) => (
           <View key={linha} style={estilos.linha}>
             {Array.from({ length: quantidade }, (_, i) => (
-              <Bolinha key={i} cor={cor} />
+              <Bolinha key={i} cor={corDaBolinha} />
             ))}
           </View>
         ))}
@@ -64,7 +76,7 @@ export function QuantidadeVisual({ representacao, cor = cores.blocoAzul }: Quant
           {Array.from({ length: representacao.grupos }, (_, grupo) => (
             <View key={grupo} style={estilos.grupo}>
               {Array.from({ length: representacao.porGrupo }, (_, i) => (
-                <View key={i} style={[estilos.bolinhaPequena, { backgroundColor: cor }]} />
+                <Bolinha key={i} cor={corDaBolinha} tamanho={TAMANHO_BOLINHA_PEQUENA} />
               ))}
             </View>
           ))}
@@ -74,77 +86,68 @@ export function QuantidadeVisual({ representacao, cor = cores.blocoAzul }: Quant
   );
 }
 
-const TAMANHO_BOLINHA = 20;
+const TAMANHO_BOLINHA = 22;
+const TAMANHO_BOLINHA_PEQUENA = 14;
 
 const estilos = StyleSheet.create({
   raiz: {
     alignItems: 'center',
-    gap: espacamento.xs,
+    gap: espaco.xs,
   },
   linha: {
     flexDirection: 'row',
-    gap: 5,
-  },
-  bolinha: {
-    width: TAMANHO_BOLINHA,
-    height: TAMANHO_BOLINHA,
-    borderRadius: TAMANHO_BOLINHA / 2,
+    gap: 6,
   },
   dourado: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: espacamento.sm,
+    gap: espaco.s,
   },
   barra: {
     gap: 1,
     padding: 2,
-    borderRadius: 4,
-    backgroundColor: cores.blocoAmarelo,
-    borderWidth: 1,
-    borderColor: cores.tintaFraca,
+    borderRadius: 5,
+    backgroundColor: cor.dourado,
+    borderWidth: 1.5,
+    borderColor: cor.douradoBorda,
   },
   celulaBarra: {
     width: 14,
     height: 8,
     borderRadius: 1,
-    backgroundColor: cores.blocoAmareloT,
+    backgroundColor: cor.amarelo.claro,
   },
   cubinhos: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: 5 * 16,
-    gap: 2,
+    width: 5 * 18,
+    gap: 3,
   },
   cubinho: {
-    width: 14,
-    height: 14,
-    borderRadius: 2,
-    backgroundColor: cores.blocoAmarelo,
-    borderWidth: 1,
-    borderColor: cores.tintaFraca,
+    width: 15,
+    height: 15,
+    borderRadius: 3,
+    backgroundColor: cor.dourado,
+    borderWidth: 1.5,
+    borderColor: cor.douradoBorda,
   },
   grupos: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: espacamento.xs,
-    maxWidth: 200,
+    gap: espaco.s,
+    maxWidth: 290,
   },
   grupo: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: 56,
+    width: 64,
     gap: 3,
-    padding: 4,
-    borderRadius: 8,
+    padding: 5,
+    borderRadius: 10,
     borderWidth: 2,
-    borderColor: cores.linha,
-    backgroundColor: cores.papelAlt,
+    borderColor: cor.grade,
+    backgroundColor: cor.papel2,
     justifyContent: 'center',
-  },
-  bolinhaPequena: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
   },
 });

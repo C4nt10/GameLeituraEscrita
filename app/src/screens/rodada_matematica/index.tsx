@@ -168,11 +168,13 @@ export function RodadaMatematica({
 
   return (
     <TelaMatematica
+      key={indice}
       desafio={desafioAtual}
       falar={falar}
       onAcerto={handleAcerto}
       onErro={handleErro}
       onSair={handleSairDaRodada}
+      posicao={{ atual: indice, total: desafios.length }}
     />
   );
 }

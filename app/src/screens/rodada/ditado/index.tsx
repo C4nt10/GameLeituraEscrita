@@ -54,6 +54,7 @@ export function TelaDitado({
   posicao = { atual: 0, total: 1 },
 }: TelaDitadoProps) {
   const [festa, setFesta] = useState(false);
+  const [travada, setTravada] = useState(false);
 
   useEffect(() => {
     void falar(); // toca sozinho ao entrar no desafio — não conta como repetição
@@ -108,6 +109,8 @@ export function TelaDitado({
                   familia="letra"
                   certa={letra === desafio.palavra}
                   aoAcertar={() => setFesta(true)}
+                  aoComecarAcerto={() => setTravada(true)}
+                  travada={travada}
                   aoErrar={onErro}
                 />
               ))}

@@ -1067,10 +1067,21 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       festa própria: regra existente mantida, D-55). O contador "espiou" é o
       da rodada e conta também a revelação automática (comportamento herdado).
       **Não conferido:** níveis 2+, paisagem, "Ver de novo" no meio da montagem.
-- [ ] T111 ⛔ **Contas**: enunciado com botão de som + `QuantidadeVisual`
+- [x] T111 ⛔ **Contas**: enunciado com botão de som + `QuantidadeVisual`
       redesenhada (bolinhas roxas com degrau; dourado com as cores do tema;
       numeral junto) + 4 respostas em blocos de madeira, grade 2×2; contador
       "ouviu" só se A-21 for aprovado (exige migração do histórico).
+      > **Feito (2026-09-26), conferido no emulador em retrato:** faixa do
+      enunciado (toca de novo), `ui/QuantidadeVisual` nova (bolinhas roxas com
+      degrau; material dourado com `dourado`/`douradoBorda`; grupos), 4 respostas
+      em blocos de madeira 2×2, trilha na barra e **sem contador** (A-21: D-19
+      vale). Vistos: nível 1 (bolinhas + numeral), 6 (barra + cubinhos) e 8
+      (grupos). Acerto trava as outras respostas na hora (antes contava erro
+      se a criança tocasse outra durante os 450 ms). `key={indice}` na
+      orquestração de contas (mesmo vazamento do Ditado). **Não conferido:**
+      Historinha (bolinhas verdes) e níveis 2–5/7 no emulador, paisagem,
+      TalkBack. O desenho da Historinha continua a bolinha genérica (sem mapa
+      nome→ícone; T016/A-35).
 - [ ] T112 **Ler em voz alta**: microfone 150, estados parado/ouvindo/entendeu
       certo/entendeu outra (balão amarelo, nunca vermelho) — reusa `gravacao`,
       `stt` e `voz_da_rodada` já escritos; travada com "chegando logo" enquanto
