@@ -216,6 +216,8 @@ export function RodadaLeitura({
       onErro={handleErro}
       onAjuda={handleAjuda}
       onSair={handleSairDaRodada}
+      ajudas={contadorAjuda}
+      posicao={{ atual: indice, total: desafiosSorteados.length }}
     />
   );
 }

@@ -1086,6 +1086,15 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       certo/entendeu outra (balão amarelo, nunca vermelho) — reusa `gravacao`,
       `stt` e `voz_da_rodada` já escritos; travada com "chegando logo" enquanto
       o motor não carrega (D-44). **Só fecha junto com T092.**
+      > **Código refeito (2026-09-26), continua ABERTA por decisão:** tela nova
+      no padrão (quadro turquesa com a palavra, microfone redondo de 150 com
+      onda, ícone de parar ao gravar, balão verde se certo e **amarelo se
+      outra coisa**, contador "tentou" da rodada, "Sair" e trilha). Regras
+      mantidas: silêncio e falha do aparelho não contam erro; acerto agora
+      mostra o balão verde 0,9 s antes de seguir. **Conferido no emulador só o
+      estado "indisponível"** (motivo real no lugar do microfone), porque o
+      motor não carrega lá. **Não visto:** microfone ativo, gravando e os dois
+      balões — só com o modelo num aparelho (T092).
 - [ ] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.
