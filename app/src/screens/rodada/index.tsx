@@ -175,6 +175,7 @@ export function RodadaLeitura({
   if (configuracao.modalidade === 'ditado') {
     return (
       <TelaDitado
+        key={indice}
         desafio={desafioAtual}
         candidatasLetra={dependencias.candidatasLetraNivel1}
         falar={() => dependencias.falar(desafioAtual.palavra)}
@@ -182,6 +183,8 @@ export function RodadaLeitura({
         onErro={handleErro}
         onAjuda={handleAjuda}
         onSair={handleSairDaRodada}
+        ajudas={contadorAjuda}
+        posicao={{ atual: indice, total: desafiosSorteados.length }}
       />
     );
   }
@@ -189,17 +192,21 @@ export function RodadaLeitura({
   if (configuracao.modalidade === 'leitura_montar') {
     return (
       <TelaLeituraMontar
+        key={indice}
         desafio={desafioAtual}
         onAcerto={handleAcerto}
         onErro={handleErro}
         onAjuda={handleAjuda}
         onSair={handleSairDaRodada}
+        ajudas={contadorAjuda}
+        posicao={{ atual: indice, total: desafiosSorteados.length }}
       />
     );
   }
 
   return (
     <TelaLeituraVoz
+      key={indice}
       desafio={desafioAtual}
       vocabularioConhecido={dependencias.vocabularioConhecido}
       iniciarGravacao={dependencias.iniciarGravacao}

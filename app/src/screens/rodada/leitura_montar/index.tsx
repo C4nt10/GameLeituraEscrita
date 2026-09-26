@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { BotaoSairRodada } from '../../../components/BotaoSairRodada';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { MontagemPalavra } from '../../../components/MontagemPalavra';
-import { PillContador } from '../../../components/PillContador';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
-import { ALVO_TOQUE_MINIMO, cores, espacamento, fontes, raio } from '../../../theme';
+import { duracaoDoMovimento } from '../../../theme/helpers';
+import { caixaDaLetra, cor, fonte, movimento, raio, tamanho } from '../../../theme/tema';
+import { BarraDoDesafio } from '../../../ui/BarraDoDesafio';
+import { Botao } from '../../../ui/Botao';
+import { useReduzirMovimento } from '../../../ui/movimento';
+import { TelaBase } from '../../../ui/TelaBase';
+import { ZonasDoDesafio } from '../../../ui/ZonasDoDesafio';
 
-const DURACAO_REVELACAO_PADRAO_MS = 3000;
+const DURACAO_REVELACAO_PADRAO_MS = movimento.palavraVisivel;
 
 /**
- * Tela de desafio — Leitura·montar (T030, D-18). A palavra aparece e
- * some **sozinha, sem áudio nenhum** (essa é a diferença pro Ditado — lê,
- * não ouve). "ver de novo" revela de novo e conta como espiada (D-05,
- * D-19). A montagem em si (`MontagemPalavra`) fica sempre montada — só
- * escondida enquanto a palavra está revelada — pra não perder o
- * progresso já feito quando a criança pede pra ver de novo no meio da
- * montagem.
+ * Tela de desafio — Ler e montar (Leitura · montar, T030/T110, D-18). A
+ * palavra aparece e some **sozinha, sem áudio nenhum** (essa é a diferença
+ * pro Ouvir e montar — lê, não ouve). "Ver de novo" revela de novo e conta como
+ * espiada (D-05, D-19). As peças só liberam depois que a palavra some, senão
+ * vira cópia. A montagem (`MontagemPalavra`) fica sempre montada, só travada
+ * enquanto a palavra está visível — pra não perder o progresso quando a
+ * criança pede pra ver de novo no meio da montagem.
+ *
+ * Visual do padrão "Letra Viva": quadro amarelo com a palavra em Andika
+ * maiúscula e barra de tempo que esvazia em 3 s; quando some, "????" em
+ * `tinta2` (A-34: em `grade` ele sumia, 1,2:1).
  */
 export interface TelaLeituraMontarProps {
   desafio: DesafioLeitura;
@@ -27,6 +34,10 @@ export interface TelaLeituraMontarProps {
   onSair: () => void;
   /** Notifica quem orquestra a rodada a cada espiada — contador é por rodada, não por desafio (D-19). */
   onAjuda?: () => void;
+  /** Ajudas da rodada inteira até agora (D-19) — vem do orquestrador, não zera a cada palavra. */
+  ajudas?: number;
+  /** Posição do desafio na rodada (trilha de progresso). */
+  posicao?: { atual: number; total: number };
 }
 
 export function TelaLeituraMontar({
@@ -36,9 +47,13 @@ export function TelaLeituraMontar({
   onErro,
   onSair,
   onAjuda,
+  ajudas = 0,
+  posicao = { atual: 0, total: 1 },
 }: TelaLeituraMontarProps) {
-  const [espiadas, setEspiadas] = useState(0);
+  const reduzir = useReduzirMovimento();
   const [revelando, setRevelando] = useState(false);
+  const [acertou, setAcertou] = useState(false);
+  const [tempo] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     revelar();
@@ -46,76 +61,139 @@ export function TelaLeituraMontar({
   }, [desafio.palavra]);
 
   function revelar() {
-    setEspiadas((e) => e + 1);
     onAjuda?.();
     setRevelando(true);
+    tempo.setValue(1);
+    Animated.timing(tempo, {
+      toValue: 0,
+      duration: duracaoDoMovimento(duracaoRevelacaoMs, reduzir) || duracaoRevelacaoMs,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start();
     setTimeout(() => setRevelando(false), duracaoRevelacaoMs);
   }
 
+  // depois de montar certo a palavra fica verde por um instante (não é erro nem prêmio extra), e segue
+  useEffect(() => {
+    if (!acertou) return;
+    const espera = setTimeout(onAcerto, 800);
+    return () => clearTimeout(espera);
+  }, [acertou, onAcerto]);
+
+  const palavra = caixaDaLetra(desafio.palavra);
+
   return (
-    <SafeAreaView style={estilos.raiz} edges={['top', 'bottom']}>
-      <BotaoSairRodada onSair={onSair} />
-      <PillContador icone="👀" rotulo="espiadas" valor={espiadas} />
+    <TelaBase>
+      <BarraDoDesafio
+        aoSair={onSair}
+        total={posicao.total}
+        atual={posicao.atual}
+        contador={{ rotulo: 'espiou', valor: ajudas }}
+      />
 
-      {revelando ? (
-        <View style={estilos.palavraOcultaBox}>
-          <Text style={estilos.palavraOcultaTexto}>{desafio.palavra.toUpperCase()}</Text>
-        </View>
-      ) : (
-        <TouchableOpacity
-          style={estilos.botaoVerDeNovo}
-          onPress={revelar}
-          accessibilityRole="button"
-          accessibilityLabel="ver de novo"
-        >
-          <Text style={estilos.verDeNovo}>👁️ ver de novo</Text>
-        </TouchableOpacity>
-      )}
-
-      <View
-        style={revelando ? estilos.montagemEscondida : undefined}
-        pointerEvents={revelando ? 'none' : 'auto'}
-      >
-        <MontagemPalavra palavra={desafio.palavra} onErro={onErro} onCompleta={onAcerto} />
-      </View>
-    </SafeAreaView>
+      <ZonasDoDesafio
+        estimulo={
+          <>
+            <View style={estilos.quadro}>
+              {revelando || acertou ? (
+                <>
+                  <Text
+                    allowFontScaling={false}
+                    style={[estilos.palavra, acertou && { color: cor.verde.base }]}
+                  >
+                    {palavra}
+                  </Text>
+                  {!acertou ? (
+                    <View style={estilos.tempo}>
+                      <Animated.View
+                        style={[
+                          estilos.tempoPreenchido,
+                          {
+                            transform: [
+                              { translateX: -110 },
+                              { scaleX: tempo },
+                              { translateX: 110 },
+                            ],
+                          },
+                        ]}
+                      />
+                    </View>
+                  ) : null}
+                </>
+              ) : (
+                <Text allowFontScaling={false} style={estilos.oculta}>
+                  {'?'.repeat(desafio.palavra.length)}
+                </Text>
+              )}
+            </View>
+            <Botao
+              texto="Ver de novo"
+              icone="olho"
+              variante="claro"
+              onPress={revelar}
+              desabilitado={revelando || acertou}
+            />
+          </>
+        }
+        resposta={
+          <>
+            <Text allowFontScaling={false} style={estilos.instrucao}>
+              {revelando ? 'Leia com atenção…' : 'Agora monte a palavra'}
+            </Text>
+            <MontagemPalavra
+              palavra={desafio.palavra}
+              indiceDoDesafio={posicao.atual + 2}
+              onErro={onErro}
+              onCompleta={() => setAcertou(true)}
+              travada={revelando || acertou}
+            />
+          </>
+        }
+      />
+    </TelaBase>
   );
 }
 
 const estilos = StyleSheet.create({
-  raiz: {
-    flex: 1,
+  quadro: {
+    width: '100%',
+    maxWidth: 320,
+    minHeight: 120,
+    borderRadius: raio.blocoGrande,
+    backgroundColor: cor.papel,
+    borderWidth: 3,
+    borderColor: cor.amarelo.base,
+    borderBottomWidth: 6,
+    borderBottomColor: cor.amarelo.degrau,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: espacamento.md,
-    padding: espacamento.lg,
-    backgroundColor: cores.papel,
+    gap: 10,
+    padding: 16,
   },
-  palavraOcultaBox: {
-    paddingVertical: espacamento.md,
-    paddingHorizontal: espacamento.lg,
-    borderRadius: raio.lg,
-    backgroundColor: cores.blocoAmareloT,
+  palavra: {
+    fontFamily: fonte.letra,
+    fontSize: tamanho.palavra,
+    letterSpacing: 4,
+    color: cor.tinta,
   },
-  palavraOcultaTexto: {
-    fontFamily: fontes.tituloExtra,
-    fontSize: 36,
-    letterSpacing: 2,
-    color: cores.tinta,
+  oculta: {
+    fontFamily: fonte.letra,
+    fontSize: tamanho.palavra,
+    letterSpacing: 10,
+    color: cor.tinta2,
   },
-  botaoVerDeNovo: {
-    minWidth: ALVO_TOQUE_MINIMO,
-    minHeight: ALVO_TOQUE_MINIMO,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: espacamento.md,
+  tempo: {
+    width: 220,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: cor.amarelo.claro,
+    overflow: 'hidden',
   },
-  verDeNovo: {
-    fontFamily: fontes.titulo,
-    color: cores.blocoAzul,
-    fontSize: 15,
-  },
-  montagemEscondida: {
-    opacity: 0,
+  tempoPreenchido: { flex: 1, backgroundColor: cor.amarelo.base, borderRadius: 4 },
+  instrucao: {
+    fontFamily: fonte.displayMedio,
+    fontSize: tamanho.subtitulo,
+    color: cor.tinta2,
+    textAlign: 'center',
   },
 });

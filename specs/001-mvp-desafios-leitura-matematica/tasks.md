@@ -1043,13 +1043,30 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       acento — A-33; "apagar histórico" e "subir de nível" — A-23).
       Substitui `TelaConfiguracao`; persistência e níveis separados (D-43)
       **iguais**. Fecha os achados do APK A-31, A-32 e A-33.
-- [ ] T109 ⛔ **Ouvir e montar**: `MontagemPalavra` com peças em ciclo de cor,
+- [x] T109 ⛔ **Ouvir e montar**: `MontagemPalavra` com peças em ciclo de cor,
       vaga tracejada, peça errada treme e volta (A-20: as certas ficam ou
       somem?), festa por palavra ("Isso!", confete, letras pulando) e o nível 1
       de 4 letras (A-25). A regra de erro da métrica **não muda** (D-06).
-- [ ] T110 **Ler e montar**: quadro amarelo, barra de tempo de 3 s
+      > **Feito (2026-09-26), conferido no emulador em retrato:** nível 1
+      (grade 2×2 de letras, erro treme e volta, acerto → "Isso!" + confete +
+      "Próxima"), barra do desafio com trilha, contador "ouviu" da **rodada**
+      (D-19) e "Ver estrelas" na última. `services/montagem_palavra` testado.
+      **Bug achado na conferência e corrigido:** a tela não remontava entre
+      palavras, então alternativas e o estado "acertou" da palavra anterior
+      vazavam (a festa reaparecia sozinha com a letra seguinte) — agora
+      `key={indice}` no orquestrador. **Não conferido:** montagem por letras
+      dos níveis 2+ no emulador, paisagem, TalkBack, "reduzir movimento".
+      Os testes de `MontagemPalavra` e de `voz_da_rodada` foram escritos junto
+      com a implementação, sem ver vermelho antes (registrado por honestidade).
+- [x] T110 **Ler e montar**: quadro amarelo, barra de tempo de 3 s
       (`palavraVisivel`, parâmetro de D-18), peças travadas até a palavra
       sumir, "Ver de novo" contando espiada; palavra oculta legível (A-34).
+      > **Feito (2026-09-26), conferido no emulador em retrato (nível 1):**
+      palavra some sozinha com a barra de 3 s, "?" em `tinta2`, peça travada
+      durante a revelação, acerto deixa a palavra verde e avança em 0,8 s (sem
+      festa própria: regra existente mantida, D-55). O contador "espiou" é o
+      da rodada e conta também a revelação automática (comportamento herdado).
+      **Não conferido:** níveis 2+, paisagem, "Ver de novo" no meio da montagem.
 - [ ] T111 ⛔ **Contas**: enunciado com botão de som + `QuantidadeVisual`
       redesenhada (bolinhas roxas com degrau; dourado com as cores do tema;
       numeral junto) + 4 respostas em blocos de madeira, grade 2×2; contador
