@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo-google-fonts/andika": "^0.4.1",
     "@expo-google-fonts/baloo-2": "^0.4.2",
     "@expo-google-fonts/figtree": "^0.4.1",
     "@fugood/react-native-audio-pcm-stream": "^1.1.4",
@@ -22,6 +23,7 @@
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
     "whisper.rn": "^0.7.4"
   },

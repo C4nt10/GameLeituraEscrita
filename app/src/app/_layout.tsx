@@ -3,11 +3,13 @@ import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts, Baloo2_700Bold, Baloo2_800ExtraBold } from '@expo-google-fonts/baloo-2';
+import { Andika_700Bold } from '@expo-google-fonts/andika';
 import {
   Figtree_400Regular,
   Figtree_500Medium,
   Figtree_600SemiBold,
   Figtree_700Bold,
+  Figtree_800ExtraBold,
 } from '@expo-google-fonts/figtree';
 
 void SplashScreen.preventAutoHideAsync();
@@ -20,6 +22,8 @@ export default function RootLayout() {
     Figtree_500Medium,
     Figtree_600SemiBold,
     Figtree_700Bold,
+    Figtree_800ExtraBold,
+    Andika_700Bold,
   });
 
   useEffect(() => {

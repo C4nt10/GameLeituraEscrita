@@ -1003,10 +1003,12 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       2026-09-26) e trava os pares proibidos (branco sobre amarelo = 1,85;
       tinta2 sobre papel2 = 4,41 e palavra oculta em `grade` = 1,21 são
       achados A-34 a resolver).
-- [ ] T102 Fontes: instalar `@expo-google-fonts/andika` e os pesos Figtree
+- [x] T102 Fontes: instalar `@expo-google-fonts/andika` e os pesos Figtree
+      > **Feito (2026-09-26):** `@expo-google-fonts/andika` instalado; export **`Andika_700Bold` conferido** no pacote (era o item não verificado). Figtree 500/700/800 e Baloo 2 700/800 já existiam; carregados em `_layout.tsx` junto das fontes antigas até T118. `expo export --platform android` ok (1396 módulos).
       500/700/800 do guia; **conferir o nome exato do export** (`Andika_700Bold`
       não foi verificado); carregar em `_layout.tsx`.
 - [ ] T103 Instalar `react-native-svg` na versão do SDK 57 (15.15.4) e validar
+      > **Em andamento (2026-09-26):** `react-native-svg` 15.15.4 (versão do SDK 57) instalado e o bundle Android passa; **falta o build EAS provar que o módulo nativo compila** — só então fecha.
       com `expo export --platform android` **e** um build EAS — módulo nativo
       novo, **bloqueia** T104-T116.
 - [ ] T104 Componentes base: `Bloco` (face + degrau, afunda 3 px em 120 ms, cor
