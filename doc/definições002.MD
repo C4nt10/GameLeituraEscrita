@@ -726,3 +726,29 @@ em 20 arquivos, adicionar 2 dependências (fonte Andika e `react-native-svg`,
 esta um **módulo nativo novo**) e reescrever os 24 specs Maestro. Estratégia:
 tokens novos convivendo com os antigos, tela por tela, cada passo verificável
 e entregável.
+
+### Resposta do dono (2026-09-26): "vamos manter as regras, mas vamos seguir o padrão visual" — D-55
+
+**D-55.** Onde o design v1 conflita com uma regra vigente, **a regra fica e o
+visual segue o padrão**: comportamento, métrica e constituição não mudam; a
+aparência, os componentes, as fontes, as cores, o movimento e os nomes de
+tela seguem `design/`. Resolução de cada pergunta aberta nesse critério:
+
+| # | Resolução |
+|---|---|
+| A-19 | O portão de segurar 1,2 s **entra** (é padrão visual do adulto) **sem emendar o Princípio VI**: leio o "toda ação principal" da constituição como ação da **criança**, e o portão é do adulto. **Interpretação minha, não confirmada.** O resumo do início vira só texto (não abre a folha) e a engrenagem ganha ação de acessibilidade pra abrir sem segurar. |
+| A-20 | **D-06 e US1 cenário 5 valem**: toda tentativa errada conta como erro e a resposta é limpa. O visual do guia entra como animação: a peça errada treme e a montagem volta ao início. |
+| A-21 | **D-19 vale**: Contas **não** tem contador de ajuda (barra do desafio sem contador; resultado e histórico sem coluna de ajuda pra matemática). Sem mudança de schema. |
+| A-22 | **Meia estrela fica** (FR-007/D-20) e não há mínimo de 1 estrela. O ícone de meia estrela é derivado da estrela do guia (recorte). |
+| A-23 | **Ficam** "Jogar de novo", "Subir de nível" e "Ver histórico" no resultado, e "Apagar histórico" (com confirmação) no histórico — desenhados com os componentes do padrão (botão claro, botão redondo). |
+| A-24 | A folha do adulto **inclui** nível de matemática 1–8 (D-41/43) e Juntos/Disputa (D-31); a tela de seleção/criação de perfis da dupla é montada com os mesmos componentes. |
+| A-25 | Ditado nível 1 (4 letras): 4 blocos em grade 2×2, como as respostas de conta. |
+| A-26 | "Misturado" **travado** com "chegando logo" (a rodada mista não existe). |
+| A-27 | Texto neutro no lugar de "Estou pronta!": "Vamos lá!". |
+| A-28 | **56 px em todo controle tocável**, inclusive chips, filtros e resumo (o padrão declara 56; as medidas de 44/48 do guia não valem). |
+| A-29 | Instrução falada **não entra** (seria comportamento novo); fica registrada como ideia futura. |
+| A-30 | Abertura só na abertura a frio, com qualquer toque ou avanço automático — Princípio VII intacto. **Assumido.** |
+| A-31, A-33 | Filtro da D-35 mantido; rótulos de tema com acento (Ações...). |
+| A-34 | Texto secundário (`tinta2`) só sobre `papel`; sobre `papel2` usa `tinta`. Palavra oculta em `madeiraBorda`, não em `grade`. |
+| A-35 | O mascote está desenhado em SVG no protótipo do dono; o ícone e o splash saem dele. |
+| A-18 | Sem minúscula no MVP (assumido; segue aberta pra depois). |

@@ -974,10 +974,11 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
 
 ### 10a. Decisões (bloqueiam as tarefas ⛔)
 
-- [ ] T096 Responder A-19 a A-30 e A-35 com o dono (tabela em doc002 §16, cada
+- [x] T096 Responder A-19 a A-30 e A-35 com o dono (tabela em doc002 §16, cada
       uma com recomendação). Saída: decisões numeradas D-55+ e ajuste da
       spec. **Bloqueia** T105 (parte deitado), T108, T109, T111, T113-T117.
 
+      > **Respondida (2026-09-26): "manter as regras, seguir o padrão visual" — D-55.** Cada pergunta resolvida no critério regra-vale/visual-segue (tabela em doc002 §16). Onde sobrou interpretação minha (A-19 portão de segurar sem emendar o Princípio VI; A-30 abertura; A-18 sem minúscula) está marcado como assumido. Os ⛔ abaixo ficam **liberados**.
 ### 10b. Fundação visual
 
 - [ ] T097 [P] Teste: `design/tema.ts` e `app/src/theme/tema.ts` são iguais

@@ -11,8 +11,9 @@ jogável com reconhecimento de fala real (US1 cenários 9-10, FR-025),
 escolha de voz e nome/som saem do MVP (US3, FR-021), tela de configurar em
 divulgação progressiva (US3, FR-026).
 **Nova revisão (design do dono, doc002 §16, D-50 a D-54):** padrão visual
-"Letra Viva" v1 (FR-028 a FR-031). As perguntas A-19 a A-35 estão **abertas**
-e nenhuma vira requisito antes da resposta do dono.
+"Letra Viva" v1 (FR-028 a FR-031). O dono respondeu "manter as regras, seguir o padrão
+visual" (**D-55**, doc002 §16): comportamento e métrica não mudam; só a
+aparência segue o design.
 
 **Input**: `doc/definições001.MD` + `doc/definições002.MD` — definições de produto
 consolidadas (casos de uso CU-01 a CU-08, decisões D-01 a D-47, princípios de
@@ -399,15 +400,17 @@ combinado nos dois formatos (cooperativo e adversarial).
   Misturado), cada jeito de jogar com sua cor fixa em toda tela (D-51).
 - **FR-030**: O sistema MUST apresentar uma tela inicial só da criança e
   colocar nível, tema, tamanho e formato (sozinho/dupla) numa folha do
-  adulto que abre segurando a engrenagem por 1,2 s (D-53) — **sujeito a A-19
-  (Princípio VI) e A-24 (a folha ainda não cobre nível de matemática 1–8 nem
-  Juntos/Disputa)**. Substitui o "mais opções" de FR-026.
+  adulto que abre segurando a engrenagem por 1,2 s (D-53, D-55), com ação de
+  acessibilidade pra abrir sem segurar. A folha MUST cobrir nível de leitura,
+  nível de matemática 1–8, tema, tamanho e sozinho/dupla com cooperativo ou
+  disputa. Substitui o "mais opções" de FR-026.
 - **FR-031**: O sistema MUST dar feedback sem punir (D-54): peça errada treme
   e volta, sem vermelho e sem som de erro; comemoração ao completar uma
   palavra no Ouvir e montar; trilha de progresso; contador de ajuda da
   modalidade sempre à vista; e, com "reduzir movimento" do sistema ligado,
-  nenhuma animação nem loop. **A contagem de erros continua a de FR-007/D-06**
-  até A-20 ser respondida.
+  nenhuma animação nem loop. **A contagem de erros é a de FR-007/D-06** (toda
+  tentativa errada conta) e a resposta errada é limpa (US1 cenário 5); Contas
+  não tem contador de ajuda (D-19).
 
 ### Key Entities *(include if feature involves data)*
 
