@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import type { EscolhaRodada } from '../screens/configuracao';
+import { TelaAbertura } from '../screens/abertura';
+import { aberturaPendente, marcarAberturaMostrada } from '../screens/abertura/estado';
 import { TelaInicio } from '../screens/inicio';
 import {
   buscarConfiguracao,
@@ -11,7 +13,7 @@ import {
 import { leituraVozDisponivel, verificarCapacidades } from '../services/capacidade_aparelho';
 import { garantirPerfilPadrao } from '../services/perfis';
 import { PERFIL_PADRAO_ID } from '../models/perfil';
-import { cores } from '../theme';
+import { cor } from '../theme/tema';
 
 /**
  * Tela inicial de verdade (T047 + Princípio VII — abre pronto pra
@@ -21,6 +23,7 @@ import { cores } from '../theme';
  * exigir nenhuma alteração.
  */
 export default function Index() {
+  const [abertura, setAbertura] = useState(aberturaPendente);
   const [configuracao, setConfiguracao] = useState<Configuracao | null>(null);
   // começa indisponível e só habilita depois de `verificarCapacidades` confirmar — nunca oferece
   // Leitura · voz por otimismo (D-44).
@@ -46,8 +49,20 @@ export default function Index() {
     };
   }, []);
 
+  // A abertura aparece só na abertura a frio (A-30); enquanto a criança não toca, a configuração carrega por trás.
+  if (abertura) {
+    return (
+      <TelaAbertura
+        aoComecar={() => {
+          marcarAberturaMostrada();
+          setAbertura(false);
+        }}
+      />
+    );
+  }
+
   if (!configuracao) {
-    return <View style={{ flex: 1, backgroundColor: cores.papel }} />;
+    return <View style={{ flex: 1, backgroundColor: cor.papel }} />;
   }
 
   function persistirEscolha(escolha: EscolhaRodada) {

@@ -1138,8 +1138,17 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       seleção e "Jogador 1/2" na vez e no resultado (regra existente).
       **Não visto:** formato Disputa/adversarial, empate, paisagem, teclado
       cobrindo o formulário em telas pequenas, TalkBack.
-- [ ] T116 ⛔ **Abertura**: logo em blocos caindo, mascote, "Tocar para
+- [x] T116 ⛔ **Abertura**: logo em blocos caindo, mascote, "Tocar para
       começar" (A-30: só na abertura a frio).
+      > **Feito (2026-09-26), conferido no emulador em retrato:** "LETRA" e
+      "VIVA" em blocos (cores em ciclo), mascote e "Tocar para começar" em
+      vermelho pulsando; toque leva ao início. Só na abertura a frio: o estado
+      fica na memória do módulo (`screens/abertura/estado.ts`, 2 testes vistos
+      falhar antes) — não vai pro banco. Sem texto que eu tenha inventado (o
+      desenho só tem logo, mascote e botão). **Não visto:** a queda em si (só
+      o quadro final foi capturado), "reduzir movimento", paisagem; e que a
+      abertura **não volta** ao sair de uma rodada (garantido pelo teste, não
+      pelo aparelho).
 
 ### 10d. Identidade do app
 
