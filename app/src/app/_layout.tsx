@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import { NavigationBar } from 'expo-navigation-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts, Baloo2_700Bold, Baloo2_800ExtraBold } from '@expo-google-fonts/baloo-2';
@@ -40,6 +41,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
+      {/* Barra de navegação do Android escondida (imersivo): ela cobria o rodapé do jogo e a criança
+          podia tocar nos botões do sistema sem querer. Volta por um instante ao deslizar da borda. */}
+      <NavigationBar hidden />
       <Stack screenOptions={{ headerShown: false }} />
     </SafeAreaProvider>
   );

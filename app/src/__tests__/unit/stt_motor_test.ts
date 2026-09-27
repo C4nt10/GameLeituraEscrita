@@ -84,3 +84,40 @@ describe('stt motor — modelo carregado de verdade, offline (D-44, D-45, FR-025
     );
   });
 });
+
+describe('stt motor — o Whisper "descreve" silêncio e ruído; isso não é fala (Princípio III)', () => {
+  async function transcreverComo(resultado: string) {
+    const motor = criarMotorStt({ iniciarContexto: async () => contextoFalso(resultado) });
+    return motor.transcrever(new Float32Array([0.01, -0.01]));
+  }
+
+  it.each([
+    '[SOM DE FUTEBOL]',
+    ' [MÚSICA] ',
+    '(silêncio)',
+    '(música de fundo)',
+    '*aplausos*',
+    '[BLANK_AUDIO]',
+    '♪',
+    '[SOM DE FUTEBOL] [RISOS]',
+  ])(
+    'marcação de ruído "%s" vira texto vazio (o app trata como "não ouvi nada")',
+    async (bruto) => {
+      expect(await transcreverComo(bruto)).toBe('');
+    },
+  );
+
+  it('frases que o Whisper inventa em áudio mudo também viram vazio', async () => {
+    expect(await transcreverComo('Legendas pela comunidade Amara.org')).toBe('');
+  });
+
+  it('fala de verdade junto com uma marcação: fica só a fala', async () => {
+    expect(await transcreverComo('[MÚSICA] gato')).toBe('gato');
+    expect(await transcreverComo('gato (risos)')).toBe('gato');
+  });
+
+  it('palavra comum não é apagada por engano', async () => {
+    expect(await transcreverComo('Obrigado')).toBe('Obrigado');
+    expect(await transcreverComo('ANDAR')).toBe('ANDAR');
+  });
+});

@@ -30,6 +30,24 @@ export class ModeloAusenteError extends Error {
 const MOTIVO_MODELO_AUSENTE = 'O modelo de reconhecimento de voz não está incluído neste app.';
 const MOTIVO_FALHA = 'Não foi possível iniciar o reconhecimento de voz neste aparelho.';
 
+/**
+ * O Whisper não devolve "nada" quando não há fala: no silêncio ou num ruído ele
+ * *descreve* o som — "[SOM DE FUTEBOL]", "(música)", "*aplausos*", "♪" — ou
+ * inventa uma legenda ("Legendas pela comunidade Amara.org"). Isso não é o que
+ * a criança leu: sai do texto, e se não sobra nada o app trata como "não ouvi
+ * nada" (que não conta erro, Princípio III) em vez de mostrar um "Eu entendi"
+ * absurdo. Só tira marcação entre [], () e ** e frases conhecidas — palavra
+ * comum como "Obrigado" fica.
+ */
+const MARCACAO_DE_RUIDO = /\[[^\]]*\]|\([^)]*\)|\*[^*]*\*|[♪♫]/g;
+const FRASES_INVENTADAS = [/legendas?\s+pela\s+comunidade\s+amara\.org/gi, /amara\.org/gi];
+
+export function limparTranscricao(texto: string): string {
+  let limpo = texto.replace(MARCACAO_DE_RUIDO, ' ');
+  for (const frase of FRASES_INVENTADAS) limpo = limpo.replace(frase, ' ');
+  return limpo.replace(/\s+/g, ' ').trim();
+}
+
 export interface MotorStt {
   verificar: () => Promise<RecursoCapacidade>;
   /** Texto reconhecido (sem espaço sobrando); `''` se não há áudio. */
@@ -72,7 +90,7 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
       ) as ArrayBuffer;
       const { promise } = carregado.contexto.transcribeData(dados, { language: 'pt' });
       const { result } = await promise;
-      return result.trim();
+      return limparTranscricao(result);
     },
   };
 }

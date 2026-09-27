@@ -1095,6 +1095,14 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       estado "indisponível"** (motivo real no lugar do microfone), porque o
       motor não carrega lá. **Não visto:** microfone ativo, gravando e os dois
       balões — só com o modelo num aparelho (T092).
+      > **Achado no APK do dono (2026-09-26):** o balão mostrou "Eu entendi:
+      [SOM DE FUTEBOL]" sem som nenhum no ambiente — o Whisper *descreve*
+      silêncio/ruído entre colchetes em vez de devolver vazio. **Corrigido:**
+      `limparTranscricao` (em `stt/motor.ts`) tira marcações `[...]`, `(...)`,
+      `*...*`, `♪` e a legenda inventada "Legendas pela comunidade Amara.org";
+      se não sobra fala, cai em "Não ouvi nada" (que não conta erro). 12 testes
+      novos, vistos falhar antes. **Não resolve** palavras inventadas de
+      verdade em ruído forte — isso só se mede em aparelho (T092).
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.
@@ -1213,6 +1221,13 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       fundo quadriculado e `toLocaleUpperCase('pt-BR')` no Hermes (o emulador
       mostrou maiúsculas e acentos certos em Expo Go, que também roda Hermes,
       mas isso não substitui o APK).
+- [x] T122 Barra de navegação do Android escondida (pedido do dono depois de
+      testar o APK: os botões do sistema não sumiam).
+      > **Feito (2026-09-26), NÃO conferido:** `expo-navigation-bar` (módulo
+      nativo → exige build novo) e `<NavigationBar hidden />` no layout raiz;
+      volta por um instante ao deslizar da borda. No emulador **não deu para
+      ver**: ele não tem janela de barra de navegação (mesmo forçando os 3
+      botões). Só o APK no aparelho confirma.
 - [x] T121 Sincronizar a Fase 10 no Plane.
       > **Feito (2026-09-26):** issue-mãe "[Design v1] Fase 10" + 26 filhas (T096-T121) no board; token temporário revogado.
 
