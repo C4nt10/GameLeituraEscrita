@@ -33,13 +33,19 @@ export const gravacao = criarServicoGravacao({
         channels: 1,
         bitsPerSample: 16,
         audioSource,
-        bufferSize: 4096,
+        // O mínimo que o aparelho aceitar: a lib descarta os 2 primeiros buffers ("clique"), e com
+        // 4096 bytes isso comia ~256 ms do começo da fala.
+        bufferSize: 1024,
       });
       AudioRecord.on('data', aoReceberDados);
       AudioRecord.start();
     },
     parar: async () => {
+      // A criança toca em parar logo depois de falar: espera um pouco pra não perder o final da
+      // palavra (ainda no buffer do microfone) e depois deixa o último pedaço chegar ao JS.
+      await new Promise((r) => setTimeout(r, 400));
       await AudioRecord.stop();
+      await new Promise((r) => setTimeout(r, 200));
     },
   },
 });

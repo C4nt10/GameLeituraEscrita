@@ -5,7 +5,7 @@ import { PERFIL_PADRAO_ID } from '../models/perfil';
 import { itensDoBanco } from '../services/banco_de_conteudo';
 import { falar as tocarVoz } from '../services/tts';
 import { alternarFonteDoAudio, fonteDoAudio, gravacao } from '../services/gravacao';
-import { transcreverAudio } from '../services/stt';
+import { transcreverAudio, ultimoTextoBrutoDoMotor } from '../services/stt';
 import { criarDependenciasDeVoz } from '../services/voz_da_rodada';
 
 /** Gravação real + reconhecimento offline (D-45) no lugar dos stubs antigos. */
@@ -14,6 +14,7 @@ const VOZ = criarDependenciasDeVoz({
   transcreverAudio,
   aoFicarSemSinal: alternarFonteDoAudio,
   fonteDoAudio,
+  textoBrutoDoMotor: ultimoTextoBrutoDoMotor,
 });
 
 const CANDIDATAS_LETRA_NIVEL1 = itensDoBanco()

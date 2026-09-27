@@ -163,7 +163,7 @@ export function TelaLeituraVoz({
 
   const dica =
     estado === 'gravando'
-      ? 'Toque de novo para parar'
+      ? 'Pode falar! Toque de novo para parar'
       : estado === 'processando'
         ? 'Um instante…'
         : 'Toque e leia em voz alta';

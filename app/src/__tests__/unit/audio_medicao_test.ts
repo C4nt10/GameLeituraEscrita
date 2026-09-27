@@ -3,6 +3,7 @@ import {
   normalizarPico,
   PICO_MINIMO,
   SemSinalDeMicrofoneError,
+  acolchoarComSilencio,
 } from '../../services/stt/audio';
 
 describe('audio — medir o que o microfone entregou antes de gastar tempo com o Whisper', () => {
@@ -62,5 +63,22 @@ describe('audio — erro de microfone sem sinal', () => {
     const erro = new SemSinalDeMicrofoneError();
     expect(erro.name).toBe('SemSinalDeMicrofoneError');
     expect(erro.message).toMatch(/microfone/i);
+  });
+});
+
+describe('audio — acolchoar com silêncio (clipes curtos, cortados nas pontas pelo microfone)', () => {
+  it('acrescenta silêncio antes e depois, sem mexer no meio', () => {
+    const audio = Float32Array.from([0.5, -0.5]);
+    const acolchoado = acolchoarComSilencio(audio, 0.5); // 0,5 s = 8000 amostras de cada lado
+
+    expect(acolchoado.length).toBe(2 + 16000);
+    expect(acolchoado[8000]).toBe(0.5);
+    expect(acolchoado[8001]).toBe(-0.5);
+    expect(acolchoado[0]).toBe(0);
+    expect(acolchoado[acolchoado.length - 1]).toBe(0);
+  });
+
+  it('áudio vazio continua vazio (não inventa silêncio pra transcrever)', () => {
+    expect(acolchoarComSilencio(new Float32Array(0), 0.5).length).toBe(0);
   });
 });

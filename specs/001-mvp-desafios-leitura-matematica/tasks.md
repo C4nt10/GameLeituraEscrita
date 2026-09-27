@@ -1124,6 +1124,20 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       `small` segue **nunca medida** em aparelho (research.md) — a linha
       técnica vai dar o primeiro número real; se passar de alguns segundos, o
       caminho é o modelo `base` (60 MB) ou `tiny` (32 MB), com perda de acerto.
+      > **1º dado real (2026-09-27), APK de diagnóstico:** `áudio 1,3 s · volume
+      15% · fonte 6 · reconheceu em 7,5 s`, palavra "VENTO", resposta "Não ouvi
+      nada". **O microfone funciona** (chega sinal, fonte 6). Sobram dois
+      problemas: (a) o Whisper devolveu vazio com um clipe de 1,3 s — a lib
+      nativa descarta os 2 primeiros buffers (~256 ms com 4096 bytes) e o
+      final, então a palavra chega cortada; (b) **7,5 s de espera** para 1,3 s
+      de áudio (o `small` processa a janela de 30 s). **Mudanças:** buffer de
+      captura 1024 (perde menos do começo), 400 ms de cauda antes de parar +
+      200 ms depois, 0,5 s de silêncio em cada ponta antes do Whisper, "Pode
+      falar!" ao gravar, e o diagnóstico passa a mostrar o **texto bruto** do
+      Whisper (`whisper: "..."` ou `(nada)`) pra separar "ele não ouviu" de "o
+      filtro apagou uma marcação". Se o vazio persistir com fala clara, o
+      suspeito é o detector de "sem fala" do whisper.cpp (não exposto no
+      `whisper.rn`); se a espera não cair, trocar pra `base`/`tiny`.
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.

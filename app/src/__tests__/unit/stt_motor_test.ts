@@ -123,3 +123,19 @@ describe('stt motor — o Whisper "descreve" silêncio e ruído; isso não é fa
     expect(await transcreverComo('ANDAR')).toBe('ANDAR');
   });
 });
+
+describe('stt motor — guarda o texto bruto do Whisper, antes da limpeza (pra diagnóstico)', () => {
+  it('antes de qualquer transcrição não há texto bruto', async () => {
+    const motor = criarMotorStt({ iniciarContexto: async () => contextoFalso() });
+    expect(motor.ultimoTextoBruto()).toBeNull();
+  });
+
+  it('depois de transcrever, o bruto tem a marcação que a limpeza tirou', async () => {
+    const motor = criarMotorStt({ iniciarContexto: async () => contextoFalso(' [MÚSICA] ') });
+
+    const limpo = await motor.transcrever(new Float32Array([0.1, -0.1]));
+
+    expect(limpo).toBe('');
+    expect(motor.ultimoTextoBruto()).toBe('[MÚSICA]');
+  });
+});

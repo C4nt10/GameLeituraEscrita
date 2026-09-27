@@ -27,7 +27,13 @@ describe('voz_da_rodada — liga gravação + STT à interface que a tela de Lei
     const texto = await voz.transcrever(referencia);
 
     expect(texto).toBe('gato');
-    expect(transcreverAudio).toHaveBeenCalledWith(audioGravado);
+    // o áudio da gravação chega intacto no meio, com silêncio nas pontas
+    const enviado = (transcreverAudio.mock.calls[0] as unknown as [Float32Array])[0];
+    const margem = (enviado.length - audioGravado.length) / 2;
+    expect(margem).toBeGreaterThan(0);
+    expect(Array.from(enviado.subarray(margem, margem + audioGravado.length))).toEqual(
+      Array.from(audioGravado),
+    );
   });
 
   it('referência desconhecida não transcreve nada (texto vazio, sem chamar o motor)', async () => {
@@ -131,5 +137,56 @@ describe('voz_da_rodada — liga gravação + STT à interface que a tela de Lei
     await voz.transcrever(await voz.pararGravacao());
 
     expect(voz.diagnostico()).toMatch(/fonte 6/);
+  });
+});
+
+describe('voz_da_rodada — o diagnóstico mostra o que o Whisper de fato respondeu', () => {
+  it('inclui o texto bruto quando quem liga informa', async () => {
+    const gravacao = {
+      iniciar: async () => {},
+      parar: async () => new Float32Array([0.5, -0.5]),
+      gravando: () => false,
+    };
+    const voz = criarDependenciasDeVoz({
+      gravacao,
+      transcreverAudio: async () => '',
+      textoBrutoDoMotor: () => '[MÚSICA]',
+    });
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    expect(voz.diagnostico()).toMatch(/whisper: "\[MÚSICA\]"/);
+  });
+
+  it('resposta vazia aparece como (nada), não como buraco', async () => {
+    const gravacao = {
+      iniciar: async () => {},
+      parar: async () => new Float32Array([0.5, -0.5]),
+      gravando: () => false,
+    };
+    const voz = criarDependenciasDeVoz({
+      gravacao,
+      transcreverAudio: async () => '',
+      textoBrutoDoMotor: () => '',
+    });
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    expect(voz.diagnostico()).toMatch(/whisper: \(nada\)/);
+  });
+
+  it('o áudio vai pro motor com silêncio nas pontas', async () => {
+    const gravacao = {
+      iniciar: async () => {},
+      parar: async () => new Float32Array([0.5, -0.5]),
+      gravando: () => false,
+    };
+    const transcreverAudio = jest.fn(async () => 'x');
+    const voz = criarDependenciasDeVoz({ gravacao, transcreverAudio });
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    const enviado = (transcreverAudio.mock.calls[0] as unknown as [Float32Array])[0];
+    expect(enviado.length).toBeGreaterThan(2 + 10000);
   });
 });

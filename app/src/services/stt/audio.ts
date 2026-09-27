@@ -48,6 +48,19 @@ export function normalizarPico(audio: Float32Array): Float32Array {
   return saida;
 }
 
+/**
+ * Silêncio nas duas pontas. O microfone descarta os primeiros ~250 ms e o
+ * final da gravação, então uma palavra curta chega cortada e o Whisper, sem
+ * respiro antes/depois, tende a devolver nada. Não inventa áudio: vazio fica vazio.
+ */
+export function acolchoarComSilencio(audio: Float32Array, segundos: number): Float32Array {
+  if (audio.length === 0) return audio;
+  const margem = Math.round(segundos * TAXA_DE_AMOSTRAGEM);
+  const saida = new Float32Array(audio.length + margem * 2);
+  saida.set(audio, margem);
+  return saida;
+}
+
 export class SemSinalDeMicrofoneError extends Error {
   constructor() {
     super(

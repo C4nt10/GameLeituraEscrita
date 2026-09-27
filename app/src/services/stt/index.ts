@@ -27,6 +27,10 @@ export function verificarMotorDeVoz(): Promise<RecursoCapacidade> {
   return motor.verificar();
 }
 
+export function ultimoTextoBrutoDoMotor(): string | null {
+  return motor.ultimoTextoBruto();
+}
+
 export function transcreverAudio(audio: Float32Array): Promise<string> {
   return motor.transcrever(audio);
 }

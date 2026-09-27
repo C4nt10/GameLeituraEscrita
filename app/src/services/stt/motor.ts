@@ -52,9 +52,12 @@ export interface MotorStt {
   verificar: () => Promise<RecursoCapacidade>;
   /** Texto reconhecido (sem espaço sobrando); `''` se não há áudio. */
   transcrever: (audio: Float32Array) => Promise<string>;
+  /** O que o Whisper respondeu na última transcrição, antes da limpeza — só pra diagnóstico. */
+  ultimoTextoBruto: () => string | null;
 }
 
 export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
+  let ultimoBruto: string | null = null;
   let carregamento: Promise<{ contexto: ContextoWhisper } | { motivo: string }> | null = null;
 
   function carregar() {
@@ -77,6 +80,8 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
         : { disponivel: false, motivo: carregado.motivo };
     },
 
+    ultimoTextoBruto: () => ultimoBruto,
+
     async transcrever(audio) {
       const carregado = await carregar();
       if (!('contexto' in carregado)) {
@@ -96,6 +101,7 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
         temperatureInc: 0,
       });
       const { result } = await promise;
+      ultimoBruto = result.trim();
       return limparTranscricao(result);
     },
   };

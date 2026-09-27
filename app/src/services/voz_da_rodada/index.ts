@@ -1,5 +1,14 @@
 import type { ServicoGravacao } from '../gravacao/nucleo';
-import { medirAudio, normalizarPico, PICO_MINIMO, SemSinalDeMicrofoneError } from '../stt/audio';
+import {
+  acolchoarComSilencio,
+  medirAudio,
+  normalizarPico,
+  PICO_MINIMO,
+  SemSinalDeMicrofoneError,
+} from '../stt/audio';
+
+/** Silêncio acrescentado em cada ponta antes do Whisper (o microfone corta as pontas). */
+const SILENCIO_NAS_PONTAS_S = 0.5;
 
 /**
  * Cola gravação + reconhecimento de fala na interface que `TelaLeituraVoz`
@@ -18,6 +27,8 @@ export interface DepsVoz {
   aoFicarSemSinal?: () => void;
   /** Fonte de áudio em uso (só pro diagnóstico). */
   fonteDoAudio?: () => number;
+  /** Resposta bruta do Whisper na última transcrição (só pro diagnóstico). */
+  textoBrutoDoMotor?: () => string | null;
 }
 
 export interface DependenciasDeVoz {
@@ -38,6 +49,7 @@ export function criarDependenciasDeVoz({
   transcreverAudio,
   aoFicarSemSinal,
   fonteDoAudio,
+  textoBrutoDoMotor,
 }: DepsVoz): DependenciasDeVoz {
   const audios = new Map<string, Float32Array>();
   let proximoId = 0;
@@ -71,8 +83,15 @@ export function criarDependenciasDeVoz({
       }
 
       const inicio = Date.now();
-      const texto = await transcreverAudio(normalizarPico(audio));
-      ultimoDiagnostico = `${base} · reconheceu em ${segundos((Date.now() - inicio) / 1000)}`;
+      const texto = await transcreverAudio(
+        acolchoarComSilencio(normalizarPico(audio), SILENCIO_NAS_PONTAS_S),
+      );
+      const bruto = textoBrutoDoMotor?.();
+      const oQueDisse =
+        bruto === undefined || bruto === null
+          ? ''
+          : ` · whisper: ${bruto === '' ? '(nada)' : `"${bruto}"`}`;
+      ultimoDiagnostico = `${base} · reconheceu em ${segundos((Date.now() - inicio) / 1000)}${oQueDisse}`;
       return texto;
     },
 
