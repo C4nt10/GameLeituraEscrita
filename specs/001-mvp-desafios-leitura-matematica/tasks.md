@@ -1138,6 +1138,20 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       filtro apagou uma marcação". Se o vazio persistir com fala clara, o
       suspeito é o detector de "sem fala" do whisper.cpp (não exposto no
       `whisper.rn`); se a espera não cair, trocar pra `base`/`tiny`.
+      > **CAUSA RAIZ achada (2026-09-27), 2º APK:** `áudio 2,1 s · volume 25% ·
+      fonte 6 · reconheceu em 7,4 s · whisper: "[Som de futebol]"` — sinal real
+      e mesmo assim o Whisper "ouve" ruído. Lendo o código nativo do `whisper.rn`
+      (`requireAudioBufferArgument` → `decodePcm16`): **`transcribeData` com
+      `ArrayBuffer` lê PCM de 16 bits, não float32** (o comentário nos tipos,
+      "float32 PCM data or ArrayBuffer", induz ao erro; foi o que a T087/T088
+      assumiram). Entregávamos float32: cada amostra virava duas de 16 bits =
+      ruído, com o dobro da duração. **Corrigido:** `paraPcm16` em `stt/motor`
+      (com corte em ±1), 3 testes vistos falhar antes, doc do `pcm.ts`
+      corrigida. **Isso também explica** a demora (decodificar lixo dispara
+      novas tentativas) — a latência real só aparece agora, com áudio de
+      verdade. Lição registrada: conferir o código nativo, não só a tipagem, de
+      qualquer módulo que eu integro sem poder rodar em aparelho. Falta o APK
+      confirmar que reconhece.
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.

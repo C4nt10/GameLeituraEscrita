@@ -2,9 +2,11 @@
  * Conversão de áudio pro motor de reconhecimento (D-45).
  *
  * O microfone (lib de PCM em tempo real) entrega **PCM de 16 bits**, em
- * chunks base64 de tamanho arbitrário; `whisper.rn` (`transcribeData`) espera
- * **float32** entre -1 e 1. Verificado nos tipos do pacote (whisper.rn
- * 0.7.4): "base64 encoded float32 PCM data or ArrayBuffer".
+ * chunks base64 de tamanho arbitrário. Aqui vira float32 (-1 a 1) só pra
+ * medir e normalizar o áudio (`stt/audio`); **antes de ir pro `whisper.rn` volta
+ * pra PCM 16 bits** (`stt/motor`, `paraPcm16`). ATENÇÃO: o comentário nos tipos do
+ * whisper.rn 0.7.4 diz "float32 PCM data or ArrayBuffer", mas o código nativo do
+ * caminho ArrayBuffer lê **int16** (`decodePcm16`) — foi a causa do "[Som de futebol]".
  *
  * Decodificador base64 próprio, de propósito: não depende de `atob`/`Buffer`
  * existirem no runtime do aparelho, e é testável em Jest.

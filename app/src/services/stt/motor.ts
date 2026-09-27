@@ -48,6 +48,21 @@ export function limparTranscricao(texto: string): string {
   return limpo.replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * O `transcribeData` do `whisper.rn` decodifica o **ArrayBuffer como PCM de 16 bits**
+ * (`decodePcm16`, cpp/jsi/RNWhisperJSI.cpp) e divide por 32767 — não lê float32, apesar
+ * do comentário nos tipos ("base64 encoded float32 PCM data or ArrayBuffer"). Entregar
+ * float32 aqui virava ruído e o Whisper respondia "[Som de futebol]" pra voz clara.
+ */
+export function paraPcm16(audio: Float32Array): Int16Array {
+  const saida = new Int16Array(audio.length);
+  for (let i = 0; i < audio.length; i++) {
+    const v = Math.max(-1, Math.min(1, audio[i]));
+    saida[i] = Math.round(v * 32767);
+  }
+  return saida;
+}
+
 export interface MotorStt {
   verificar: () => Promise<RecursoCapacidade>;
   /** Texto reconhecido (sem espaço sobrando); `''` se não há áudio. */
@@ -89,10 +104,7 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
       }
       if (audio.length === 0) return '';
 
-      const dados = audio.buffer.slice(
-        audio.byteOffset,
-        audio.byteOffset + audio.byteLength,
-      ) as ArrayBuffer;
+      const dados = paraPcm16(audio).buffer as ArrayBuffer;
       const { promise } = carregado.contexto.transcribeData(dados, {
         language: 'pt',
         // Sem "temperature fallback": quando a decodificação parece ruim (silêncio, ruído) o Whisper

@@ -61,7 +61,10 @@ describe('stt motor — modelo carregado de verdade, offline (D-44, D-45, FR-025
     const [dados, opcoes] = contexto.chamadas[0] as [ArrayBuffer, { language: string }];
     // `instanceof` falha entre contextos do Jest (ArrayBuffer de outro realm) — checa o tipo pela tag.
     expect(Object.prototype.toString.call(dados)).toBe('[object ArrayBuffer]');
-    expect(Array.from(new Float32Array(dados))).toEqual([0.25, -0.25]);
+    // O `whisper.rn` decodifica o ArrayBuffer como PCM de 16 bits (`decodePcm16` no código nativo),
+    // NÃO como float32 — entregar float32 vira ruído e o Whisper "ouve" [Som de futebol].
+    expect(Array.from(new Int16Array(dados))).toEqual([8192, -8192]);
+    expect(dados.byteLength).toBe(4); // 2 amostras × 2 bytes
     expect(opcoes.language).toBe('pt');
     // sem novas tentativas de decodificação: em ruído elas atrasam muito e alucinam mais
     expect(opcoes).toMatchObject({ temperature: 0, temperatureInc: 0 });
@@ -137,5 +140,22 @@ describe('stt motor — guarda o texto bruto do Whisper, antes da limpeza (pra d
 
     expect(limpo).toBe('');
     expect(motor.ultimoTextoBruto()).toBe('[MÚSICA]');
+  });
+});
+
+describe('stt motor — conversão pro formato que o whisper.rn realmente lê (PCM 16 bits)', () => {
+  async function enviadoPara(audio: number[]) {
+    const contexto = contextoFalso();
+    const motor = criarMotorStt({ iniciarContexto: async () => contexto });
+    await motor.transcrever(Float32Array.from(audio));
+    return Array.from(new Int16Array((contexto.chamadas[0] as [ArrayBuffer])[0]));
+  }
+
+  it('extremos: +1 vira 32767 e -1 vira -32767', async () => {
+    expect(await enviadoPara([1, -1, 0])).toEqual([32767, -32767, 0]);
+  });
+
+  it('valores fora de [-1, 1] são cortados, não dão a volta (estouro viraria estalo)', async () => {
+    expect(await enviadoPara([1.5, -3])).toEqual([32767, -32767]);
   });
 });
