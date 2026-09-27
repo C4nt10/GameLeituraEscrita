@@ -1024,9 +1024,15 @@ Lido nos tipos e na documentação do `whisper.rn` 0.7.4 (publicado em
 - **Import**: o `package.json` só declara `exports` de subcaminho (`./*`),
   sem entrada raiz — `import 'whisper.rn'` não resolve no TypeScript;
   funciona `whisper.rn/index`.
-- **Formato do áudio**: `transcribeData` aceita "base64 encoded float32 PCM
-  data or ArrayBuffer". O microfone em tempo real entrega PCM de 16 bits —
-  conversão em `services/stt/pcm.ts`, testada.
+- **Formato do áudio** — **CORRIGIDO em 2026-09-27**: este item dizia que
+  `transcribeData` aceita "float32 PCM data or ArrayBuffer" (é o comentário
+  dos tipos) e que era preciso converter o PCM de 16 bits do microfone pra
+  float32. **Está errado para o caminho `ArrayBuffer`**: o código nativo
+  (`requireAudioBufferArgument` → `decodePcm16`, cpp/jsi/RNWhisperJSI.cpp) lê
+  **int16**. Com float32 o Whisper recebia ruído ("[Som de futebol]" com voz
+  clara, achado no APK). Hoje o float32 (`services/stt/pcm.ts`) serve só pra
+  medir/normalizar, e `paraPcm16` (`stt/motor.ts`) devolve int16 antes do
+  `transcribeData`.
 - **Captura**: o `RealtimeTranscriber` do `whisper.rn` não grava sozinho
   ("requires @fugood/react-native-audio-pcm-stream") e traz VAD/auto-corte,
   que D-37 proíbe. O `expo-audio` no Android grava por `MediaRecorder`, que
