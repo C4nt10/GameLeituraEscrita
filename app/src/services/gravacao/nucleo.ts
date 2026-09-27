@@ -43,6 +43,13 @@ export class PermissaoMicrofoneNegadaError extends Error {
   }
 }
 
+export class MicrofoneNaoAbriuError extends Error {
+  constructor() {
+    super('O microfone não abriu. Outro app pode estar usando — feche e tente de novo.');
+    this.name = 'MicrofoneNaoAbriuError';
+  }
+}
+
 export interface ServicoGravacao {
   iniciar: () => Promise<void>;
   /** Encerra e devolve o áudio (float32, mono) do que foi gravado desde `iniciar`. */
@@ -61,9 +68,13 @@ export function criarServicoGravacao({ pedirPermissao, gravador }: DepsGravacao)
         throw new PermissaoMicrofoneNegadaError(permissao.podePedirDeNovo);
       }
       chunks = [];
-      await gravador.iniciar((chunk) => {
-        chunks.push(chunk);
-      });
+      try {
+        await gravador.iniciar((chunk) => {
+          chunks.push(chunk);
+        });
+      } catch {
+        throw new MicrofoneNaoAbriuError();
+      }
       ativo = true;
     },
 

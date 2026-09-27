@@ -1,4 +1,5 @@
 import type { ServicoGravacao } from '../gravacao/nucleo';
+import { medirAudio, normalizarPico, PICO_MINIMO, SemSinalDeMicrofoneError } from '../stt/audio';
 
 /**
  * Cola gravação + reconhecimento de fala na interface que `TelaLeituraVoz`
@@ -13,17 +14,34 @@ import type { ServicoGravacao } from '../gravacao/nucleo';
 export interface DepsVoz {
   gravacao: ServicoGravacao;
   transcreverAudio: (audio: Float32Array) => Promise<string>;
+  /** Chamado quando o microfone não entregou sinal — quem liga pode trocar a fonte de áudio pra próxima tentativa. */
+  aoFicarSemSinal?: () => void;
+  /** Fonte de áudio em uso (só pro diagnóstico). */
+  fonteDoAudio?: () => number;
 }
 
 export interface DependenciasDeVoz {
   iniciarGravacao: () => Promise<void>;
   pararGravacao: () => Promise<string>;
   transcrever: (referencia: string) => Promise<string>;
+  /**
+   * Linha técnica da última tentativa ("áudio 2,4 s · volume 12% · reconheceu em 7,1 s") —
+   * mostra se o microfone entregou som e quanto o reconhecimento demorou. `null` antes da primeira.
+   */
+  diagnostico: () => string | null;
 }
 
-export function criarDependenciasDeVoz({ gravacao, transcreverAudio }: DepsVoz): DependenciasDeVoz {
+const segundos = (n: number) => `${n.toFixed(1).replace('.', ',')} s`;
+
+export function criarDependenciasDeVoz({
+  gravacao,
+  transcreverAudio,
+  aoFicarSemSinal,
+  fonteDoAudio,
+}: DepsVoz): DependenciasDeVoz {
   const audios = new Map<string, Float32Array>();
   let proximoId = 0;
+  let ultimoDiagnostico: string | null = null;
 
   return {
     iniciarGravacao: () => gravacao.iniciar(),
@@ -39,7 +57,25 @@ export function criarDependenciasDeVoz({ gravacao, transcreverAudio }: DepsVoz):
       const audio = audios.get(referencia);
       if (!audio) return '';
       audios.delete(referencia);
-      return transcreverAudio(audio);
+
+      const medida = medirAudio(audio);
+      const fonte = fonteDoAudio ? ` · fonte ${fonteDoAudio()}` : '';
+      const base = `áudio ${segundos(medida.segundos)} · volume ${Math.round(medida.pico * 100)}%${fonte}`;
+      ultimoDiagnostico = base;
+
+      // Sem sinal nenhum: o problema é o microfone. Não gasta segundos do Whisper com silêncio
+      // digital (que ainda por cima ele "descreve" com marcações inventadas).
+      if (medida.pico < PICO_MINIMO) {
+        aoFicarSemSinal?.();
+        throw new SemSinalDeMicrofoneError();
+      }
+
+      const inicio = Date.now();
+      const texto = await transcreverAudio(normalizarPico(audio));
+      ultimoDiagnostico = `${base} · reconheceu em ${segundos((Date.now() - inicio) / 1000)}`;
+      return texto;
     },
+
+    diagnostico: () => ultimoDiagnostico,
   };
 }

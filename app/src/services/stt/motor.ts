@@ -10,7 +10,7 @@ import type { RecursoCapacidade } from '../capacidade_aparelho';
 export interface ContextoWhisper {
   transcribeData: (
     dados: ArrayBuffer,
-    opcoes: { language: string },
+    opcoes: { language: string; temperature?: number; temperatureInc?: number },
   ) => { promise: Promise<{ result: string }> };
   release: () => Promise<void>;
 }
@@ -88,7 +88,13 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
         audio.byteOffset,
         audio.byteOffset + audio.byteLength,
       ) as ArrayBuffer;
-      const { promise } = carregado.contexto.transcribeData(dados, { language: 'pt' });
+      const { promise } = carregado.contexto.transcribeData(dados, {
+        language: 'pt',
+        // Sem "temperature fallback": quando a decodificação parece ruim (silêncio, ruído) o Whisper
+        // refaz várias vezes com mais aleatoriedade — é o que deixa lento e é quando ele inventa texto.
+        temperature: 0,
+        temperatureInc: 0,
+      });
       const { result } = await promise;
       return limparTranscricao(result);
     },

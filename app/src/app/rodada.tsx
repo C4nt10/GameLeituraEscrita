@@ -4,12 +4,17 @@ import type { Classificacao, Modalidade } from '../models/registro_historico';
 import { PERFIL_PADRAO_ID } from '../models/perfil';
 import { itensDoBanco } from '../services/banco_de_conteudo';
 import { falar as tocarVoz } from '../services/tts';
-import { gravacao } from '../services/gravacao';
+import { alternarFonteDoAudio, fonteDoAudio, gravacao } from '../services/gravacao';
 import { transcreverAudio } from '../services/stt';
 import { criarDependenciasDeVoz } from '../services/voz_da_rodada';
 
 /** Gravação real + reconhecimento offline (D-45) no lugar dos stubs antigos. */
-const VOZ = criarDependenciasDeVoz({ gravacao, transcreverAudio });
+const VOZ = criarDependenciasDeVoz({
+  gravacao,
+  transcreverAudio,
+  aoFicarSemSinal: alternarFonteDoAudio,
+  fonteDoAudio,
+});
 
 const CANDIDATAS_LETRA_NIVEL1 = itensDoBanco()
   .filter((item) => item.nivel === 1)
@@ -44,6 +49,7 @@ export default function RotaRodadaLeitura() {
         iniciarGravacao: VOZ.iniciarGravacao,
         pararGravacao: VOZ.pararGravacao,
         transcrever: VOZ.transcrever,
+        diagnosticoDaVoz: VOZ.diagnostico,
       }}
       onSairDaRodada={() => router.back()}
       onJogarDeNovo={() => router.back()}

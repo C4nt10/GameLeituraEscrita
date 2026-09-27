@@ -63,6 +63,8 @@ describe('stt motor — modelo carregado de verdade, offline (D-44, D-45, FR-025
     expect(Object.prototype.toString.call(dados)).toBe('[object ArrayBuffer]');
     expect(Array.from(new Float32Array(dados))).toEqual([0.25, -0.25]);
     expect(opcoes.language).toBe('pt');
+    // sem novas tentativas de decodificação: em ruído elas atrasam muito e alucinam mais
+    expect(opcoes).toMatchObject({ temperature: 0, temperatureInc: 0 });
   });
 
   it('áudio vazio (a criança não falou nada): devolve texto vazio sem chamar o motor', async () => {

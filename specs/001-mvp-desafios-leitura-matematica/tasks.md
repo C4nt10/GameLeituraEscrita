@@ -1103,6 +1103,27 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       se não sobra fala, cai em "Não ouvi nada" (que não conta erro). 12 testes
       novos, vistos falhar antes. **Não resolve** palavras inventadas de
       verdade em ruído forte — isso só se mede em aparelho (T092).
+      > **2º achado no APK (2026-09-27): "o microfone ainda não funciona" e o
+      reconhecimento demora.** Sem aparelho na mão, li a cadeia de captura e o
+      código nativo da lib (`RNLiveAudioStream`): (1) `AudioRecord.init()`
+      devolve uma Promise que **rejeita** se o microfone não abre, e o código
+      a ignorava — `start()` virava no-op e a gravação saía vazia, sem erro;
+      (2) o Whisper sempre processa uma janela de 30 s e, em silêncio/ruído,
+      refaz a decodificação várias vezes ("temperature fallback"), o que atrasa
+      e é quando ele alucina. **Mudanças (vistas falhar antes, 239 testes):**
+      `init` agora é aguardado e falha vira `MicrofoneNaoAbriuError` com motivo;
+      `services/stt/audio.ts` mede duração e pico do áudio — pico < 0,005 é
+      "microfone sem sinal": erro próprio, **o Whisper nem é chamado** e a
+      próxima tentativa troca a fonte de áudio (6 `VOICE_RECOGNITION` ↔ 1 `MIC`);
+      voz baixa é normalizada (ganho ≤ 30×) antes do Whisper; `temperature 0` e
+      `temperatureInc 0`; e a tela mostra uma linha técnica pequena
+      ("áudio 2,4 s · volume 12% · fonte 6 · reconheceu em 7,1 s") — **é
+      instrumento de teste**, sai (ou vai pra folha do adulto) depois de
+      T087/T092. **Nada disso foi executado em aparelho**: são hipóteses
+      corrigidas + um jeito de o app dizer o que acontece. Latência do modelo
+      `small` segue **nunca medida** em aparelho (research.md) — a linha
+      técnica vai dar o primeiro número real; se passar de alguns segundos, o
+      caminho é o modelo `base` (60 MB) ou `tiny` (32 MB), com perda de acerto.
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.

@@ -1,5 +1,6 @@
 import {
   criarServicoGravacao,
+  MicrofoneNaoAbriuError,
   PermissaoMicrofoneNegadaError,
   type GravadorPcm,
 } from '../../services/gravacao/nucleo';
@@ -116,5 +117,18 @@ describe('gravacao — permissão pedida na hora do uso, toque-inicia/toque-para
     const segundo = await servico.parar();
 
     expect(Array.from(segundo)).toEqual([-0.5]);
+  });
+
+  it('o microfone não abre (ocupado por outro app, etc.): erro próprio com motivo, e não fica "gravando"', async () => {
+    const gravador = criarGravadorFalso();
+    gravador.iniciar = async () => {
+      throw new Error('AudioRecord initialization failed');
+    };
+    const servico = criarServicoGravacao({ pedirPermissao: CONCEDIDA, gravador });
+
+    await expect(servico.iniciar()).rejects.toBeInstanceOf(MicrofoneNaoAbriuError);
+    expect(servico.gravando()).toBe(false);
+    // e como não está gravando, parar continua sendo erro claro, não áudio vazio
+    await expect(servico.parar()).rejects.toThrow();
   });
 });

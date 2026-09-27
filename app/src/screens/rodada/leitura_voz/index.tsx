@@ -3,7 +3,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { avaliarLeitura } from '../../../services/avaliacao_leitura';
 import { leituraVozDisponivel, verificarCapacidades } from '../../../services/capacidade_aparelho';
-import { PermissaoMicrofoneNegadaError } from '../../../services/gravacao/nucleo';
+import {
+  MicrofoneNaoAbriuError,
+  PermissaoMicrofoneNegadaError,
+} from '../../../services/gravacao/nucleo';
+import { SemSinalDeMicrofoneError } from '../../../services/stt/audio';
 import { caixaDaLetra, cor, corModalidade, fonte, raio, tamanho } from '../../../theme/tema';
 import { BarraDoDesafio } from '../../../ui/BarraDoDesafio';
 import { BotaoDeEstimulo } from '../../../ui/BotaoDeEstimulo';
@@ -46,6 +50,8 @@ export interface TelaLeituraVozProps {
   onSair: () => void;
   /** Notifica quem orquestra a rodada a cada tentativa — contador é por rodada, não por desafio (D-19). */
   onAjuda?: () => void;
+  /** Linha técnica da última tentativa (áudio, volume, tempo) — ajuda a separar microfone mudo de reconhecimento ruim. */
+  diagnostico?: () => string | null;
   /** Tentativas da rodada inteira até agora (D-19) — vem do orquestrador. */
   ajudas?: number;
   /** Posição do desafio na rodada (trilha de progresso). */
@@ -67,6 +73,7 @@ export function TelaLeituraVoz({
   onErro,
   onSair,
   onAjuda,
+  diagnostico,
   ajudas = 0,
   posicao = { atual: 0, total: 1 },
 }: TelaLeituraVozProps) {
@@ -74,6 +81,7 @@ export function TelaLeituraVoz({
   const [entendido, setEntendido] = useState<{ texto: string; certo: boolean } | null>(null);
   // falha ao gravar/transcrever: mensagem legível, o botão continua pra tentar de novo (Princípio I/III)
   const [mensagemErro, setMensagemErro] = useState<string | null>(null);
+  const [linhaTecnica, setLinhaTecnica] = useState<string | null>(null);
   const [motivoMicrofoneIndisponivel, setMotivoMicrofoneIndisponivel] = useState<string | null>(
     null,
   );
@@ -111,7 +119,7 @@ export function TelaLeituraVoz({
       } catch (erro) {
         setEstado('parado');
         setMensagemErro(
-          erro instanceof PermissaoMicrofoneNegadaError
+          erro instanceof PermissaoMicrofoneNegadaError || erro instanceof MicrofoneNaoAbriuError
             ? erro.message
             : 'Não deu pra ligar o microfone agora. Toque de novo para tentar.',
         );
@@ -125,11 +133,17 @@ export function TelaLeituraVoz({
     try {
       const audioUri = await pararGravacao();
       transcricaoBruta = await transcrever(audioUri);
-    } catch {
+    } catch (erro) {
       setEstado('parado');
-      setMensagemErro('Não consegui ouvir agora. Toque no microfone e tente de novo.');
+      setLinhaTecnica(diagnostico?.() ?? null);
+      setMensagemErro(
+        erro instanceof SemSinalDeMicrofoneError
+          ? erro.message
+          : 'Não consegui ouvir agora. Toque no microfone e tente de novo.',
+      );
       return;
     }
+    setLinhaTecnica(diagnostico?.() ?? null);
 
     // Silêncio não é tentativa: a criança não errou a palavra, o app não ouviu nada
     // (Princípio III — falha do aparelho não é culpa da criança; não conta como erro).
@@ -205,6 +219,12 @@ export function TelaLeituraVoz({
               <View style={[estilos.balao, estilos.balaoAmarelo]}>
                 <Text style={estilos.balaoTexto}>{mensagemErro}</Text>
               </View>
+            )}
+
+            {linhaTecnica !== null && (
+              <Text allowFontScaling={false} style={estilos.linhaTecnica}>
+                {linhaTecnica}
+              </Text>
             )}
 
             {entendido !== null && mensagemErro === null && (
@@ -285,4 +305,11 @@ const estilos = StyleSheet.create({
     textAlign: 'center',
   },
   balaoPalavra: { fontFamily: fonte.letra },
+  linhaTecnica: {
+    fontFamily: fonte.texto,
+    fontSize: tamanho.rotulo,
+    color: cor.tinta,
+    textAlign: 'center',
+    maxWidth: 320,
+  },
 });

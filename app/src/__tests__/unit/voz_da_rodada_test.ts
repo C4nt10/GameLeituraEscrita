@@ -1,7 +1,8 @@
+import { SemSinalDeMicrofoneError } from '../../services/stt/audio';
 import { criarDependenciasDeVoz } from '../../services/voz_da_rodada';
 
 function criar() {
-  const audioGravado = new Float32Array([0.1, -0.2, 0.3]);
+  const audioGravado = new Float32Array([0.5, -0.6, 0.7]); // alto o bastante pra não ser normalizado
   const gravacao = {
     iniciar: jest.fn(async () => {}),
     parar: jest.fn(async () => audioGravado),
@@ -44,5 +45,91 @@ describe('voz_da_rodada — liga gravação + STT à interface que a tela de Lei
 
     expect(await voz.transcrever(referencia)).toBe('');
     expect(transcreverAudio).not.toHaveBeenCalled();
+  });
+
+  it('microfone sem sinal (tudo zero): erro próprio, e o motor de fala nem é chamado', async () => {
+    const { voz, transcreverAudio, gravacao } = criar();
+    gravacao.parar.mockResolvedValueOnce(new Float32Array(16000));
+
+    const referencia = await voz.pararGravacao();
+
+    await expect(voz.transcrever(referencia)).rejects.toBeInstanceOf(SemSinalDeMicrofoneError);
+    expect(transcreverAudio).not.toHaveBeenCalled();
+  });
+
+  it('áudio baixo é normalizado antes de ir pro motor', async () => {
+    const { voz, transcreverAudio, gravacao } = criar();
+    gravacao.parar.mockResolvedValueOnce(Float32Array.from([0.02, -0.04]));
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    const enviado = (transcreverAudio.mock.calls[0] as unknown as [Float32Array])[0];
+    expect(Math.max(...Array.from(enviado).map(Math.abs))).toBeCloseTo(0.8, 2);
+  });
+
+  it('guarda o diagnóstico da última tentativa: duração, volume do original e tempo de reconhecimento', async () => {
+    const { voz } = criar();
+    expect(voz.diagnostico()).toBeNull();
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    const d = voz.diagnostico();
+    expect(d).toMatch(/áudio/);
+    expect(d).toMatch(/volume/);
+    expect(d).toMatch(/reconheceu em/);
+  });
+
+  it('diagnóstico também aparece quando o microfone não deu sinal (é justamente aí que ajuda)', async () => {
+    const { voz, gravacao } = criar();
+    gravacao.parar.mockResolvedValueOnce(new Float32Array(16000));
+
+    await voz.transcrever(await voz.pararGravacao()).catch(() => {});
+
+    expect(voz.diagnostico()).toMatch(/volume 0%/);
+  });
+
+  it('sem sinal: avisa quem liga (pra trocar a fonte de áudio na próxima tentativa)', async () => {
+    const aoFicarSemSinal = jest.fn();
+    const gravacao = {
+      iniciar: async () => {},
+      parar: async () => new Float32Array(16000),
+      gravando: () => false,
+    };
+    const voz = criarDependenciasDeVoz({
+      gravacao,
+      transcreverAudio: async () => 'x',
+      aoFicarSemSinal,
+    });
+
+    await voz.transcrever(await voz.pararGravacao()).catch(() => {});
+
+    expect(aoFicarSemSinal).toHaveBeenCalledTimes(1);
+  });
+
+  it('com sinal, não troca nada', async () => {
+    const aoFicarSemSinal = jest.fn();
+    const { gravacao } = criar();
+    const voz = criarDependenciasDeVoz({
+      gravacao,
+      transcreverAudio: async () => 'gato',
+      aoFicarSemSinal,
+    });
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    expect(aoFicarSemSinal).not.toHaveBeenCalled();
+  });
+
+  it('o diagnóstico diz qual fonte de áudio estava em uso naquela tentativa', async () => {
+    const { gravacao } = criar();
+    const voz = criarDependenciasDeVoz({
+      gravacao,
+      transcreverAudio: async () => 'gato',
+      fonteDoAudio: () => 6,
+    });
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    expect(voz.diagnostico()).toMatch(/fonte 6/);
   });
 });

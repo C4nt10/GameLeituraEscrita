@@ -47,6 +47,8 @@ export interface DependenciasRodadaLeitura {
   iniciarGravacao: () => Promise<void>;
   pararGravacao: () => Promise<string>;
   transcrever: (audioUri: string) => Promise<string>;
+  /** Linha técnica da última tentativa de voz (áudio, volume, tempo). */
+  diagnosticoDaVoz?: () => string | null;
   vocabularioConhecido?: Set<string>;
 }
 
@@ -212,6 +214,7 @@ export function RodadaLeitura({
       iniciarGravacao={dependencias.iniciarGravacao}
       pararGravacao={dependencias.pararGravacao}
       transcrever={dependencias.transcrever}
+      diagnostico={dependencias.diagnosticoDaVoz}
       onAcerto={handleAcerto}
       onErro={handleErro}
       onAjuda={handleAjuda}
