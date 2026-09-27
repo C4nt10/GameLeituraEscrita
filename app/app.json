@@ -40,7 +40,15 @@
       "expo-router",
       "expo-status-bar",
       "expo-font",
-      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "imageWidth": 200, "backgroundColor": "#FFF8EA" }]
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "backgroundColor": "#FFF8EA"
+        }
+      ],
+      "expo-asset"
     ],
     "extra": {
       "router": {},
