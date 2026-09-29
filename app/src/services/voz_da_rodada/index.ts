@@ -27,6 +27,8 @@ export interface DepsVoz {
   aoFicarSemSinal?: () => void;
   /** Fonte de áudio em uso (só pro diagnóstico). */
   fonteDoAudio?: () => number;
+  /** Modelo de fala que este build carregou (só pro diagnóstico — A-17). */
+  nomeDoModelo?: () => string | null;
   /** Resposta bruta do Whisper na última transcrição (só pro diagnóstico). */
   textoBrutoDoMotor?: () => string | null;
 }
@@ -51,6 +53,7 @@ export function criarDependenciasDeVoz({
   aoFicarSemSinal,
   fonteDoAudio,
   textoBrutoDoMotor,
+  nomeDoModelo,
 }: DepsVoz): DependenciasDeVoz {
   const audios = new Map<string, Float32Array>();
   let proximoId = 0;
@@ -73,7 +76,8 @@ export function criarDependenciasDeVoz({
 
       const medida = medirAudio(audio);
       const fonte = fonteDoAudio ? ` · fonte ${fonteDoAudio()}` : '';
-      const base = `áudio ${segundos(medida.segundos)} · volume ${Math.round(medida.pico * 100)}%${fonte}`;
+      const modelo = nomeDoModelo?.() ? ` · modelo ${nomeDoModelo()}` : '';
+      const base = `áudio ${segundos(medida.segundos)} · volume ${Math.round(medida.pico * 100)}%${fonte}${modelo}`;
       ultimoDiagnostico = base;
 
       // Sem sinal nenhum: o problema é o microfone. Não gasta segundos do Whisper com silêncio

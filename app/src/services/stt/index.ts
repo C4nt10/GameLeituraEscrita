@@ -1,6 +1,6 @@
 import type { RecursoCapacidade } from '../capacidade_aparelho';
 import { criarMotorStt, ModeloAusenteError, type ContextoWhisper } from './motor';
-import { obterModeloEmpacotado } from './modelo';
+import { nomeDoModeloEmpacotado, obterModeloEmpacotado } from './modelo';
 
 /**
  * stt — reconhecimento de fala offline pra Leitura · voz (D-45), ligando o
@@ -26,6 +26,8 @@ const motor = criarMotorStt({
 export function verificarMotorDeVoz(): Promise<RecursoCapacidade> {
   return motor.verificar();
 }
+
+export { nomeDoModeloEmpacotado };
 
 export function ultimoTextoBrutoDoMotor(): string | null {
   return motor.ultimoTextoBruto();
