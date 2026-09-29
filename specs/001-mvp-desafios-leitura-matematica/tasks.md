@@ -1152,6 +1152,14 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       verdade. Lição registrada: conferir o código nativo, não só a tipagem, de
       qualquer módulo que eu integro sem poder rodar em aparelho. Falta o APK
       confirmar que reconhece.
+      > **Confirmado (2026-09-29), 3º APK:** o dono reporta reconhecimento
+      funcionando — a correção do PCM16 era a causa raiz. **Limitação que**
+      **sobra: palavras mais complexas e ambiente com ruído erram mais.** Bate
+      com o que o spike de desktop já media (research.md: `small` 57–71%
+      conforme condição, caindo mais com ruído) — não é mais bug de
+      integração, é o teto de acerto do modelo `small` (A-17, agora com o
+      primeiro dado real de aparelho). Decisão de produto sobre trocar de
+      modelo pendente do dono (ver pergunta feita).
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.
