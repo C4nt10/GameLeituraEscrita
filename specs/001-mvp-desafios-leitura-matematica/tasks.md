@@ -1182,6 +1182,22 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       adulto escolheu na configuração, só o do item sorteado; aproximação
       razoável, não o vocabulário exato de "todas as classificações" quando
       o adulto escolhe "todas" (D-22). Não executado em aparelho.
+      > **"Vamos já adicionar as outras implementações" (2026-09-29) — modelo
+      `medium` pra comparar, sem esperar o resultado do prompt.**
+      `scripts/baixar-modelo.mjs` agora lê `MODELO_DE_VOZ` (`small` padrão,
+      `medium` novo — `ggml-medium-q5_0.bin`, 539.212.467 bytes, confirmado por
+      HEAD request antes de fixar o tamanho esperado) e remove o modelo que
+      não foi escolhido, pra nunca sobrar os dois num build. `stt/modelo.ts`
+      tenta `medium` e cai pro `small` (dois `require` literais — Metro não
+      aceita variável — só um tem arquivo de verdade em cada build) e expõe
+      qual carregou pro diagnóstico (`modelo small`/`modelo medium` na linha
+      técnica). Novo perfil `eas.json` (`preview-voz-medium`, `MODELO_DE_VOZ:`
+      `"medium"`) ao lado do `preview` (`small`) — **nenhum dos dois some**,
+      são builds paralelos pra comparar lado a lado. tsc/eslint/258
+      testes/export Android passam. **Não testado**: o download de 514 MB
+      nunca rodou (só o tamanho foi confirmado por HEAD), e nenhum dos dois
+      modelos foi comparado em aparelho ainda — só o `small` sem prompt foi
+      medido até aqui (achado anterior nesta tarefa).
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.
