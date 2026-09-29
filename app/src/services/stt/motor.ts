@@ -10,7 +10,12 @@ import type { RecursoCapacidade } from '../capacidade_aparelho';
 export interface ContextoWhisper {
   transcribeData: (
     dados: ArrayBuffer,
-    opcoes: { language: string; temperature?: number; temperatureInc?: number },
+    opcoes: {
+      language: string;
+      temperature?: number;
+      temperatureInc?: number;
+      prompt?: string;
+    },
   ) => { promise: Promise<{ result: string }> };
   release: () => Promise<void>;
 }
@@ -66,9 +71,14 @@ export function paraPcm16(audio: Float32Array): Int16Array {
 export interface MotorStt {
   verificar: () => Promise<RecursoCapacidade>;
   /** Texto reconhecido (sem espaço sobrando); `''` se não há áudio. */
-  transcrever: (audio: Float32Array) => Promise<string>;
+  transcrever: (audio: Float32Array, opcoes?: OpcoesTranscricao) => Promise<string>;
   /** O que o Whisper respondeu na última transcrição, antes da limpeza — só pra diagnóstico. */
   ultimoTextoBruto: () => string | null;
+}
+
+export interface OpcoesTranscricao {
+  /** Vocabulário do nível×tema da rodada, já formatado (`stt/prompt.ts`) — nunca a resposta sozinha. */
+  prompt?: string;
 }
 
 export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
@@ -97,7 +107,7 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
 
     ultimoTextoBruto: () => ultimoBruto,
 
-    async transcrever(audio) {
+    async transcrever(audio, opcoesTranscricao) {
       const carregado = await carregar();
       if (!('contexto' in carregado)) {
         throw new Error(carregado.motivo);
@@ -107,6 +117,7 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
       const dados = paraPcm16(audio).buffer as ArrayBuffer;
       const { promise } = carregado.contexto.transcribeData(dados, {
         language: 'pt',
+        ...(opcoesTranscricao?.prompt ? { prompt: opcoesTranscricao.prompt } : {}),
         // Sem "temperature fallback": quando a decodificação parece ruim (silêncio, ruído) o Whisper
         // refaz várias vezes com mais aleatoriedade — é o que deixa lento e é quando ele inventa texto.
         temperature: 0,

@@ -190,3 +190,36 @@ describe('voz_da_rodada — o diagnóstico mostra o que o Whisper de fato respon
     expect(enviado.length).toBeGreaterThan(2 + 10000);
   });
 });
+
+describe('voz_da_rodada — repassa o prompt de vocabulário pro motor (research.md rodada 13)', () => {
+  it('transcrever(referencia, prompt) chega no motor como opção', async () => {
+    const gravacao = {
+      iniciar: async () => {},
+      parar: async () => Float32Array.from([0.5, -0.5]),
+      gravando: () => false,
+    };
+    const transcreverAudio = jest.fn(async () => 'gato');
+    const voz = criarDependenciasDeVoz({ gravacao, transcreverAudio });
+
+    await voz.transcrever(await voz.pararGravacao(), 'gato, cachorro, passarinho');
+
+    expect(transcreverAudio).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ prompt: 'gato, cachorro, passarinho' }),
+    );
+  });
+
+  it('sem prompt, a opção não é enviada', async () => {
+    const gravacao = {
+      iniciar: async () => {},
+      parar: async () => Float32Array.from([0.5, -0.5]),
+      gravando: () => false,
+    };
+    const transcreverAudio = jest.fn(async () => 'gato');
+    const voz = criarDependenciasDeVoz({ gravacao, transcreverAudio });
+
+    await voz.transcrever(await voz.pararGravacao());
+
+    expect(transcreverAudio).toHaveBeenCalledWith(expect.anything(), {});
+  });
+});

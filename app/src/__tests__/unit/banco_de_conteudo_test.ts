@@ -3,6 +3,7 @@ import {
   combinacaoTemConteudoSuficiente,
   combinacoesDisponiveis,
   sortearDesafios,
+  vocabularioDaCombinacao,
   type ItemLeitura,
 } from '../../services/banco_de_conteudo';
 
@@ -82,5 +83,31 @@ describe('sortearDesafios — base de uma rodada', () => {
 
     expect(sorteados).toHaveLength(4);
     expect(sorteados.every((i) => i.nivel === 1)).toBe(true);
+  });
+});
+
+describe('banco_de_conteudo — vocabularioDaCombinacao (prompt do Whisper, research.md rodada 13)', () => {
+  it('lista as palavras do nível×classificação, sem repetir', () => {
+    const itens = [...gerarItens(2, 'animais', 12), ...gerarItens(2, 'comida', 12)];
+
+    const vocabulario = vocabularioDaCombinacao(2, 'animais', itens);
+
+    expect(vocabulario).toHaveLength(12);
+    expect(vocabulario).toEqual(expect.arrayContaining(['palavra_2_animais_0']));
+    expect(vocabulario.some((p) => p.includes('comida'))).toBe(false);
+  });
+
+  it('classificação null (nível 1, letra isolada): todas as palavras do nível', () => {
+    const itens: ItemLeitura[] = [
+      { palavra: 'a', nivel: 1 },
+      { palavra: 'b', nivel: 1 },
+      { palavra: 'c', nivel: 2, classificacoes: ['animais'] },
+    ];
+
+    expect(vocabularioDaCombinacao(1, null, itens)).toEqual(['a', 'b']);
+  });
+
+  it('combinação sem nenhum item: lista vazia, não erro', () => {
+    expect(vocabularioDaCombinacao(9, 'animais', [])).toEqual([]);
   });
 });

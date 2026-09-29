@@ -159,3 +159,25 @@ describe('stt motor — conversão pro formato que o whisper.rn realmente lê (P
     expect(await enviadoPara([1.5, -3])).toEqual([32767, -32767]);
   });
 });
+
+describe('stt motor — opção de prompt chega até o transcribeData (research.md rodada 13)', () => {
+  it('com prompt, vai junto nas opções', async () => {
+    const contexto = contextoFalso('gato');
+    const motor = criarMotorStt({ iniciarContexto: async () => contexto });
+
+    await motor.transcrever(new Float32Array([0.25, -0.25]), { prompt: 'gato, cachorro' });
+
+    const [, opcoes] = contexto.chamadas[0] as [ArrayBuffer, { prompt?: string }];
+    expect(opcoes.prompt).toBe('gato, cachorro');
+  });
+
+  it('sem prompt, a opção não aparece', async () => {
+    const contexto = contextoFalso('gato');
+    const motor = criarMotorStt({ iniciarContexto: async () => contexto });
+
+    await motor.transcrever(new Float32Array([0.25, -0.25]));
+
+    const [, opcoes] = contexto.chamadas[0] as [ArrayBuffer, { prompt?: string }];
+    expect(opcoes.prompt).toBeUndefined();
+  });
+});

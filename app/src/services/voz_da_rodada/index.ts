@@ -22,7 +22,7 @@ const SILENCIO_NAS_PONTAS_S = 0.5;
 
 export interface DepsVoz {
   gravacao: ServicoGravacao;
-  transcreverAudio: (audio: Float32Array) => Promise<string>;
+  transcreverAudio: (audio: Float32Array, opcoes?: { prompt?: string }) => Promise<string>;
   /** Chamado quando o microfone não entregou sinal — quem liga pode trocar a fonte de áudio pra próxima tentativa. */
   aoFicarSemSinal?: () => void;
   /** Fonte de áudio em uso (só pro diagnóstico). */
@@ -34,7 +34,8 @@ export interface DepsVoz {
 export interface DependenciasDeVoz {
   iniciarGravacao: () => Promise<void>;
   pararGravacao: () => Promise<string>;
-  transcrever: (referencia: string) => Promise<string>;
+  /** `prompt`: vocabulário do desafio atual (`stt/prompt.ts`) — opcional, melhora o acerto sem custo extra. */
+  transcrever: (referencia: string, prompt?: string) => Promise<string>;
   /**
    * Linha técnica da última tentativa ("áudio 2,4 s · volume 12% · reconheceu em 7,1 s") —
    * mostra se o microfone entregou som e quanto o reconhecimento demorou. `null` antes da primeira.
@@ -65,7 +66,7 @@ export function criarDependenciasDeVoz({
       return referencia;
     },
 
-    async transcrever(referencia) {
+    async transcrever(referencia, prompt) {
       const audio = audios.get(referencia);
       if (!audio) return '';
       audios.delete(referencia);
@@ -85,6 +86,7 @@ export function criarDependenciasDeVoz({
       const inicio = Date.now();
       const texto = await transcreverAudio(
         acolchoarComSilencio(normalizarPico(audio), SILENCIO_NAS_PONTAS_S),
+        prompt ? { prompt } : {},
       );
       const bruto = textoBrutoDoMotor?.();
       const oQueDisse =

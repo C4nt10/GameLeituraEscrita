@@ -1160,6 +1160,28 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       integração, é o teto de acerto do modelo `small` (A-17, agora com o
       primeiro dado real de aparelho). Decisão de produto sobre trocar de
       modelo pendente do dono (ver pergunta feita).
+      > **Corrigido meu próprio erro (2026-09-29):** cheguei a sugerir o
+      modelo `base` como "mais preciso" — é o contrário (tiny < base < small
+      < medium < large). Reli o `research.md` (rodada 13) e achei algo mais
+      barato do que trocar de modelo: dar ao Whisper o vocabulário do
+      nível×tema como `prompt` levou o `small` de 7% pra 71% no spike, quase
+      empatado com `medium` (76%), sem baixar nada a mais — e testado contra
+      falso positivo (pior caso observado: continua não reconhecendo, nunca
+      credita a palavra errada). O parâmetro `vocabularioConhecido` já existia
+      em `avaliacao_leitura` mas **nunca tinha sido ligado ao motor real**.
+      **Feito:** `banco_de_conteudo.vocabularioDaCombinacao` (as palavras do
+      nível×tema do desafio — não a resposta), `stt/prompt.ts`
+      (`montarPromptDeVocabulario`, recusa lista de 1 item de propósito),
+      `prompt` passando por `motor.transcrever` → `stt/index` →
+      `voz_da_rodada` → `TelaLeituraVoz`. 15 testes novos, vistos falhar
+      antes (258 no total). Dono decidiu **"os dois"**: prompt agora,
+      `medium` depois se ainda não bastar — `medium` (~500 MB, vs 190 MB do
+      `small`) fica pra quando houver esse resultado. **Simplificação minha,**
+      **registrada:** o prompt usa só a 1ª classificação do desafio
+      (`desafio.classificacoes?.[0]`) — a tela não recebe o tema exato que o
+      adulto escolheu na configuração, só o do item sorteado; aproximação
+      razoável, não o vocabulário exato de "todas as classificações" quando
+      o adulto escolhe "todas" (D-22). Não executado em aparelho.
 - [x] T113 ⛔ **Resultado**: estrelas (A-22), números, contador de ajuda da
       modalidade, mensagem sempre positiva, aviso de D-40; sem "subir de nível"
       até A-23 ser resolvida.

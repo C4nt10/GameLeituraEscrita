@@ -7,7 +7,9 @@ import {
   MicrofoneNaoAbriuError,
   PermissaoMicrofoneNegadaError,
 } from '../../../services/gravacao/nucleo';
+import { vocabularioDaCombinacao } from '../../../services/banco_de_conteudo';
 import { SemSinalDeMicrofoneError } from '../../../services/stt/audio';
+import { montarPromptDeVocabulario } from '../../../services/stt/prompt';
 import { caixaDaLetra, cor, corModalidade, fonte, raio, tamanho } from '../../../theme/tema';
 import { BarraDoDesafio } from '../../../ui/BarraDoDesafio';
 import { BotaoDeEstimulo } from '../../../ui/BotaoDeEstimulo';
@@ -43,7 +45,8 @@ export interface TelaLeituraVozProps {
   vocabularioConhecido?: Set<string>;
   iniciarGravacao: () => Promise<void>;
   pararGravacao: () => Promise<string>;
-  transcrever: (audioUri: string) => Promise<string>;
+  /** `prompt` é opcional: quem liga escolhe se manda ou não o vocabulário. */
+  transcrever: (audioUri: string, prompt?: string) => Promise<string>;
   onAcerto: () => void;
   onErro: () => void;
   /** D-39 — botão de sair sempre visível, nunca esconde. */
@@ -99,6 +102,11 @@ export function TelaLeituraVoz({
     };
   }, []);
 
+  // Vocabulário do nível×tema do desafio, como dica de contexto pro Whisper — não a resposta sozinha
+  // (`montarPromptDeVocabulario` recusa lista de 1 item; research.md rodada 13).
+  const classificacao = desafio.classificacoes?.[0] ?? null;
+  const prompt = montarPromptDeVocabulario(vocabularioDaCombinacao(desafio.nivel, classificacao));
+
   const acertou = entendido?.certo === true;
   useEffect(() => {
     if (!acertou) return;
@@ -132,7 +140,7 @@ export function TelaLeituraVoz({
     let transcricaoBruta: string;
     try {
       const audioUri = await pararGravacao();
-      transcricaoBruta = await transcrever(audioUri);
+      transcricaoBruta = await transcrever(audioUri, prompt);
     } catch (erro) {
       setEstado('parado');
       setLinhaTecnica(diagnostico?.() ?? null);

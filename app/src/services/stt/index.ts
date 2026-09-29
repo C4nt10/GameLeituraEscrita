@@ -31,6 +31,9 @@ export function ultimoTextoBrutoDoMotor(): string | null {
   return motor.ultimoTextoBruto();
 }
 
-export function transcreverAudio(audio: Float32Array): Promise<string> {
-  return motor.transcrever(audio);
+export function transcreverAudio(
+  audio: Float32Array,
+  opcoes?: Parameters<typeof motor.transcrever>[1],
+): Promise<string> {
+  return motor.transcrever(audio, opcoes);
 }

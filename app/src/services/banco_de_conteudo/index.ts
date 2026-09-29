@@ -96,16 +96,39 @@ export function combinacaoTemConteudoSuficiente(
  * sempre seguro se a combinação passou por
  * `combinacaoTemConteudoSuficiente`).
  */
+/** Itens do nível×classificação (classificação `null` = qualquer uma, incluindo nível 1 sem tema). */
+function elegiveis(
+  nivel: number,
+  classificacao: Classificacao | null,
+  itens: ItemLeitura[],
+): ItemLeitura[] {
+  return itens.filter((item) => {
+    if (item.nivel !== nivel) return false;
+    if (classificacao === null) return true;
+    return item.classificacoes?.includes(classificacao) ?? false;
+  });
+}
+
+/**
+ * Vocabulário do nível×classificação, sem repetir — vira o `prompt` do Whisper
+ * (`services/stt/prompt.ts`), a mesma técnica validada no spike (research.md
+ * rodada 13: `small` de 7% pra 71% de acerto). É o mesmo conjunto de onde
+ * `sortearDesafios` tira os itens da rodada — não é a resposta do desafio
+ * atual, é o domínio inteiro daquele nível×tema.
+ */
+export function vocabularioDaCombinacao(
+  nivel: number,
+  classificacao: Classificacao | null,
+  itens: ItemLeitura[] = itensReais,
+): string[] {
+  return [...new Set(elegiveis(nivel, classificacao, itens).map((item) => item.palavra))];
+}
+
 export function sortearDesafios(
   nivel: number,
   classificacao: Classificacao | null,
   quantidade: number,
   itens: ItemLeitura[] = itensReais,
 ): ItemLeitura[] {
-  const elegiveis = itens.filter((item) => {
-    if (item.nivel !== nivel) return false;
-    if (classificacao === null) return true;
-    return item.classificacoes?.includes(classificacao) ?? false;
-  });
-  return embaralhar(elegiveis).slice(0, quantidade);
+  return embaralhar(elegiveis(nivel, classificacao, itens)).slice(0, quantidade);
 }
