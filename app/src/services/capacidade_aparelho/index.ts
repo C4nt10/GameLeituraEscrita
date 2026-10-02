@@ -17,6 +17,12 @@ import { verificarMotorDeVoz } from '../stt';
 export interface RecursoCapacidade {
   disponivel: boolean;
   motivo: string | null;
+  /**
+   * Presente só quando o motivo tem uma ação de verdade — hoje, baixar o
+   * modelo de voz (D-56). Outros motivos (permissão negada, etc.) não têm
+   * ação: a tela só mostra o texto.
+   */
+  acaoDeBaixar?: { bytes: number };
 }
 
 export interface CapacidadesAparelho {

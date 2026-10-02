@@ -2,16 +2,22 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { DesafioLeitura } from '../../../models/desafio_leitura';
 import { avaliarLeitura } from '../../../services/avaliacao_leitura';
-import { leituraVozDisponivel, verificarCapacidades } from '../../../services/capacidade_aparelho';
+import {
+  leituraVozDisponivel,
+  verificarCapacidades,
+  type RecursoCapacidade,
+} from '../../../services/capacidade_aparelho';
 import {
   MicrofoneNaoAbriuError,
   PermissaoMicrofoneNegadaError,
 } from '../../../services/gravacao/nucleo';
 import { vocabularioDaCombinacao } from '../../../services/banco_de_conteudo';
+import { baixarModeloDeVoz } from '../../../services/stt';
 import { SemSinalDeMicrofoneError } from '../../../services/stt/audio';
 import { montarPromptDeVocabulario } from '../../../services/stt/prompt';
 import { caixaDaLetra, cor, corModalidade, fonte, raio, tamanho } from '../../../theme/tema';
 import { BarraDoDesafio } from '../../../ui/BarraDoDesafio';
+import { Botao } from '../../../ui/Botao';
 import { BotaoDeEstimulo } from '../../../ui/BotaoDeEstimulo';
 import { Icone } from '../../../ui/icones';
 import { TelaBase } from '../../../ui/TelaBase';
@@ -85,22 +91,48 @@ export function TelaLeituraVoz({
   // falha ao gravar/transcrever: mensagem legível, o botão continua pra tentar de novo (Princípio I/III)
   const [mensagemErro, setMensagemErro] = useState<string | null>(null);
   const [linhaTecnica, setLinhaTecnica] = useState<string | null>(null);
-  const [motivoMicrofoneIndisponivel, setMotivoMicrofoneIndisponivel] = useState<string | null>(
-    null,
-  );
+  // `null` = disponível (ou ainda não verificado — mostra o microfone normal, igual sempre foi).
+  const [voz, setVoz] = useState<RecursoCapacidade | null>(null);
+  const [download, setDownload] = useState<
+    | { tipo: 'parado' }
+    | { tipo: 'baixando'; progresso: number }
+    | { tipo: 'falhou'; motivo: string }
+  >({ tipo: 'parado' });
+
+  async function verificarDisponibilidadeDaVoz() {
+    const capacidades = await verificarCapacidades();
+    const resultado = leituraVozDisponivel(capacidades);
+    setVoz(resultado.disponivel ? null : resultado);
+  }
 
   useEffect(() => {
     let cancelado = false;
     verificarCapacidades().then((capacidades) => {
-      const voz = leituraVozDisponivel(capacidades);
-      if (!cancelado && !voz.disponivel) {
-        setMotivoMicrofoneIndisponivel(voz.motivo);
-      }
+      const resultado = leituraVozDisponivel(capacidades);
+      if (!cancelado && !resultado.disponivel) setVoz(resultado);
     });
     return () => {
       cancelado = true;
     };
   }, []);
+
+  // D-56: o download só começa com este toque — nunca sozinho, nunca ao abrir a tela.
+  async function baixarAgora() {
+    setDownload({ tipo: 'baixando', progresso: 0 });
+    try {
+      await baixarModeloDeVoz((fracao) => setDownload({ tipo: 'baixando', progresso: fracao }));
+      setDownload({ tipo: 'parado' });
+      await verificarDisponibilidadeDaVoz();
+    } catch (erro) {
+      setDownload({
+        tipo: 'falhou',
+        motivo:
+          erro instanceof Error
+            ? erro.message
+            : 'Não foi possível baixar agora. Toque para tentar de novo.',
+      });
+    }
+  }
 
   // Vocabulário do nível×tema do desafio, como dica de contexto pro Whisper — não a resposta sozinha
   // (`montarPromptDeVocabulario` recusa lista de 1 item; research.md rodada 13).
@@ -115,7 +147,7 @@ export function TelaLeituraVoz({
   }, [acertou, onAcerto]);
 
   async function alternarGravacao() {
-    if (estado === 'processando' || acertou || motivoMicrofoneIndisponivel !== null) return;
+    if (estado === 'processando' || acertou || voz !== null) return;
 
     setMensagemErro(null);
 
@@ -198,12 +230,44 @@ export function TelaLeituraVoz({
         }
         resposta={
           <>
-            {motivoMicrofoneIndisponivel !== null ? (
-              <View style={estilos.indisponivel} accessibilityLabel={motivoMicrofoneIndisponivel}>
+            {voz !== null ? (
+              <View style={estilos.indisponivel} accessibilityLabel={voz.motivo ?? undefined}>
                 <View style={estilos.microfoneApagado}>
                   <Icone nome="mic" tamanho={64} cor={cor.tinta2} />
                 </View>
-                <Text style={estilos.motivo}>{motivoMicrofoneIndisponivel}</Text>
+
+                {download.tipo === 'baixando' ? (
+                  <>
+                    <Text style={estilos.motivo}>Baixando o reconhecimento de voz…</Text>
+                    <View style={estilos.barraDeProgresso}>
+                      <View
+                        style={[
+                          estilos.barraDeProgressoPreenchida,
+                          { width: `${Math.round(download.progresso * 100)}%` },
+                        ]}
+                      />
+                    </View>
+                    <Text style={estilos.motivo}>{Math.round(download.progresso * 100)}%</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={estilos.motivo}>
+                      {download.tipo === 'falhou' ? download.motivo : voz.motivo}
+                    </Text>
+                    {voz.acaoDeBaixar && (
+                      <Botao
+                        texto={
+                          download.tipo === 'falhou'
+                            ? 'Tentar de novo'
+                            : `Baixar (${Math.round(voz.acaoDeBaixar.bytes / 1_000_000)} MB)`
+                        }
+                        variante="confirmar"
+                        onPress={baixarAgora}
+                        acessibilidade="baixar reconhecimento de voz"
+                      />
+                    )}
+                  </>
+                )}
               </View>
             ) : (
               <>
@@ -281,6 +345,18 @@ const estilos = StyleSheet.create({
     textAlign: 'center',
   },
   indisponivel: { alignItems: 'center', gap: 12, maxWidth: 300 },
+  barraDeProgresso: {
+    width: 220,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: cor.papel2,
+    overflow: 'hidden',
+  },
+  barraDeProgressoPreenchida: {
+    height: '100%',
+    backgroundColor: corModalidade.leituraVoz.base,
+    borderRadius: 5,
+  },
   microfoneApagado: {
     width: 120,
     height: 120,

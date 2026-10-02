@@ -1,4 +1,8 @@
-import { criarMotorStt, ModeloAusenteError, type ContextoWhisper } from '../../services/stt/motor';
+import {
+  criarMotorStt,
+  ModeloNaoBaixadoError,
+  type ContextoWhisper,
+} from '../../services/stt/motor';
 
 function contextoFalso(resultado = ' gato '): ContextoWhisper & { chamadas: unknown[][] } {
   const chamadas: unknown[][] = [];
@@ -18,15 +22,15 @@ describe('stt motor — modelo carregado de verdade, offline (D-44, D-45, FR-025
     expect(await motor.verificar()).toEqual({ disponivel: true, motivo: null });
   });
 
-  it('modelo ausente do app: indisponível, com motivo específico e legível', async () => {
+  it('modelo ainda não baixado (D-56): indisponível, com motivo específico e legível', async () => {
     const motor = criarMotorStt({
       iniciarContexto: async () => {
-        throw new ModeloAusenteError();
+        throw new ModeloNaoBaixadoError();
       },
     });
     const r = await motor.verificar();
     expect(r.disponivel).toBe(false);
-    expect(r.motivo).toBe('O modelo de reconhecimento de voz não está incluído neste app.');
+    expect(r.motivo).toBe('O reconhecimento de voz ainda não foi baixado neste aparelho.');
   });
 
   it('falha ao carregar (motor não roda neste aparelho): indisponível, sem estourar erro', async () => {
@@ -38,6 +42,24 @@ describe('stt motor — modelo carregado de verdade, offline (D-44, D-45, FR-025
     const r = await motor.verificar();
     expect(r.disponivel).toBe(false);
     expect(r.motivo).toBe('Não foi possível iniciar o reconhecimento de voz neste aparelho.');
+  });
+
+  it('reiniciar() limpa o cache: depois de uma falha (ex.: modelo ainda não baixado), uma nova tentativa tenta carregar de novo (D-56)', async () => {
+    let tentativas = 0;
+    const iniciarContexto = jest.fn(async () => {
+      tentativas++;
+      if (tentativas === 1) throw new ModeloNaoBaixadoError();
+      return contextoFalso();
+    });
+    const motor = criarMotorStt({ iniciarContexto });
+
+    expect((await motor.verificar()).disponivel).toBe(false);
+    expect((await motor.verificar()).disponivel).toBe(false); // ainda em cache, não tenta de novo
+    expect(iniciarContexto).toHaveBeenCalledTimes(1);
+
+    motor.reiniciar(); // ex.: logo depois de um download terminar
+    expect((await motor.verificar()).disponivel).toBe(true);
+    expect(iniciarContexto).toHaveBeenCalledTimes(2);
   });
 
   it('carrega o modelo uma vez só, mesmo com várias verificações e transcrições', async () => {
@@ -81,11 +103,11 @@ describe('stt motor — modelo carregado de verdade, offline (D-44, D-45, FR-025
   it('transcrever com o motor indisponível falha com o motivo legível, não com erro interno', async () => {
     const motor = criarMotorStt({
       iniciarContexto: async () => {
-        throw new ModeloAusenteError();
+        throw new ModeloNaoBaixadoError();
       },
     });
     await expect(motor.transcrever(new Float32Array([0.1]))).rejects.toThrow(
-      'O modelo de reconhecimento de voz não está incluído neste app.',
+      'O reconhecimento de voz ainda não foi baixado neste aparelho.',
     );
   });
 });

@@ -40,8 +40,6 @@ yarn-error.*
 /ios
 /android
 
-# modelo de fala (~190 MB): baixado por `npm run baixar-modelo`, nao vai pro git
-assets/modelos/*.bin
-assets/modelos/*.parcial
+# modelo de fala (D-56): baixado pro aparelho no 1o uso, nunca fica no repo nem no APK
 
 dist-android/

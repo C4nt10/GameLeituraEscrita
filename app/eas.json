@@ -7,7 +7,7 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "MODELO_DE_VOZ": "small"
+        "EXPO_PUBLIC_MODELO_DE_VOZ": "small"
       },
       "android": {
         "buildType": "apk"
@@ -16,7 +16,7 @@
     "preview-voz-medium": {
       "distribution": "internal",
       "env": {
-        "MODELO_DE_VOZ": "medium"
+        "EXPO_PUBLIC_MODELO_DE_VOZ": "medium"
       },
       "android": {
         "buildType": "apk"

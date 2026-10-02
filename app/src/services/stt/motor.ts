@@ -21,18 +21,24 @@ export interface ContextoWhisper {
 }
 
 export interface DepsMotor {
-  /** Carrega o modelo e devolve o contexto. Lança `ModeloAusenteError` se o app não traz o modelo. */
+  /** Carrega o modelo e devolve o contexto. Lança `ModeloNaoBaixadoError` se o modelo ainda não está no aparelho. */
   iniciarContexto: () => Promise<ContextoWhisper>;
 }
 
-export class ModeloAusenteError extends Error {
+/**
+ * D-56: o modelo não vem mais embutido no app — é baixado pro aparelho no
+ * primeiro uso (`services/stt/download`). `stt/index.ts` só chama
+ * `iniciarContexto` depois de confirmar que o arquivo já está no aparelho;
+ * esta classe cobre a sobra (arquivo apagado entre a checagem e o uso, por
+ * exemplo) com um motivo que ainda faz sentido pra criança/adulto.
+ */
+export class ModeloNaoBaixadoError extends Error {
   constructor() {
-    super('modelo de reconhecimento de voz ausente');
-    this.name = 'ModeloAusenteError';
+    super('O reconhecimento de voz ainda não foi baixado neste aparelho.');
+    this.name = 'ModeloNaoBaixadoError';
   }
 }
 
-const MOTIVO_MODELO_AUSENTE = 'O modelo de reconhecimento de voz não está incluído neste app.';
 const MOTIVO_FALHA = 'Não foi possível iniciar o reconhecimento de voz neste aparelho.';
 
 /**
@@ -74,6 +80,12 @@ export interface MotorStt {
   transcrever: (audio: Float32Array, opcoes?: OpcoesTranscricao) => Promise<string>;
   /** O que o Whisper respondeu na última transcrição, antes da limpeza — só pra diagnóstico. */
   ultimoTextoBruto: () => string | null;
+  /**
+   * Limpa o cache de carregamento — chamar logo depois que um download termina (D-56): sem isso,
+   * uma `verificar()` chamada antes do download ficaria presa pra sempre no motivo antigo
+   * ("ainda não foi baixado"), mesmo com o arquivo já no aparelho.
+   */
+  reiniciar: () => void;
 }
 
 export interface OpcoesTranscricao {
@@ -90,7 +102,7 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
       carregamento = iniciarContexto().then(
         (contexto) => ({ contexto }),
         (erro: unknown) => ({
-          motivo: erro instanceof ModeloAusenteError ? MOTIVO_MODELO_AUSENTE : MOTIVO_FALHA,
+          motivo: erro instanceof ModeloNaoBaixadoError ? erro.message : MOTIVO_FALHA,
         }),
       );
     }
@@ -106,6 +118,10 @@ export function criarMotorStt({ iniciarContexto }: DepsMotor): MotorStt {
     },
 
     ultimoTextoBruto: () => ultimoBruto,
+
+    reiniciar() {
+      carregamento = null;
+    },
 
     async transcrever(audio, opcoesTranscricao) {
       const carregado = await carregar();

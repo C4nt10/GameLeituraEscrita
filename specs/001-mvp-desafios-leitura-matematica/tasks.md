@@ -1333,37 +1333,63 @@ Achado num build real: o `medium` (514 MB) nunca cabe embutido via `require()`
 de carregar o modelo; a lógica de voz em si (gravação, STT, prompt de
 vocabulário) não muda.
 
-- [ ] T123 ⚠️ [P] Teste: registro dos modelos (`small`/`medium` → arquivo, URL,
+- [x] T123 ⚠️ [P] Teste: registro dos modelos (`small`/`medium` → arquivo, URL,
       bytes) e `modeloConfigurado()` lendo `EXPO_PUBLIC_MODELO_DE_VOZ` (padrão
       `small` se ausente/desconhecido) — faz T124 passar.
-- [ ] T124 Implementar `services/stt/modelos_remotos.ts` (puro, os dois
+      > **Feito (2026-09-30):** `stt_modelos_remotos_test.ts`, 3 casos, visto falhar antes.
+- [x] T124 Implementar `services/stt/modelos_remotos.ts` (puro, os dois
       tamanhos do A-17/D-56, tamanho em bytes confirmado por HEAD request).
-- [ ] T125 ⚠️ [P] Teste: núcleo do download (`services/stt/download/nucleo.ts`)
+      > **Feito:** bytes do `medium-q5_0` (539.212.467) conferidos por range
+      request antes de fixar — é o menor `medium` que existe no repositório
+      oficial, e mesmo assim não coube (ver achado em T109/A-17 e D-56).
+- [x] T125 ⚠️ [P] Teste: núcleo do download (`services/stt/download/nucleo.ts`)
       injetado com fs falso — já existe e do tamanho certo → não baixa de
       novo; baixa com progresso (0→1); tamanho final errado → apaga o
       parcial e lança erro com motivo; limpa arquivo de modelo diferente do
       configurado (um tester trocando de build no mesmo aparelho) — faz T126
       passar.
-- [ ] T126 Implementar o núcleo (T125) + `services/stt/download/index.ts`
+      > **Feito:** `stt_download_test.ts`, 5 casos, vistos falhar antes.
+- [x] T126 Implementar o núcleo (T125) + `services/stt/download/index.ts`
       ligando ao `expo-file-system` de verdade (`createDownloadResumable`,
       pasta persistente, não `cacheDirectory`).
-- [ ] T127 Trocar `services/stt/modelo.ts`: não é mais `require()` de asset —
+      > **Feito:** SDK 57 usa a API nova do `expo-file-system` (`File`/
+      `Directory`/`File.createDownloadTask`, não `createDownloadResumable`
+      — essa é da API legada). `Paths.document` (persistente), baixa pra
+      `.parcial` e só move pro nome final se o tamanho bater.
+- [x] T127 Trocar `services/stt/modelo.ts`: não é mais `require()` de asset —
       lê o caminho do arquivo baixado (T126) e passa `filePath` de verdade
       pro `initWhisper` (hoje é `require()`/id de asset do Metro). Remover
       `assets/modelos/`, `scripts/baixar-modelo.mjs`,
       `eas-build-post-install` do `package.json`.
-- [ ] T128 Estender `capacidade_aparelho`/o motor de voz com os estados novos
+      > **Feito:** `stt/modelo.ts` removido (substituído por
+      `modelos_remotos.ts` + `download/`); `ModeloAusenteError` virou
+      `ModeloNaoBaixadoError` (motivo novo); `motor.ts` ganhou `reiniciar()`
+      pra não ficar preso no motivo antigo depois de um download (testado).
+      `scripts/baixar-modelo.mjs`, `eas-build-post-install` e
+      `assets/modelos/` (`.gitignore`) removidos.
+- [x] T128 Estender `capacidade_aparelho`/o motor de voz com os estados novos
       (`nao_baixado | baixando (progresso) | pronto | falhou`) — `D-44`
       continua valendo, só ganha um motivo acionável em vez de só
       informativo.
-- [ ] T129 ⛔ Tela de Leitura · voz: estado "não baixado" mostra o convite
+      > **Feito:** `RecursoCapacidade` ganhou `acaoDeBaixar?: {bytes}`
+      (opcional, só presente quando o motivo é "baixar"); `verificarMotorDeVoz`
+      (`stt/index.ts`) só CHECA se o arquivo já existe — nunca baixa sozinho.
+- [x] T129 ⛔ Tela de Leitura · voz: estado "não baixado" mostra o convite
       (tamanho em MB) com botão, nunca baixa sozinha; "baixando" mostra
       progresso; "falhou" mostra motivo + tentar de novo; "pronto" é a tela
       de hoje, sem mudança (US1 cenário 12).
-- [ ] T130 `eas.json`: `preview` e `preview-voz-medium` passam
+      > **Feito, NÃO conferido no emulador/aparelho** (o emulador Docker não
+      tem rede configurada pro teste de download, e o whisper.rn não roda no
+      Expo Go): botão "Baixar (N MB)", barra de progresso em %, erro com
+      "Tentar de novo"; depois de baixar, reverifica a disponibilidade
+      sozinho. tsc/eslint/267 testes passam, só a parte visual nova (download)
+      não foi vista rodando.
+- [x] T130 `eas.json`: `preview` e `preview-voz-medium` passam
       `EXPO_PUBLIC_MODELO_DE_VOZ` em vez de `MODELO_DE_VOZ` (agora é lido em
       runtime pelo app, não em build-time pelo script removido em T127).
       Builds devem ficar mais rápidos (sem baixar o modelo inteiro no CI).
+      > **Feito.** `expo-file-system` adicionado como dependência real
+      (`npx expo install`). Build mais rápido: não testado ainda (T131).
 - [ ] T131 Conferência em aparelho real: baixar o `small`, usar Leitura · voz
       offline depois, matar o app no meio do download e abrir de novo,
       tentar sem rede. **Só fecha com T092/T087.**

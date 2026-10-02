@@ -79,18 +79,21 @@ fonética). Detalhe completo em `research.md` §T002.
 
 ## Modelo de fala (Leitura · voz)
 
-O modelo do reconhecimento de fala (`ggml-small-q5_1.bin`, ~190 MB) **não fica
-no git** (passa do limite de 100 MB do GitHub). Pra rodar/buildar localmente:
+**D-56 (2026-09-30):** o modelo **não vai mais embutido no app** — não fica
+no git nem no APK. `services/stt/download` baixa pro armazenamento do
+aparelho na primeira vez que a criança/adulto toca em "baixar" na tela de
+Leitura · voz (achado num build real: o Node/V8 não cria string maior que
+~512 MiB, e o Metro precisa disso pra empacotar um `require()` de asset —
+qualquer modelo acima disso, incluindo o próprio `medium`, nunca coube).
 
-```bash
-cd app
-npm run baixar-modelo
-```
-
-O build do EAS baixa sozinho (`eas-build-post-install`). Sem o arquivo o app
-funciona normalmente — só que "Leitura · voz" aparece desabilitada, com o
-motivo "modelo não incluído" (D-44). `whisper.rn` é módulo nativo: não roda
-no Expo Go, só num build (EAS/prebuild).
+Qual modelo este build baixa é `EXPO_PUBLIC_MODELO_DE_VOZ` (`small` por
+padrão, `~190 MB`; `medium`, `~514 MB`), lido em runtime
+(`services/stt/modelos_remotos.ts`) e definido por perfil em `eas.json`
+(`preview` / `preview-voz-medium`). Sem download nenhum, o app funciona
+normalmente — "Leitura · voz" aparece desabilitada com um motivo acionável
+("toque para baixar", D-44). `whisper.rn` é módulo nativo: não roda no Expo
+Go, só num build (EAS/prebuild) — e o download em si só funciona num
+build real, nunca no Expo Go.
 
 ## Verificação antes de gastar um build no EAS
 
