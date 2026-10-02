@@ -752,3 +752,62 @@ tela seguem `design/`. Resolução de cada pergunta aberta nesse critério:
 | A-34 | Texto secundário (`tinta2`) só sobre `papel`; sobre `papel2` usa `tinta`. Palavra oculta em `tinta2`: `grade` dá 1,2:1 e até `madeiraBorda` dá só 1,78:1 (medido) — nenhuma das duas serve. |
 | A-35 | O mascote está desenhado em SVG no protótipo do dono; o ícone e o splash saem dele. |
 | A-18 | Sem minúscula no MVP (assumido; segue aberta pra depois). |
+
+## 17. Modelo de voz não cabe embutido no APK — baixar no primeiro uso (2026-09-29/30)
+
+### D-56 — o modelo de reconhecimento de voz passa a baixar no primeiro uso, não embutido no APK
+
+**Origem:** build real do modelo `medium` (`ggml-medium-q5_0.bin`, 539.212.467
+bytes) travou toda vez na mesma etapa, com a mesma causa — não era instabilidade
+do EAS. O log mostra o Metro tentando transformar o arquivo do modelo numa
+string, e o Node/V8 recusa: `Cannot create a string longer than 0x1fffffe8
+characters` (≈536.870.888 bytes, ~512 MiB) — um teto físico do runtime, não um
+limite configurável. O `small` (190 MB, já em produção) passa por baixo dele; **nenhuma**
+variante do `medium` passa (a própria `q5_0`, a menor disponível no repositório
+oficial, já excede o teto; `q8_0` e a versão sem quantizar são maiores ainda).
+Ou seja: **qualquer modelo acima de ~512 MB nunca vai caber** embutido via
+`require()`, do jeito que o app carrega hoje — não é questão de tentar nível
+de compressão diferente.
+
+**Decisão:** o modelo de voz deixa de ir dentro do APK (`assets/modelos/`,
+`eas-build-post-install`) e passa a ser **baixado pro armazenamento do
+aparelho na primeira vez que a criança/adulto usa Leitura · voz**, com
+`expo-file-system`, verificado por tamanho exato e cacheado — depois do
+primeiro download, o app volta a funcionar 100% offline (igual já era depois
+de carregado). Isso remove o teto de ~512 MB de vez (vale também se um dia
+quiser testar `large`) e deixa `small`/`medium` comparáveis como builds
+separados sem imprimir o build inteiro de novo a cada teste (`EXPO_PUBLIC_MODELO_DE_VOZ`,
+injetado em tempo de build pelo perfil do `eas.json`, lido em tempo de execução).
+
+**Isso abre uma exceção real a FR-019/Princípio V** ("todo o fluxo roda sem
+rede"): a partir de agora, a **primeira** vez que Leitura · voz é usada num
+aparelho precisa de internet pra baixar o modelo. Nenhuma outra modalidade,
+nem o resto de Leitura · voz depois do primeiro download, precisa de rede —
+e a FR-019 continua valendo pra "o fluxo de geração e avaliação de desafio"
+em si (o download é do **modelo**, não do desafio). Registrado como exceção
+explícita, não como violação silenciosa.
+
+**Regras do download (D-44/D-49 aplicadas ao novo estado):**
+- **Nunca automático/silencioso** — só começa quando a criança ou o adulto
+  toca em "baixar" na tela de Leitura · voz; o app nunca gasta dado móvel
+  sem esse toque.
+- Enquanto não baixado: Leitura · voz continua **desabilitada com motivo**
+  (D-44) — agora um motivo acionável ("toque para baixar", com o tamanho em
+  MB), não só informativo.
+- Baixando: barra/porcentagem visível; dá pra sair da tela sem perder o
+  progresso (download continua, retomável).
+- Falha (sem rede, tamanho final errado): mensagem legível, convite pra
+  tentar de novo — nunca erro genérico (Princípio III).
+- Pronto: funciona exatamente como hoje, offline, até o app ser desinstalado.
+
+**Escopo assumido, não confirmado pelo dono do projeto:** o gatilho manual
+(em vez de, por exemplo, perguntar uma vez e lembrar a resposta, ou baixar
+sozinho em Wi-Fi) é a opção mais conservadora com dado móvel; pode ser
+revisto.
+
+### O que isso abre
+
+| # | Questão | O que falta |
+|---|---|---|
+| **A-36** | Onde exatamente fica o botão/estado de download — só na tela do desafio de Leitura · voz, ou também um atalho na folha do adulto? | Proposta: só na tela do desafio (é onde D-44 já mostra o motivo); revisar depois de testar. |
+| **A-37** | Texto exato do convite pra baixar (tom de jogo, não de instalador de app) | Primeira versão meramente funcional; revisar tom depois. |

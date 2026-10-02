@@ -1326,6 +1326,47 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
 - [x] T121 Sincronizar a Fase 10 no Plane.
       > **Feito (2026-09-26):** issue-mãe "[Design v1] Fase 10" + 26 filhas (T096-T121) no board; token temporário revogado.
 
+## Fase 11 — Modelo de voz baixado no primeiro uso, não embutido (D-56, FR-032, 2026-09-29/30)
+
+Achado num build real: o `medium` (514 MB) nunca cabe embutido via `require()`
+— teto físico do Node/V8 (~512 MiB de string), não flakiness. Troca a forma
+de carregar o modelo; a lógica de voz em si (gravação, STT, prompt de
+vocabulário) não muda.
+
+- [ ] T123 ⚠️ [P] Teste: registro dos modelos (`small`/`medium` → arquivo, URL,
+      bytes) e `modeloConfigurado()` lendo `EXPO_PUBLIC_MODELO_DE_VOZ` (padrão
+      `small` se ausente/desconhecido) — faz T124 passar.
+- [ ] T124 Implementar `services/stt/modelos_remotos.ts` (puro, os dois
+      tamanhos do A-17/D-56, tamanho em bytes confirmado por HEAD request).
+- [ ] T125 ⚠️ [P] Teste: núcleo do download (`services/stt/download/nucleo.ts`)
+      injetado com fs falso — já existe e do tamanho certo → não baixa de
+      novo; baixa com progresso (0→1); tamanho final errado → apaga o
+      parcial e lança erro com motivo; limpa arquivo de modelo diferente do
+      configurado (um tester trocando de build no mesmo aparelho) — faz T126
+      passar.
+- [ ] T126 Implementar o núcleo (T125) + `services/stt/download/index.ts`
+      ligando ao `expo-file-system` de verdade (`createDownloadResumable`,
+      pasta persistente, não `cacheDirectory`).
+- [ ] T127 Trocar `services/stt/modelo.ts`: não é mais `require()` de asset —
+      lê o caminho do arquivo baixado (T126) e passa `filePath` de verdade
+      pro `initWhisper` (hoje é `require()`/id de asset do Metro). Remover
+      `assets/modelos/`, `scripts/baixar-modelo.mjs`,
+      `eas-build-post-install` do `package.json`.
+- [ ] T128 Estender `capacidade_aparelho`/o motor de voz com os estados novos
+      (`nao_baixado | baixando (progresso) | pronto | falhou`) — `D-44`
+      continua valendo, só ganha um motivo acionável em vez de só
+      informativo.
+- [ ] T129 ⛔ Tela de Leitura · voz: estado "não baixado" mostra o convite
+      (tamanho em MB) com botão, nunca baixa sozinha; "baixando" mostra
+      progresso; "falhou" mostra motivo + tentar de novo; "pronto" é a tela
+      de hoje, sem mudança (US1 cenário 12).
+- [ ] T130 `eas.json`: `preview` e `preview-voz-medium` passam
+      `EXPO_PUBLIC_MODELO_DE_VOZ` em vez de `MODELO_DE_VOZ` (agora é lido em
+      runtime pelo app, não em build-time pelo script removido em T127).
+      Builds devem ficar mais rápidos (sem baixar o modelo inteiro no CI).
+- [ ] T131 Conferência em aparelho real: baixar o `small`, usar Leitura · voz
+      offline depois, matar o app no meio do download e abrir de novo,
+      tentar sem rede. **Só fecha com T092/T087.**
 
 ---
 

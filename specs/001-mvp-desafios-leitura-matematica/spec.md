@@ -86,6 +86,12 @@ Repetir uma vez em cada modalidade.
 11. **Given** uma gravação de Leitura · voz em que nada foi captado,
     **When** a transcrição volta vazia, **Then** o app diz que não ouviu e
     convida a tentar de novo, **sem contar tentativa nem erro** (D-49).
+12. **Given** o modelo de reconhecimento de voz ainda não baixado no
+    aparelho, **When** o adulto/criança chega à tela de Leitura · voz,
+    **Then** vê um convite explícito pra baixar (com o tamanho), só começa
+    a baixar depois desse toque, acompanha o progresso, e — se a rede
+    cair no meio — recebe um motivo legível e pode tentar de novo; depois
+    de baixado uma vez, nunca mais pede rede (D-56, FR-032).
 
 ---
 
@@ -411,6 +417,15 @@ combinado nos dois formatos (cooperativo e adversarial).
   nenhuma animação nem loop. **A contagem de erros é a de FR-007/D-06** (toda
   tentativa errada conta) e a resposta errada é limpa (US1 cenário 5); Contas
   não tem contador de ajuda (D-19).
+- **FR-032**: O sistema MUST baixar o modelo de reconhecimento de fala pro
+  armazenamento do aparelho só quando a criança/adulto tocar explicitamente
+  em "baixar" na tela de Leitura · voz (nunca automático, nunca sem toque),
+  MUST mostrar progresso durante o download e MUST tratar falha (sem rede,
+  download incompleto) com mensagem legível e novo convite pra tentar — sem
+  nunca contar como erro da criança (D-56). **Exceção explícita e única a
+  FR-019/Princípio V**: a primeira ativação de Leitura · voz num aparelho
+  exige rede; depois de baixado, volta a ser 100% offline como o resto do
+  app.
 
 ### Key Entities *(include if feature involves data)*
 
