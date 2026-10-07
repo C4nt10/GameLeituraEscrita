@@ -74,11 +74,8 @@ export function TelaInicio({
     [combinacoes, estado.nivelLeitura],
   );
 
-  const modos = modosDoTipo(estado.tipo, {
-    vozDisponivel: leituraVozDisponivel,
-    nivelMatematica: estado.nivelMatematica,
-  });
-  const pronto = podeIniciar(estado, leituraVozDisponivel);
+  const modos = modosDoTipo(estado.tipo, { nivelMatematica: estado.nivelMatematica });
+  const pronto = podeIniciar(estado);
 
   function escolherTipo(tipo: Tipo) {
     setEstado((e) => ({

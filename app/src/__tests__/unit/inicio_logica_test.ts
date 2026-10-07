@@ -34,7 +34,7 @@ describe('tipos da criança — "Misturado" fica travado porque a rodada mista n
 
 describe('modosDoTipo — jeitos de jogar com os nomes da criança (D-51)', () => {
   it('Letras: Ouvir e montar, Ler e montar, Ler em voz alta', () => {
-    const modos = modosDoTipo('leitura', { vozDisponivel: true, nivelMatematica: 1 });
+    const modos = modosDoTipo('leitura', { nivelMatematica: 1 });
     expect(modos.map((m) => m.rotulo)).toEqual([
       'Ouvir e montar',
       'Ler e montar',
@@ -43,36 +43,32 @@ describe('modosDoTipo — jeitos de jogar com os nomes da criança (D-51)', () =
     expect(modos.map((m) => m.id)).toEqual(['ditado', 'leitura_montar', 'leitura_voz']);
   });
 
-  it('Ler em voz alta travada com "chegando logo" enquanto o reconhecimento não está pronto (D-44)', () => {
-    const voz = modosDoTipo('leitura', { vozDisponivel: false, nivelMatematica: 1 }).find(
-      (m) => m.id === 'leitura_voz',
-    );
-    expect(voz).toMatchObject({ disponivel: false, selo: 'chegando logo' });
+  it('Ler em voz alta é sempre selecionável (D-56): "não baixado" é o estado normal da primeira vez, não uma trava — o convite pra baixar mora na tela do desafio, não aqui', () => {
+    const voz = modosDoTipo('leitura', { nivelMatematica: 1 }).find((m) => m.id === 'leitura_voz');
+    expect(voz).toMatchObject({ disponivel: true });
+    expect(voz?.selo).toBeUndefined();
   });
 
-  it('as outras duas de leitura nunca travam por causa da voz', () => {
-    const modos = modosDoTipo('leitura', { vozDisponivel: false, nivelMatematica: 1 });
-    expect(modos.filter((m) => m.disponivel).map((m) => m.id)).toEqual([
-      'ditado',
-      'leitura_montar',
-    ]);
+  it('as três de leitura são sempre selecionáveis', () => {
+    const modos = modosDoTipo('leitura', { nivelMatematica: 1 });
+    expect(modos.every((m) => m.disponivel)).toBe(true);
   });
 
   it('Contas: Conta e Historinha', () => {
-    const modos = modosDoTipo('matematica', { vozDisponivel: false, nivelMatematica: 3 });
+    const modos = modosDoTipo('matematica', { nivelMatematica: 3 });
     expect(modos.map((m) => m.rotulo)).toEqual(['Conta', 'Historinha']);
     expect(modos.every((m) => m.disponivel)).toBe(true);
   });
 
   it('nível 8 (multiplicação) só tem conta: Historinha trava com "só conta" (D-41)', () => {
-    const historinha = modosDoTipo('matematica', { vozDisponivel: false, nivelMatematica: 8 }).find(
+    const historinha = modosDoTipo('matematica', { nivelMatematica: 8 }).find(
       (m) => m.id === 'historinha',
     );
     expect(historinha).toMatchObject({ disponivel: false, selo: 'só conta' });
   });
 
   it('Misturado não tem modos (o tipo está travado)', () => {
-    expect(modosDoTipo('misto', { vozDisponivel: true, nivelMatematica: 1 })).toEqual([]);
+    expect(modosDoTipo('misto', { nivelMatematica: 1 })).toEqual([]);
   });
 });
 
@@ -97,26 +93,26 @@ describe('modoInicial — nunca abre numa modalidade que não funciona (Princíp
 
 describe('podeIniciar', () => {
   it('escolha padrão pode iniciar sem tocar em nada (Princípio VII)', () => {
-    expect(podeIniciar(estado(), true)).toBe(true);
+    expect(podeIniciar(estado())).toBe(true);
   });
 
   it('Misturado nunca inicia', () => {
-    expect(podeIniciar(estado({ tipo: 'misto' }), true)).toBe(false);
+    expect(podeIniciar(estado({ tipo: 'misto' }))).toBe(false);
   });
 
-  it('modo travado não inicia (Ler em voz alta sem motor)', () => {
-    expect(podeIniciar(estado({ modo: 'leitura_voz' }), false)).toBe(false);
+  it('Ler em voz alta sempre inicia (D-56) — o estado de baixar/pronto/falhou mora na tela do desafio', () => {
+    expect(podeIniciar(estado({ modo: 'leitura_voz' }))).toBe(true);
   });
 
   it('dupla exige escolher Juntos ou Disputa — nenhum é padrão implícito (D-31)', () => {
-    expect(podeIniciar(estado({ formato: 'dupla', formatoDupla: null }), true)).toBe(false);
-    expect(podeIniciar(estado({ formato: 'dupla', formatoDupla: 'cooperativo' }), true)).toBe(true);
-    expect(podeIniciar(estado({ formato: 'dupla', formatoDupla: 'adversarial' }), true)).toBe(true);
+    expect(podeIniciar(estado({ formato: 'dupla', formatoDupla: null }))).toBe(false);
+    expect(podeIniciar(estado({ formato: 'dupla', formatoDupla: 'cooperativo' }))).toBe(true);
+    expect(podeIniciar(estado({ formato: 'dupla', formatoDupla: 'adversarial' }))).toBe(true);
   });
 
   it('Historinha no nível 8 não inicia', () => {
     expect(
-      podeIniciar(estado({ tipo: 'matematica', modo: 'historinha', nivelMatematica: 8 }), true),
+      podeIniciar(estado({ tipo: 'matematica', modo: 'historinha', nivelMatematica: 8 })),
     ).toBe(false);
   });
 });

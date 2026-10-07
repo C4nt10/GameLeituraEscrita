@@ -37,10 +37,7 @@ export interface ModoDeJogo {
 /** Multiplicação (nível 8) só existe como conta pura — não há "historinha" dela (D-41). */
 export const NIVEL_MATEMATICA_SO_CONTA = 8;
 
-export function modosDoTipo(
-  tipo: Tipo,
-  contexto: { vozDisponivel: boolean; nivelMatematica: number },
-): ModoDeJogo[] {
+export function modosDoTipo(tipo: Tipo, contexto: { nivelMatematica: number }): ModoDeJogo[] {
   if (tipo === 'leitura') {
     return [
       {
@@ -59,8 +56,12 @@ export function modosDoTipo(
         id: 'leitura_voz',
         rotulo: 'Ler em voz alta',
         descricao: 'lê para o microfone',
-        disponivel: contexto.vozDisponivel,
-        ...(contexto.vozDisponivel ? {} : { selo: 'chegando logo' as const }),
+        // D-56: sempre selecionável. "Não baixado" é o estado normal da
+        // primeira vez, não uma trava — o convite pra baixar (com progresso
+        // e erro) mora na tela do desafio (US1 cenário 12), não aqui. O
+        // "chegando logo" antigo era pra quando o motor nem existia de
+        // verdade no app (D-44); isso já não é mais o caso.
+        disponivel: true,
       },
     ];
   }
@@ -102,11 +103,10 @@ export interface EstadoDoInicio {
   formatoDupla: FormatoDupla | null;
 }
 
-export function podeIniciar(estado: EstadoDoInicio, vozDisponivel: boolean): boolean {
-  const modo = modosDoTipo(estado.tipo, {
-    vozDisponivel,
-    nivelMatematica: estado.nivelMatematica,
-  }).find((m) => m.id === estado.modo);
+export function podeIniciar(estado: EstadoDoInicio): boolean {
+  const modo = modosDoTipo(estado.tipo, { nivelMatematica: estado.nivelMatematica }).find(
+    (m) => m.id === estado.modo,
+  );
   if (!modo || !modo.disponivel) return false;
   // D-31: nenhum formato de dupla é padrão implícito
   if (estado.formato === 'dupla' && estado.formatoDupla === null) return false;

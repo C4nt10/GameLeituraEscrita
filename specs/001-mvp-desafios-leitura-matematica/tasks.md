@@ -1393,6 +1393,20 @@ vocabulário) não muda.
 - [ ] T131 Conferência em aparelho real: baixar o `small`, usar Leitura · voz
       offline depois, matar o app no meio do download e abrir de novo,
       tentar sem rede. **Só fecha com T092/T087.**
+      > **Achado no APK (2026-10-07):** "Ler em voz alta" aparecia travada com
+      "chegando logo" — nem dava pra chegar na tela do convite de baixar.
+      Causa: `screens/inicio/logica.ts` (`modosDoTipo`) ainda travava o tile
+      com o `vozDisponivel` booleano antigo, de antes de D-56 — quando ele
+      significava "o motor nem existe de verdade", e agora significa (quase
+      sempre, na primeira vez) "ainda não baixou", que **devia** ser
+      selecionável. **Corrigido:** "Ler em voz alta" é sempre selecionável
+      (`modosDoTipo`/`podeIniciar` não recebem mais `vozDisponivel` — ele só
+      ficou em `modoInicial`, que decide em qual modo o app abre sozinho, não
+      se o tile pode ser tocado); o estado (baixar/baixando/pronto/falhou)
+      mora só na tela do desafio, como a spec já dizia (US1 cenário 12). 2
+      testes trocados pra refletir a regra nova, 267 no total. Não visto no
+      emulador/aparelho ainda — só conferido pela regra de desabilitar do
+      componente (`disabled={!modo.disponivel}`).
 
 ---
 
