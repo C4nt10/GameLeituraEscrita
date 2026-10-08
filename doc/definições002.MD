@@ -812,3 +812,47 @@ revisto.
 | **A-36** | Onde exatamente fica o botão/estado de download — só na tela do desafio de Leitura · voz, ou também um atalho na folha do adulto? | Proposta: só na tela do desafio (é onde D-44 já mostra o motivo); revisar depois de testar. |
 | **A-37** | Texto exato do convite pra baixar (tom de jogo, não de instalador de app) | Primeira versão meramente funcional; revisar tom depois. |
 | **A-38** | Eliminação de ruído de fundo em Leitura · voz (pergunta do dono, 2026-10-07). Hoje o áudio chega ao Whisper sem nenhum tratamento. Três caminhos avaliados: (1) trocar a captura pra `VOICE_COMMUNICATION` + `NoiseSuppressor` nativo do Android (módulo pequeno, complexidade baixa-média, nem todo aparelho tem); (2) subtração espectral em JS puro (complexidade média, só ajuda ruído constante); (3) supressor por IA, tipo RNNoise/DTLN (módulo nativo novo, complexidade alta, comparável ao spike do `whisper.rn`). **Nenhum resolve bem o caso descrito — outra pessoa conversando ao fundo**, que é separação de fontes/diarização, problema mais difícil. | **Em espera, por decisão do dono (2026-10-07).** Não iniciar sem pedido explícito. |
+
+## 18. "Misturado" — a rodada mista passa a existir de verdade (D-57, 2026-10-07)
+
+### D-57 — leitura e matemática intercaladas numa só rodada, com dois resultados separados
+
+**Origem:** `tipo: "misto"` existe desde o `doc/definições001.MD` original e
+`data-model.md` ("rodadas.tipo") — mas nunca ganhou mecânica: ficou travado
+com "chegando logo" (A-26) porque a rodada mista nunca foi construída.
+**Nenhuma spec anterior detalha como ela deveria funcionar por baixo** —
+esta seção é a primeira vez que isso é decidido.
+
+**Decisão do dono (2026-10-07), resposta à pergunta de arquitetura:** o
+resultado da rodada mista fica em **duas notas separadas** — uma pra leitura,
+uma pra matemática — não uma nota única combinando as duas. Implementação:
+
+- A rodada **intercala** desafios de leitura e de matemática numa sequência
+  só, que a criança joga do início ao fim sem perceber "duas rodadas".
+- Por baixo, dois acumuladores independentes (acertos/erros/ajuda de leitura;
+  acertos/erros de matemática) geram **dois `RegistroHistorico` normais** ao
+  final — exatamente o mesmo formato que uma rodada solo de leitura ou de
+  matemática já produz. **Nenhuma mudança de schema.** Reaproveita a mesma
+  ideia estrutural da Dupla (um "round" compõe duas sequências independentes
+  por baixo), só que aqui as duas sequências são de **tipos de desafio**
+  intercalados, não de **perfis** em sequência.
+- **D-20 continua valendo**: os dois resultados nunca se misturam numa
+  estrela só; aparecem como duas colunas no fim (mesma ideia visual da
+  `TelaResultadoCombinado` da Dupla, com os ícones/cores de Ouvir e montar e
+  de Conta no lugar das bolhas de perfil) e cada um vai pra sua aba de sempre
+  no histórico — nenhuma mudança lá também.
+- `tamanho` (3/5/8) continua sendo o total de desafios da rodada, dividido o
+  mais igual possível entre leitura e matemática (3 → 2+1; 5 → 3+2; 8 → 4+4).
+  A ordem intercala os dois tipos o mais uniforme possível; qual tipo começa
+  é sorteado a cada rodada, pra não ficar sempre igual.
+- Níveis de leitura e matemática continuam **independentes** (D-43) — a
+  rodada mista usa o último nível de cada um, como já é persistido.
+
+**Simplificações assumidas pra caber num MVP, nenhuma confirmada pelo
+dono — revisar se ele pedir mais controle:**
+
+| # | Simplificação | Por quê |
+|---|---|---|
+| **A-39** | A metade de leitura é sempre **Ouvir e montar** (Ditado) e a de matemática é sempre **Conta pura** — sem seletor de modalidade/tema pro Misturado no MVP. | Evita construir um seletor duplo novo (modo de leitura + forma de matemática) sem desenho nem pedido específico; Ouvir e montar e Conta pura são os dois "mais simples" de cada lado (Princípio VII). Fácil de abrir depois — a arquitetura intercalada não muda. |
+| **A-40** | Misturado **não funciona em dupla** no MVP — só "Sozinho"; a folha do adulto esconde "Quem joga" quando o tipo é Misturado. | Combinar intercalação com passar-o-aparelho-entre-crianças é uma segunda camada de complexidade; fica pra depois se pedido. |
+| **A-41** | A tela de resultado mostra os dois níveis sugeridos (D-40) independentes, um por coluna, quando cada lado teve 2+ erros. | Consistente com D-43 (níveis independentes) e com a Dupla (cada perfil já sugere nível próprio). |

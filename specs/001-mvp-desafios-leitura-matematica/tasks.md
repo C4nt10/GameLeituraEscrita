@@ -1433,6 +1433,44 @@ vocabulário) não muda.
       emulador/aparelho ainda — só conferido pela regra de desabilitar do
       componente (`disabled={!modo.disponivel}`).
 
+## Fase 12 — "Misturado": leitura e matemática intercaladas (D-57, FR-033, 2026-10-07)
+
+`tipo: "misto"` existe desde o início (`doc/definições001.MD`,
+`data-model.md`) mas nunca ganhou mecânica — ficava travado com "chegando
+logo" (A-26). Decisão de arquitetura do dono: **dois resultados separados**,
+nunca um combinado (D-20) — ver D-57, doc002 §18. MVP simplificado:
+Ouvir e montar + Conta pura fixos (A-39), sem "Em dupla" (A-40).
+
+- [ ] T132 ⚠️ [P] Teste: intercalar duas listas o mais uniforme possível,
+      com o tipo que começa sorteado (`services/rodada_mista/intercalar.ts`)
+      — tamanhos desiguais, listas vazias, ordem determinística dado o sorteio
+      — faz T133 passar.
+- [ ] T133 Implementar `intercalarMisto` (puro).
+- [ ] T134 ⚠️ [P] Teste: `screens/inicio/logica.ts` — "misto" vira
+      selecionável (`TIPOS_DA_CRIANCA`), `podeIniciar` não trava mais nele
+      (hoje trava sempre, porque `modosDoTipo('misto', ...)` devolve `[]` e
+      `podeIniciar` procura um modo que não existe), `escolhaParaRodada`
+      monta a escolha com os dois níveis independentes — faz T135 passar.
+- [ ] T135 Liberar "Misturado" em `TIPOS_DA_CRIANCA`/`podeIniciar`; widen
+      `EscolhaRodada` com `nivelMatematica?: number` (só presente quando
+      `tipo === 'misto'`); esconder "Quem joga" na folha do adulto quando o
+      tipo é Misturado (A-40).
+- [ ] T136 ⛔ Orquestrador `RodadaMista` (`screens/rodada_mista`): sorteia os
+      desafios dos dois tipos (nível de leitura/matemática independentes),
+      intercala (T133), acumula dois placares (acertos/erros/ajuda de
+      leitura; acertos/erros de matemática, sem ajuda — D-19), reaproveita
+      `TelaDitado`/`TelaMatematica` sem alteração, grava **dois**
+      `RegistroHistorico` ao final (D-57) — nenhuma mudança de schema.
+- [ ] T137 ⛔ Tela de resultado do Misturado: duas colunas (mesma ideia
+      visual da `TelaResultadoCombinado` da Dupla), uma por tipo, cada uma
+      com sua estrela/precisão/ajuda e sugestão de nível independente
+      (D-40, A-41) — nunca uma nota combinada.
+- [ ] T138 Rota real (`app/misto.tsx`) + ligar no início (`onIniciar`,
+      `app/index.tsx`) quando `tipo === 'misto'`.
+- [ ] T139 Conferência no emulador: tamanhos 3/5/8 intercalando certo, os
+      dois registros aparecem nas abas certas do histórico ("Ouvir e
+      montar" e "Conta"), paisagem.
+
 ---
 
 ## Dependencies & Execution Order

@@ -92,6 +92,13 @@ Repetir uma vez em cada modalidade.
     a baixar depois desse toque, acompanha o progresso, e — se a rede
     cair no meio — recebe um motivo legível e pode tentar de novo; depois
     de baixado uma vez, nunca mais pede rede (D-56, FR-032).
+13. **Given** uma rodada do tipo Misturado, **When** a criança joga do
+    início ao fim, **Then** os desafios de leitura e de matemática
+    aparecem intercalados numa sequência só (sem transição perceptível de
+    "duas rodadas"), e **When** a rodada termina, **Then** a tela mostra
+    dois resultados lado a lado — um de leitura, um de matemática —, cada
+    um com sua própria estrela/precisão/ajuda, nunca uma nota combinando
+    os dois (D-20, D-57, FR-033).
 
 ---
 
@@ -426,6 +433,15 @@ combinado nos dois formatos (cooperativo e adversarial).
   FR-019/Princípio V**: a primeira ativação de Leitura · voz num aparelho
   exige rede; depois de baixado, volta a ser 100% offline como o resto do
   app.
+- **FR-033**: O sistema MUST oferecer o tipo "Misturado" como uma rodada só,
+  intercalando desafios de leitura e de matemática (D-57), com `tamanho`
+  dividido o mais igual possível entre os dois tipos. Ao final, MUST gerar
+  **dois registros de histórico independentes** — um de leitura, um de
+  matemática —, nunca uma nota combinada (D-20), e MUST mostrar os dois
+  resultados lado a lado. Nível de leitura e de matemática permanecem
+  independentes (D-43). No MVP, a metade de leitura usa sempre Ouvir e
+  montar e a de matemática sempre Conta pura (A-39), e o formato "Em dupla"
+  não está disponível pra este tipo (A-40).
 
 ### Key Entities *(include if feature involves data)*
 
