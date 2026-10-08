@@ -784,10 +784,16 @@ dos dois lado a lado, destaque pra quem teve mais").
       está pronto pra essa sessão acontecer (fluxo completo configurar →
       jogar → resultado → histórico, Fases 3-7), incluindo o achado do
       T065 sobre "✕ sair" que essa sessão pode confirmar ou refutar.
+      > **Em andamento (2026-10-07):** dono relata que já está rodando essas
+      sessões com sucesso e aumentando o número de testadores. Ainda sem
+      achados específicos registrados aqui — fica aberta até ter o que
+      anotar contra SC-001 a SC-006 e o achado do T065.
 - [ ] T069 Registrar resultado da sessão de observação e decidir A-06/A-09/
       A-10 remanescentes em `doc/definições003.MD` (consolidação prevista
       em `doc/definições002.MD`). **Bloqueado por T068** — não dá pra
       registrar resultado de uma sessão que ainda não aconteceu.
+      > **2026-10-07:** T068 já em andamento com resultado positivo (ver
+      nota acima); ainda falta um achado concreto pra registrar aqui.
 
 ---
 
@@ -922,7 +928,7 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
       > **Feito (2026-09-26):** services/stt (placeholder honesto: indisponível com motivo) + CapacidadesAparelho.reconhecimentoDeVoz + leituraVozDisponivel(); configuração desabilita o chip com motivo sempre visível, não abre em Leitura · voz se ela não está disponível, e TelaLeituraVoz usa o mesmo gate.
       `capacidade_aparelho` + o gate na configuração (faz T085 passar). É a
       correção **imediata** do defeito do teste: entra antes do motor.
-- [ ] T087 [US1] **Spike de integração do `whisper.rn`** em aparelho real
+- [x] T087 [US1] **Spike de integração do `whisper.rn`** em aparelho real
       > **Parcial (2026-09-26) — a parte que dá pra fazer sem aparelho está feita; a parte que exige aparelho NÃO.** Verificado nos tipos e na documentação do `whisper.rn` 0.7.4: (1) não tem entrada raiz em `exports` — importa-se por `whisper.rn/index`; (2) `transcribeData` espera **float32** e a lib de PCM entrega 16 bits → conversão implementada e testada; (3) o modo realtime do `whisper.rn` não grava sozinho (exige lib de PCM externa) e o `expo-audio` não gera WAV no Android → escolhida `@fugood/react-native-audio-pcm-stream` (não grava arquivo, usa a permissão do `expo-audio`); (4) tamanhos medidos: tiny-q5_1 32 MB, base-q5_1 60 MB, small-q5_1 190 MB — escolhido `small` por ser o único com evidência de acerto (spike, desktop). **Segue sem resposta, só medindo num aparelho:** o `whisper.rn` sobe no SDK 57 / arquitetura nova? latência real? acerto do `small` quantizado? O módulo de PCM (API antiga de NativeModules) funciona na arquitetura nova? Registrado em `research.md`. **Fica aberta até o T092.**
       (build EAS): compila/roda no SDK 57? formato de áudio exigido vs o
       que o `expo-audio` grava (e a conversão, se precisar); tamanho de
@@ -930,27 +936,42 @@ num build sem o motor, a modalidade aparece desabilitada com o motivo.
       `research.md` e decisão de modelo. **Bloqueia T090.** Verificar a
       documentação atual do pacote e do SDK antes de escrever qualquer
       integração — nada disso está verificado neste projeto.
+      > **Fechada (2026-10-07):** dono confirmou, em aparelho real, depois das
+      correções de formato de áudio (PCM16, não float32) e do prompt de
+      vocabulário: "está funcionando bem, um pouco lento mais com uma taxa
+      de acerto boa." Validação **qualitativa**, do dono testando — não
+      instrumentada (sem número de latência em ms nem taxa de acerto em %
+      medida à parte). Fecha junto com T089-T092/T112.
 - [x] T088 [P] [US1] Testes unitários (com fake do motor e do gravador):
       > Testes escritos e verdes: `pcm_audio_test`, `gravacao_test`, `stt_motor_test`, `voz_da_rodada_test`. **Ressalva**: `voz_da_rodada_test` foi escrito junto com a implementação, sem eu observar o vermelho antes; os outros três foram vistos falhar antes. Todos com fakes — o motor e o microfone reais só rodam em aparelho.
       `gravacao` pede permissão ao iniciar, toque inicia/toque para sem
       timeout (D-37), permissão negada vira motivo visível (não erro
       genérico); `stt` devolve texto do motor e trata modelo ausente. (US1
       cenário 10; T026 já cobre "sem permissão")
-- [ ] T089 [US1] Implementar serviço `gravacao` (`expo-audio`) — faz T088
-      > **Código escrito (2026-09-26), NÃO validado em aparelho — por isso segue aberta.** `services/gravacao` (núcleo testável + ligação com a lib nativa de PCM + permissão do `expo-audio`); `TelaLeituraVoz` agora trata erro de gravação/transcrição e silêncio com mensagem legível (D-49). Fecha junto com T092.
+- [x] T089 [US1] Implementar serviço `gravacao` (`expo-audio`) — faz T088
+      > **Código escrito (2026-09-26), validado em aparelho (2026-10-07).** `services/gravacao` (núcleo testável + ligação com a lib nativa de PCM + permissão do `expo-audio`); `TelaLeituraVoz` agora trata erro de gravação/transcrição e silêncio com mensagem legível (D-49).
       passar (parte gravador).
-- [ ] T090 [US1] Implementar serviço `stt` (`whisper.rn`, modelo embarcado,
-      > **Código escrito (2026-09-26), NÃO validado em aparelho — segue aberta.** `services/stt` (núcleo testável + `whisper.rn` real, modelo `small` q5_1 baixado por `npm run baixar-modelo` / hook `eas-build-post-install`, fora do git por causa do limite de 100 MB do GitHub). Se o motor não sobe, reporta indisponível com motivo. Fecha junto com T092.
+- [x] T090 [US1] Implementar serviço `stt` (`whisper.rn`, modelo embarcado,
+      > **Código escrito (2026-09-26), validado em aparelho (2026-10-07).** `services/stt` (núcleo testável + `whisper.rn` real). O modelo não vem mais embarcado — D-56 (2026-09-30) trocou pra baixar no primeiro uso, depois que o `medium` embarcado nunca coube (teto de ~512 MiB de string no Node/V8). Se o motor não sobe ou o modelo não está baixado, reporta indisponível com motivo acionável.
       100% offline) — faz T088 passar (parte motor). **Depende de T087.**
-- [ ] T091 [US1] Trocar os stubs de `iniciarGravacao`/`pararGravacao`/
-      > **Ligado (2026-09-26), NÃO validado — segue aberta.** `/rodada` e `/dupla` usam a voz real. O gate de T086 deixou de ser fixo: agora Leitura · voz só habilita quando `verificarMotorDeVoz` confirma que o modelo carregou de verdade — se o `whisper.rn` não subir no aparelho, a modalidade continua desabilitada com o motivo, sem intervenção. Fecha junto com T092.
+- [x] T091 [US1] Trocar os stubs de `iniciarGravacao`/`pararGravacao`/
+      > **Ligado (2026-09-26), validado em aparelho (2026-10-07).** `/rodada` e `/dupla` usam a voz real. O gate de T086 deixou de ser fixo: agora Leitura · voz só habilita quando `verificarMotorDeVoz` confirma que o modelo carregou de verdade — se o `whisper.rn` não subir no aparelho, a modalidade continua desabilitada com o motivo, sem intervenção.
       `transcrever` na rota `/rodada` pelos serviços reais e **remover o
       gate de T086 somente quando o modelo carregar de verdade**.
-- [ ] T092 [US1] Validar em aparelho real (não no emulador Docker, sem
+- [x] T092 [US1] Validar em aparelho real (não no emulador Docker, sem
       microfone): captura, latência, falso negativo/positivo (SC-003,
       SC-008), com o app em modo avião; registrar em `research.md` e
       alimentar T068. **Não é tarefa de código puro — exige aparelho e
       alguém falando.**
+      > **Fechada (2026-10-07):** dono testou em aparelho real, depois das
+      correções de formato de áudio e do prompt de vocabulário — "está
+      funcionando bem, um pouco lento mais com uma taxa de acerto boa."
+      **Validação qualitativa**, não instrumentada: sem número de latência
+      em ms nem SC-003/SC-008 medidos à parte (quantas vezes aceitou uma
+      palavra errada / rejeitou uma certa). Se precisar do número exato
+      depois, medir fica pendente — por ora a validação do dono fecha a
+      tarefa. Alimenta T068 (sessões de observação, em andamento, dono
+      aumentando o número de testadores).
 
 ### 9d. Rastreamento
 
@@ -1082,10 +1103,14 @@ essa resposta. Cada passo tem que passar em `tsc`, `eslint`, `jest` e
       Historinha (bolinhas verdes) e níveis 2–5/7 no emulador, paisagem,
       TalkBack. O desenho da Historinha continua a bolinha genérica (sem mapa
       nome→ícone; T016/A-35).
-- [ ] T112 **Ler em voz alta**: microfone 150, estados parado/ouvindo/entendeu
+- [x] T112 **Ler em voz alta**: microfone 150, estados parado/ouvindo/entendeu
       certo/entendeu outra (balão amarelo, nunca vermelho) — reusa `gravacao`,
       `stt` e `voz_da_rodada` já escritos; travada com "chegando logo" enquanto
       o motor não carrega (D-44). **Só fecha junto com T092.**
+      > **Fechada (2026-10-07) junto com T092:** dono confirmou funcionando em
+      aparelho real. Também corrigido nessa jornada: tela inicial travava o
+      tile com "chegando logo" mesmo depois do modelo baixado — na verdade
+      era outro bug (D-56/regressão), já corrigido; ver nota em T131.
       > **Código refeito (2026-09-26), continua ABERTA por decisão:** tela nova
       no padrão (quadro turquesa com a palavra, microfone redondo de 150 com
       onda, ícone de parar ao gravar, balão verde se certo e **amarelo se
