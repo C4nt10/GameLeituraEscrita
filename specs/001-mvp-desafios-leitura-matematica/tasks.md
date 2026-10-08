@@ -1432,6 +1432,12 @@ vocabulário) não muda.
       testes trocados pra refletir a regra nova, 267 no total. Não visto no
       emulador/aparelho ainda — só conferido pela regra de desabilitar do
       componente (`disabled={!modo.disponivel}`).
+      > **Visto no emulador (2026-10-07, junto da conferência do T139):**
+      confirmado visualmente — tela de início com "Ler em voz alta"
+      selecionável, sem "chegando logo". Continua faltando a parte de
+      verdade do T131 (baixar o modelo em aparelho real, matar no meio,
+      tentar sem rede) — o emulador Docker não tem rede pro teste de
+      download nem roda o `whisper.rn` (Expo Go).
 
 ## Fase 12 — "Misturado": leitura e matemática intercaladas (D-57, FR-033, 2026-10-07)
 
@@ -1441,35 +1447,77 @@ logo" (A-26). Decisão de arquitetura do dono: **dois resultados separados**,
 nunca um combinado (D-20) — ver D-57, doc002 §18. MVP simplificado:
 Ouvir e montar + Conta pura fixos (A-39), sem "Em dupla" (A-40).
 
-- [ ] T132 ⚠️ [P] Teste: intercalar duas listas o mais uniforme possível,
+- [x] T132 ⚠️ [P] Teste: intercalar duas listas o mais uniforme possível,
       com o tipo que começa sorteado (`services/rodada_mista/intercalar.ts`)
       — tamanhos desiguais, listas vazias, ordem determinística dado o sorteio
       — faz T133 passar.
-- [ ] T133 Implementar `intercalarMisto` (puro).
-- [ ] T134 ⚠️ [P] Teste: `screens/inicio/logica.ts` — "misto" vira
+      > **Feito.** `rodada_mista_intercalar_test.ts`, 6 casos (tamanhos
+      iguais/desiguais, zero de um lado, `comecaLeitura` true/false) —
+      passou de primeira, sem precisar de ajuste no algoritmo.
+- [x] T133 Implementar `intercalarMisto` (puro).
+      > **Feito** como `ordemIntercalada` (nome final, não `intercalarMisto`)
+      em `services/rodada_mista/intercalar.ts` — distribuição tipo Bresenham.
+- [x] T134 ⚠️ [P] Teste: `screens/inicio/logica.ts` — "misto" vira
       selecionável (`TIPOS_DA_CRIANCA`), `podeIniciar` não trava mais nele
       (hoje trava sempre, porque `modosDoTipo('misto', ...)` devolve `[]` e
       `podeIniciar` procura um modo que não existe), `escolhaParaRodada`
       monta a escolha com os dois níveis independentes — faz T135 passar.
-- [ ] T135 Liberar "Misturado" em `TIPOS_DA_CRIANCA`/`podeIniciar`; widen
+      > **Feito.** `inicio_logica_test.ts` ganhou casos de `TIPOS_DA_CRIANCA`
+      (misto disponível), `podeIniciar` (sempre inicia sozinho, nunca em
+      dupla), `resumoDaEscolha` e `escolhaParaRodada` pro tipo misto — 28
+      testes no arquivo, todos passando.
+- [x] T135 Liberar "Misturado" em `TIPOS_DA_CRIANCA`/`podeIniciar`; widen
       `EscolhaRodada` com `nivelMatematica?: number` (só presente quando
       `tipo === 'misto'`); esconder "Quem joga" na folha do adulto quando o
       tipo é Misturado (A-40).
-- [ ] T136 ⛔ Orquestrador `RodadaMista` (`screens/rodada_mista`): sorteia os
+      > **Feito.** `FolhaDoAdulto.tsx` ganhou a flag `ehMisto`: mostra nível
+      de leitura E de matemática juntos, esconde "Quem joga"/"Como
+      jogam"/aviso de dupla. `TelaInicio.tsx` mostra um card estático
+      ("Ouvir e montar + Conta") no lugar do seletor de modo, já que o MVP
+      não tem escolha de modo pro misto (A-39).
+- [x] T136 ⛔ Orquestrador `RodadaMista` (`screens/rodada_mista`): sorteia os
       desafios dos dois tipos (nível de leitura/matemática independentes),
       intercala (T133), acumula dois placares (acertos/erros/ajuda de
       leitura; acertos/erros de matemática, sem ajuda — D-19), reaproveita
       `TelaDitado`/`TelaMatematica` sem alteração, grava **dois**
       `RegistroHistorico` ao final (D-57) — nenhuma mudança de schema.
-- [ ] T137 ⛔ Tela de resultado do Misturado: duas colunas (mesma ideia
+      > **Feito e conferido no emulador (2026-10-07):** joguei uma rodada de
+      tamanho 5 (3 leitura + 2 matemática, `Math.ceil`) de ponta a ponta —
+      intercalação saiu leitura/matemática/leitura/matemática/leitura (o
+      sorteio de `comecaLeitura` caiu em leitura dessa vez), cada tela
+      (`TelaDitado`/`TelaMatematica`) reapareceu sem reaproveitar estado da
+      anterior (`key={indice}` funcionando). Achei e corrigi **antes** de
+      testar um bug de closure obsoleto (`acertosLeitura`/`acertosMatematica`
+      lidos do state em vez de recebidos como parâmetro no fechamento da
+      rodada — mesmo cuidado que `RodadaLeitura`/`RodadaMatematica` já
+      tomavam). Não testado: tamanhos 3 e 8 (só 5, o padrão), sair no meio
+      da rodada (`onSairDaRodada`/D-39), paisagem.
+- [x] T137 ⛔ Tela de resultado do Misturado: duas colunas (mesma ideia
       visual da `TelaResultadoCombinado` da Dupla), uma por tipo, cada uma
       com sua estrela/precisão/ajuda e sugestão de nível independente
       (D-40, A-41) — nunca uma nota combinada.
-- [ ] T138 Rota real (`app/misto.tsx`) + ligar no início (`onIniciar`,
+      > **Feito e conferido no emulador (2026-10-07):** `TelaResultadoMisto`
+      renderizou as duas colunas com os números exatos da rodada jogada (3
+      acertos/4 erros/43%/"ouviu 0" em Letras, 2 acertos/0 erros/100% em
+      Contas) — nenhuma sugestão de nível apareceu porque nível 1 não tem
+      pra onde sugerir descer, não testei o caso com sugestão aparecendo.
+      Só "Jogar de novo"/"Ver histórico", sem opção de dupla (A-40).
+- [x] T138 Rota real (`app/misto.tsx`) + ligar no início (`onIniciar`,
       `app/index.tsx`) quando `tipo === 'misto'`.
-- [ ] T139 Conferência no emulador: tamanhos 3/5/8 intercalando certo, os
+      > **Feito e conferido no emulador** — a navegação `/` → `/misto` →
+      `TelaResultadoMisto` → "Ver histórico" → `/historico` funcionou de
+      ponta a ponta sem erro de rota nem de `tsc` (precisou regenerar
+      `.expo/types/router.d.ts`, que estava desatualizado).
+- [x] T139 Conferência no emulador: tamanhos 3/5/8 intercalando certo, os
       dois registros aparecem nas abas certas do histórico ("Ouvir e
       montar" e "Conta"), paisagem.
+      > **Parcialmente feito (2026-10-07).** Conferido: tamanho 5
+      intercalando certo (ver T136), os dois registros aparecem cada um na
+      aba certa do histórico — "Ouvir e montar" mostrou nível 1/2
+      estrelas/43%/ouviu 0, "Conta" mostrou nível 1/5 estrelas/100%, batendo
+      exatamente com o jogo. **Não conferido:** tamanhos 3 e 8, paisagem —
+      fica como pendência, igual ao resto do app (nenhuma tela foi testada
+      em paisagem até agora).
 
 ---
 

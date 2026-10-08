@@ -69,10 +69,16 @@ export default function Index() {
     if (!configuracao) return;
     void salvarConfiguracao({
       ...configuracao,
-      // nível de leitura e de matemática são independentes (D-43) — salva só o do tipo jogado
+      // nível de leitura e de matemática são independentes (D-43) — salva o(s) do tipo jogado;
+      // misto joga os dois, então salva os dois (D-57).
       ...(escolha.tipo === 'matematica'
         ? { ultimoNivelMatematica: escolha.nivel }
-        : { ultimoNivel: escolha.nivel }),
+        : escolha.tipo === 'misto'
+          ? {
+              ultimoNivel: escolha.nivel,
+              ultimoNivelMatematica: escolha.nivelMatematica ?? configuracao.ultimoNivelMatematica,
+            }
+          : { ultimoNivel: escolha.nivel }),
       ultimasClassificacoes: escolha.classificacao ? [escolha.classificacao] : ['todas'],
       ultimoTamanho: escolha.tamanho,
       ultimaModalidade: escolha.modalidade,
@@ -91,7 +97,15 @@ export default function Index() {
           ? `&classificacao=${escolha.classificacao}`
           : '';
 
-        if (escolha.formato === 'dupla') {
+        if (escolha.tipo === 'misto') {
+          // D-57/A-40: Misturado não joga em dupla — nenhuma checagem de formato aqui.
+          // `nivelMatematica` é opcional no tipo (só os outros tipos não o usam) — `escolhaParaRodada`
+          // sempre preenche pra tipo misto; o `?? 1` é só pra não injetar "undefined" na URL.
+          const nivelMatematica = escolha.nivelMatematica ?? 1;
+          router.push(
+            `/misto?nivelLeitura=${escolha.nivel}&nivelMatematica=${nivelMatematica}&tamanho=${escolha.tamanho}${classificacaoParam}`,
+          );
+        } else if (escolha.formato === 'dupla') {
           router.push(
             `/dupla?tipo=${escolha.tipo}&modalidade=${escolha.modalidade}&formaMatematica=${escolha.formaMatematica}&nivel=${escolha.nivel}&tamanho=${escolha.tamanho}&formatoDupla=${escolha.formatoDupla}${classificacaoParam}`,
           );

@@ -13,10 +13,13 @@ export interface EscolhaRodada {
   modalidade: Modalidade;
   /**
    * Nível **do tipo escolhido**: de matemática (1–8) quando `tipo =
-   * 'matematica'`, de leitura (1–5) nos demais — os dois são independentes
-   * e persistidos separado (D-43).
+   * 'matematica'`, de leitura (1–5) nos demais (inclusive `misto` — aqui
+   * é o nível de leitura) — os dois são independentes e persistidos
+   * separado (D-43).
    */
   nivel: number;
+  /** Só presente quando `tipo === 'misto'` — nível de matemática independente (D-43, D-57). */
+  nivelMatematica?: number;
   /** `null` = "todas" (padrão) ou nível 1 (sem classificação, D-22). */
   classificacao: Classificacao | null;
   formaMatematica: FormaMatematica;

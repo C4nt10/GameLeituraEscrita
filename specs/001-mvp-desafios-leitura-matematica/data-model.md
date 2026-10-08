@@ -66,7 +66,7 @@ do `spec.md`.
 | `forma_matematica` | TEXT, nullable | obrigatório se `tipo` envolve matemática |
 | `nivel` | INTEGER | 1–5 quando `tipo = "leitura"`; 1–8 quando `tipo = "matematica"` (D-41). Registros antigos de matemática (nível 1–5 da grade antiga) ficam como estão — o histórico mostra o nível gravado, sem reinterpretar |
 | `classificacoes` | TEXT (JSON array), nullable | nulo quando `nivel = 1` (D-22) |
-| `tamanho` | INTEGER | 3 \| 5 \| 8 |
+| `tamanho` | INTEGER | 3 \| 5 \| 8 em toda rodada solo/dupla. **D-57 (2026-10-07):** uma rodada Misturada vira **dois** registros (um de leitura, um de matemática — nunca um combinado, D-20); cada um grava o tamanho **da sua metade**, que pode ser qualquer número (ex. 2 e 3, de uma rodada de tamanho 5) — por isso o campo não é mais restrito a 3/5/8 no tipo da aplicação (`RegistroHistorico.tamanho: number`), só na tela, que continua só oferecendo 3/5/8 como configuração |
 | `iniciada_em` | TEXT (ISO 8601) | |
 | `concluida_em` | TEXT, nullable | nulo enquanto em andamento |
 | `concluida` | INTEGER (bool) | `0` até o último desafio ser respondido; rodada abandonada fica `0` para sempre (FR-018 generalizado no edge case do `spec.md`) |

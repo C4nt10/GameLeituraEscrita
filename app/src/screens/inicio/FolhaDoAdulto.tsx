@@ -51,6 +51,7 @@ export function FolhaDoAdulto({
 }: FolhaDoAdultoProps) {
   const insets = useSafeAreaInsets();
   const ehMatematica = estado.tipo === 'matematica';
+  const ehMisto = estado.tipo === 'misto';
 
   return (
     <Modal visible={visivel} transparent animationType="slide" onRequestClose={aoFechar}>
@@ -82,7 +83,9 @@ export function FolhaDoAdulto({
                   />
                 ))}
               </Grupo>
-            ) : (
+            ) : null}
+
+            {ehMatematica || ehMisto ? (
               <Grupo rotulo="Nível de matemática">
                 {NIVEIS_DE_MATEMATICA.map((n) => (
                   <Chip
@@ -93,7 +96,7 @@ export function FolhaDoAdulto({
                   />
                 ))}
               </Grupo>
-            )}
+            ) : null}
 
             {!ehMatematica && temasDoNivel.length > 0 ? (
               <Grupo rotulo="Tema">
@@ -114,7 +117,15 @@ export function FolhaDoAdulto({
               </Grupo>
             ) : null}
 
-            <Grupo rotulo={ehMatematica ? 'Contas por rodada' : 'Palavras por rodada'}>
+            <Grupo
+              rotulo={
+                ehMatematica
+                  ? 'Contas por rodada'
+                  : ehMisto
+                    ? 'Desafios por rodada'
+                    : 'Palavras por rodada'
+              }
+            >
               {TAMANHOS.map((t) => (
                 <Chip
                   key={t}
@@ -125,20 +136,22 @@ export function FolhaDoAdulto({
               ))}
             </Grupo>
 
-            <Grupo rotulo="Quem joga">
-              <Chip
-                rotulo="Sozinho"
-                selecionado={estado.formato === 'sozinho'}
-                onPress={() => alterar({ formato: 'sozinho', formatoDupla: null })}
-              />
-              <Chip
-                rotulo="Em dupla"
-                selecionado={estado.formato === 'dupla'}
-                onPress={() => alterar({ formato: 'dupla' })}
-              />
-            </Grupo>
+            {!ehMisto ? (
+              <Grupo rotulo="Quem joga">
+                <Chip
+                  rotulo="Sozinho"
+                  selecionado={estado.formato === 'sozinho'}
+                  onPress={() => alterar({ formato: 'sozinho', formatoDupla: null })}
+                />
+                <Chip
+                  rotulo="Em dupla"
+                  selecionado={estado.formato === 'dupla'}
+                  onPress={() => alterar({ formato: 'dupla' })}
+                />
+              </Grupo>
+            ) : null}
 
-            {estado.formato === 'dupla' ? (
+            {!ehMisto && estado.formato === 'dupla' ? (
               <Grupo rotulo="Como jogam">
                 <Chip
                   rotulo="Juntos"
@@ -152,7 +165,7 @@ export function FolhaDoAdulto({
                 />
               </Grupo>
             ) : null}
-            {estado.formato === 'dupla' && estado.formatoDupla === null ? (
+            {!ehMisto && estado.formato === 'dupla' && estado.formatoDupla === null ? (
               <Text allowFontScaling={false} style={estilos.pedido}>
                 Escolha Juntos ou Disputa pra poder jogar.
               </Text>

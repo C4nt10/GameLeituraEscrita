@@ -19,11 +19,11 @@ export interface TipoDaCrianca {
   selo?: 'chegando logo';
 }
 
-/** "Misturado" fica travado: a rodada mista não existe (A-26, "nada parece quebrado"). */
+/** Os três tipos jogam de verdade (D-57 — "Misturado" deixou de ser "chegando logo", A-26). */
 export const TIPOS_DA_CRIANCA: TipoDaCrianca[] = [
   { id: 'leitura', rotulo: 'Letras', disponivel: true },
   { id: 'matematica', rotulo: 'Contas', disponivel: true },
-  { id: 'misto', rotulo: 'Misturado', disponivel: false, selo: 'chegando logo' },
+  { id: 'misto', rotulo: 'Misturado', disponivel: true },
 ];
 
 export interface ModoDeJogo {
@@ -104,6 +104,10 @@ export interface EstadoDoInicio {
 }
 
 export function podeIniciar(estado: EstadoDoInicio): boolean {
+  // D-57/A-39: Misturado não tem "modo" pra escolher (é sempre Ouvir e montar + Conta pura) —
+  // e A-40: não funciona em dupla no MVP.
+  if (estado.tipo === 'misto') return estado.formato === 'sozinho';
+
   const modo = modosDoTipo(estado.tipo, { nivelMatematica: estado.nivelMatematica }).find(
     (m) => m.id === estado.modo,
   );
@@ -117,6 +121,9 @@ export function podeIniciar(estado: EstadoDoInicio): boolean {
 export function resumoDaEscolha(estado: EstadoDoInicio): string {
   if (estado.tipo === 'matematica') {
     return `Nível ${estado.nivelMatematica} · ${estado.tamanho} contas`;
+  }
+  if (estado.tipo === 'misto') {
+    return `Nível ${estado.nivelLeitura} leitura · Nível ${estado.nivelMatematica} contas · ${estado.tamanho} desafios`;
   }
   const partes = [`Nível ${estado.nivelLeitura}`];
   if (estado.nivelLeitura >= 2) {
@@ -133,6 +140,21 @@ export function escolhaParaRodada(
   estado: EstadoDoInicio,
   modalidadeSalva: Modalidade,
 ): EscolhaRodada {
+  // D-57/A-39: Misturado é sempre Ouvir e montar + Conta pura, sem seletor; A-40: sempre sozinho.
+  if (estado.tipo === 'misto') {
+    return {
+      tipo: 'misto',
+      modalidade: 'ditado',
+      nivel: estado.nivelLeitura,
+      nivelMatematica: estado.nivelMatematica,
+      classificacao: estado.classificacao,
+      formaMatematica: 'pura',
+      tamanho: estado.tamanho,
+      formato: 'sozinho',
+      formatoDupla: null,
+    };
+  }
+
   const modalidade = MODALIDADES_DE_LEITURA.includes(estado.modo as Modalidade)
     ? (estado.modo as Modalidade)
     : modalidadeSalva;

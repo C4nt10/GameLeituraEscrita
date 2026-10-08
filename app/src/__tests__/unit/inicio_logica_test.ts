@@ -22,12 +22,12 @@ function estado(sobrescrever: Partial<EstadoDoInicio> = {}): EstadoDoInicio {
   };
 }
 
-describe('tipos da criança — "Misturado" fica travado porque a rodada mista não existe (A-26)', () => {
-  it('Letras e Contas jogáveis; Misturado travado com "chegando logo"', () => {
+describe('tipos da criança — "Misturado" agora joga de verdade (D-57, supersede A-26)', () => {
+  it('Letras, Contas e Misturado jogáveis — nenhuma trava com "chegando logo"', () => {
     expect(TIPOS_DA_CRIANCA).toEqual([
       { id: 'leitura', rotulo: 'Letras', disponivel: true },
       { id: 'matematica', rotulo: 'Contas', disponivel: true },
-      { id: 'misto', rotulo: 'Misturado', disponivel: false, selo: 'chegando logo' },
+      { id: 'misto', rotulo: 'Misturado', disponivel: true },
     ]);
   });
 });
@@ -96,8 +96,14 @@ describe('podeIniciar', () => {
     expect(podeIniciar(estado())).toBe(true);
   });
 
-  it('Misturado nunca inicia', () => {
-    expect(podeIniciar(estado({ tipo: 'misto' }))).toBe(false);
+  it('Misturado sempre inicia sozinho (D-57) — não existe "modo" pra escolher, é sempre Ouvir e montar + Conta pura (A-39)', () => {
+    expect(podeIniciar(estado({ tipo: 'misto' }))).toBe(true);
+  });
+
+  it('Misturado não funciona em dupla no MVP (A-40)', () => {
+    expect(
+      podeIniciar(estado({ tipo: 'misto', formato: 'dupla', formatoDupla: 'cooperativo' })),
+    ).toBe(false);
   });
 
   it('Ler em voz alta sempre inicia (D-56) — o estado de baixar/pronto/falhou mora na tela do desafio', () => {
@@ -144,6 +150,12 @@ describe('resumoDaEscolha — texto do início, só pra ler (A-19)', () => {
         estado({ tipo: 'matematica', modo: 'conta', nivelMatematica: 4, tamanho: 5 }),
       ),
     ).toBe('Nível 4 · 5 contas');
+  });
+
+  it('misto mostra os dois níveis, independentes (D-43/D-57)', () => {
+    expect(
+      resumoDaEscolha(estado({ tipo: 'misto', nivelLeitura: 2, nivelMatematica: 4, tamanho: 8 })),
+    ).toBe('Nível 2 leitura · Nível 4 contas · 8 desafios');
   });
 });
 
@@ -199,5 +211,32 @@ describe('escolhaParaRodada — o que o app já entende (nada de comportamento n
         'ditado',
       ),
     ).toMatchObject({ formato: 'dupla', formatoDupla: 'adversarial', tamanho: 8 });
+  });
+
+  it('misto: os dois níveis, Ouvir e montar + Conta pura fixos (A-39), sempre sozinho (A-40)', () => {
+    expect(
+      escolhaParaRodada(
+        estado({
+          tipo: 'misto',
+          nivelLeitura: 3,
+          nivelMatematica: 5,
+          classificacao: 'animais',
+          tamanho: 8,
+          formato: 'dupla',
+          formatoDupla: 'cooperativo',
+        }),
+        'leitura_voz',
+      ),
+    ).toMatchObject({
+      tipo: 'misto',
+      modalidade: 'ditado',
+      formaMatematica: 'pura',
+      nivel: 3,
+      nivelMatematica: 5,
+      classificacao: 'animais',
+      tamanho: 8,
+      formato: 'sozinho',
+      formatoDupla: null,
+    });
   });
 });

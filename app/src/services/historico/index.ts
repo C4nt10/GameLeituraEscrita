@@ -113,7 +113,7 @@ function daLinha(linha: LinhaRodada): RegistroHistorico {
     classificacoes: linha.classificacoes
       ? (JSON.parse(linha.classificacoes) as Classificacao[])
       : null,
-    tamanho: linha.tamanho as 3 | 5 | 8,
+    tamanho: linha.tamanho,
     iniciadaEm: linha.iniciada_em,
     concluidaEm: linha.concluida_em,
     concluida: linha.concluida === 1,

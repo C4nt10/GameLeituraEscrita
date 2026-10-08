@@ -23,7 +23,13 @@ export interface RegistroHistorico {
   nivel: number; // 1-5
   /** Nulo quando `nivel = 1` (D-22 — letra isolada não tem tema). */
   classificacoes: Classificacao[] | null;
-  tamanho: 3 | 5 | 8;
+  /**
+   * 3, 5 ou 8 em toda rodada solo/dupla — as únicas opções que a tela
+   * oferece. Numa metade de rodada Misturada (D-57) é o tamanho **dessa
+   * metade** (ex.: 2 ou 3 numa rodada de tamanho 5), não uma dessas três
+   * opções — por isso o tipo aqui é `number`, não a união restrita.
+   */
+  tamanho: number;
   iniciadaEm: string; // ISO 8601
   /** Nulo enquanto a rodada está em andamento. */
   concluidaEm: string | null;

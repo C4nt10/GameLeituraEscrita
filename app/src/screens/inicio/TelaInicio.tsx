@@ -123,14 +123,26 @@ export function TelaInicio({
   );
   const modosDeJogo = (
     <View style={estilos.modos}>
-      {modos.map((modo) => (
-        <LinhaDeModo
-          key={modo.id}
-          modo={modo}
-          selecionado={estado.modo === modo.id}
-          onPress={() => alterar({ modo: modo.id as IdDoModo })}
-        />
-      ))}
+      {/* D-57/A-39: Misturado não tem "modo" pra escolher — é sempre Ouvir e montar + Conta pura. */}
+      {estado.tipo === 'misto' ? (
+        <View style={estilos.misto}>
+          <Text allowFontScaling={false} style={estilos.mistoTitulo}>
+            Ouvir e montar + Conta
+          </Text>
+          <Text allowFontScaling={false} style={estilos.mistoTexto}>
+            Os desafios de letras e de contas aparecem misturados, numa rodada só.
+          </Text>
+        </View>
+      ) : (
+        modos.map((modo) => (
+          <LinhaDeModo
+            key={modo.id}
+            modo={modo}
+            selecionado={estado.modo === modo.id}
+            onPress={() => alterar({ modo: modo.id as IdDoModo })}
+          />
+        ))
+      )}
     </View>
   );
   const pe = (
@@ -212,6 +224,18 @@ const estilos = StyleSheet.create({
     paddingTop: 8,
   },
   modos: { alignSelf: 'stretch', gap: 8, maxWidth: 520 },
+  misto: {
+    padding: 16,
+    borderRadius: 18,
+    backgroundColor: cor.papel,
+    borderWidth: 3,
+    borderColor: cor.papel2,
+    borderBottomWidth: 6,
+    borderBottomColor: cor.grade,
+    gap: 4,
+  },
+  mistoTitulo: { fontFamily: fonte.displayMedio, fontSize: tamanho.subtitulo, color: cor.tinta },
+  mistoTexto: { fontFamily: fonte.texto, fontSize: tamanho.legenda, color: cor.tinta2 },
   pe: { alignSelf: 'stretch', gap: 6, maxWidth: 520 },
   resumo: {
     alignSelf: 'center',
