@@ -856,3 +856,24 @@ dono — revisar se ele pedir mais controle:**
 | **A-39** | A metade de leitura é sempre **Ouvir e montar** (Ditado) e a de matemática é sempre **Conta pura** — sem seletor de modalidade/tema pro Misturado no MVP. | Evita construir um seletor duplo novo (modo de leitura + forma de matemática) sem desenho nem pedido específico; Ouvir e montar e Conta pura são os dois "mais simples" de cada lado (Princípio VII). Fácil de abrir depois — a arquitetura intercalada não muda. |
 | **A-40** | Misturado **não funciona em dupla** no MVP — só "Sozinho"; a folha do adulto esconde "Quem joga" quando o tipo é Misturado. | Combinar intercalação com passar-o-aparelho-entre-crianças é uma segunda camada de complexidade; fica pra depois se pedido. |
 | **A-41** | A tela de resultado mostra os dois níveis sugeridos (D-40) independentes, um por coluna, quando cada lado teve 2+ erros. | Consistente com D-43 (níveis independentes) e com a Dupla (cada perfil já sugere nível próprio). |
+
+## 19. Termo de Uso e Política de Privacidade — primeiro rascunho (2026-10-09)
+
+**Origem:** pedido do dono (2026-10-09) pra abrir essa frente, até então
+nunca discutida no projeto — só existia um parágrafo técnico de
+"Privacidade" no `README.md`, sem valor como documento legal/de loja.
+
+**O que foi feito:** rascunho de dois documentos em
+[`doc/termo-de-uso.md`](termo-de-uso.md) e
+[`doc/politica-de-privacidade.md`](politica-de-privacidade.md), cobrindo o
+app como ele é hoje: 100% offline por princípio (Princípio V), sem conta,
+sem anúncio, sem coleta de dado — com a única exceção já documentada em
+D-56 (download único e opcional do modelo de voz, sob gatilho explícito do
+adulto). Cada documento tem sua própria seção final de avisos, não é
+redação definitiva.
+
+### O que isso abre
+
+| # | Questão | O que falta |
+|---|---|---|
+| **A-42** | Natureza jurídica do responsável pelo app ("Devir Labs" — pessoa física, MEI, ou empresa com CNPJ?) e se há revisão jurídica planejada antes de publicar na loja. | **Assumido "Devir Labs" como nome do desenvolvedor, sem confirmar personalidade jurídica — não confirmado pelo dono.** Os dois documentos têm uma seção de avisos pedindo essa confirmação e recomendando revisão por advogado, dada a natureza infantil do app. Liga com D-50 (§16 — consulta ao INPI sobre o nome "Letra Viva" antes da loja): se o nome mudar, os dois documentos precisam ser atualizados junto. |
