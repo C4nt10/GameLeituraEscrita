@@ -877,3 +877,32 @@ redação definitiva.
 | # | Questão | O que falta |
 |---|---|---|
 | **A-42** | Natureza jurídica do responsável pelo app ("Devir Labs" — pessoa física, MEI, ou empresa com CNPJ?) e se há revisão jurídica planejada antes de publicar na loja. | **Assumido "Devir Labs" como nome do desenvolvedor, sem confirmar personalidade jurídica — não confirmado pelo dono.** Os dois documentos têm uma seção de avisos pedindo essa confirmação e recomendando revisão por advogado, dada a natureza infantil do app. Liga com D-50 (§16 — consulta ao INPI sobre o nome "Letra Viva" antes da loja): se o nome mudar, os dois documentos precisam ser atualizados junto. |
+
+## 20. Licenciamento do código — proprietário, todos os direitos reservados (D-58, 2026-10-09)
+
+**Origem:** pergunta do dono (2026-10-09) — o repositório é público no
+GitHub, como isso fica documentado? Já era uma pendência antiga, nunca
+fechada: o T003 (`tasks.md`) removeu de propósito o `LICENSE` gerado pelo
+template do Expo (copyright da 650 Industries, errado pro projeto), e o
+`README.md` ficou com "Licença: Ainda não definida" desde o início.
+
+**D-58 — proprietário, todos os direitos reservados.** Repositório público
+no GitHub não significa código livre pra uso — por padrão (direito
+autoral) já significa o contrário, mas isso estava só implícito. Decisão
+do dono: documentar isso por escrito, não deixar ambíguo.
+
+- [`LICENSE`](../LICENSE) na raiz do projeto: aviso de todos os direitos
+  reservados (PT-BR + inglês, pro alcance internacional do GitHub),
+  cobrindo código, conteúdo pedagógico (banco de palavras, problemas de
+  matemática) e demais arquivos — deixa explícito que a visibilidade
+  pública é só transparência de desenvolvimento/portfólio, não licença de
+  uso. Ressalva de que bibliotecas de terceiro (`app/package.json`) seguem
+  cada uma sua própria licença open source — o aviso não se aplica a elas.
+- `README.md` §Licença atualizado, apontando pro `LICENSE`.
+- `app/package.json` ganhou `"license": "UNLICENSED"` (convenção do npm
+  pra "ninguém tem permissão sem autorização"; já tinha `"private": true`).
+
+**Mesma ressalva de A-42**: o titular dos direitos ("Devir Labs") é
+**assumido, não confirmado pelo dono** quanto à natureza jurídica (pessoa
+física, MEI, ou empresa com CNPJ) — revisar junto com os outros dois
+documentos antes de publicar na loja.

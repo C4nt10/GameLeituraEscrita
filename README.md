@@ -202,4 +202,8 @@ correspondente.
 
 ## Licença
 
-Ainda não definida.
+Proprietária — todos os direitos reservados ([`LICENSE`](LICENSE)). O
+repositório é público no GitHub por transparência de desenvolvimento e
+portfólio, mas isso não concede permissão de uso, cópia ou redistribuição
+do código ou do conteúdo pedagógico; as bibliotecas de terceiros em
+`app/package.json` seguem cada uma sua própria licença de código aberto.

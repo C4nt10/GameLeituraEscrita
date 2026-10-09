@@ -1,0 +1,39 @@
+Copyright (c) 2026 Devir Labs. Todos os direitos reservados.
+All rights reserved.
+
+Este repositório (código-fonte, conteúdo pedagógico — banco de palavras e
+problemas de matemática —, textos, design e demais arquivos) é de
+propriedade de Devir Labs. Estar publicamente visível no GitHub serve a
+fins de transparência de desenvolvimento e portfólio; não concede, por si
+só, nenhuma licença de uso.
+
+Fica reservado o direito exclusivo de usar, copiar, modificar, mesclar,
+publicar, distribuir, sublicenciar e/ou vender cópias deste repositório,
+no todo ou em parte. Nenhuma pessoa física ou jurídica tem permissão de
+fazer qualquer uma dessas coisas sem autorização prévia e por escrito do
+titular dos direitos.
+
+This repository (source code, pedagogical content — word bank and math
+problems —, text, design and all other files) is the property of Devir
+Labs. Being publicly visible on GitHub serves development transparency
+and portfolio purposes only; it does not, by itself, grant any license
+to use it.
+
+All rights to use, copy, modify, merge, publish, distribute, sublicense
+and/or sell copies of this repository, in whole or in part, are
+reserved. No person or entity is permitted to do any of the above
+without prior written authorization from the rights holder.
+
+---
+
+Este repositório usa bibliotecas de terceiros (listadas em
+`app/package.json`), cada uma sob sua própria licença de código aberto —
+este aviso não se aplica a elas.
+
+This repository uses third-party libraries (listed in
+`app/package.json`), each under its own open-source license — this
+notice does not apply to them.
+
+---
+
+Contato / Contact: acantidio@gmail.com
